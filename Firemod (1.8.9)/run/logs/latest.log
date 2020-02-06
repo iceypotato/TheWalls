@@ -1,0 +1,72 @@
+[18:13:24] [Client thread/INFO]: Setting user: Player717
+[18:13:28] [Client thread/INFO]: LWJGL Version: 2.9.2
+[18:13:34] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:FireMod
+[18:13:35] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:13:36] [Thread-7/INFO]: Initializing LWJGL OpenAL
+[18:13:36] [Thread-7/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:13:36] [Thread-7/INFO]: OpenAL initialized.
+[18:13:36] [Sound Library Loader/INFO]: Sound engine started
+[18:13:43] [Client thread/INFO]: Created: 16x16 textures-atlas
+[18:13:45] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:FireMod
+[18:13:45] [Client thread/INFO]: SoundSystem shutting down...
+[18:13:45] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
+[18:13:45] [Sound Library Loader/INFO]: Starting up SoundSystem...
+[18:13:45] [Thread-9/INFO]: Initializing LWJGL OpenAL
+[18:13:45] [Thread-9/INFO]: (The LWJGL binding of OpenAL.  For more information, see http://www.lwjgl.org)
+[18:13:45] [Thread-9/INFO]: OpenAL initialized.
+[18:13:46] [Sound Library Loader/INFO]: Sound engine started
+[18:13:52] [Client thread/INFO]: Created: 512x512 textures-atlas
+[18:13:58] [Server thread/INFO]: Starting integrated minecraft server version 1.8.9
+[18:13:58] [Server thread/INFO]: Generating keypair
+[18:13:59] [Server thread/INFO]: Preparing start region for level 0
+[18:14:01] [Server thread/INFO]: Preparing spawn area: 12%
+[18:14:02] [Server thread/INFO]: Preparing spawn area: 12%
+[18:14:03] [Server thread/INFO]: Preparing spawn area: 46%
+[18:14:04] [Server thread/INFO]: Changing view distance to 12, from 10
+[18:14:06] [Server thread/INFO]: Player717[local:E:724e20d3] logged in with entity id 1269 at (145.60390281956018, 94.34803039339405, 302.89018316857914)
+[18:14:06] [Server thread/INFO]: Player717 joined the game
+[18:14:08] [pool-2-thread-1/WARN]: Couldn't look up profile properties for com.mojang.authlib.GameProfile@7109bf61[id=a126324d-4d5f-37d1-a7c2-428b903619ef,name=Player717,properties={},legacy=false]
+com.mojang.authlib.exceptions.AuthenticationException: The client has sent too many requests within a certain amount of time
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:65) ~[YggdrasilAuthenticationService.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:175) [YggdrasilMinecraftSessionService.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:59) [YggdrasilMinecraftSessionService$1.class:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:56) [YggdrasilMinecraftSessionService$1.class:?]
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3524) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2317) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2280) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2195) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache.get(LocalCache.java:3934) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache.getOrLoad(LocalCache.java:3938) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$LocalLoadingCache.get(LocalCache.java:4821) [guava-17.0.jar:?]
+	at com.google.common.cache.LocalCache$LocalLoadingCache.getUnchecked(LocalCache.java:4827) [guava-17.0.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillProfileProperties(YggdrasilMinecraftSessionService.java:165) [YggdrasilMinecraftSessionService.class:?]
+	at net.minecraft.client.Minecraft.func_181037_M(Minecraft.java:2915) [Minecraft.class:?]
+	at net.minecraft.client.resources.SkinManager$3.run(SkinManager.java:130) [SkinManager$3.class:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [?:1.8.0_231]
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) [?:1.8.0_231]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [?:1.8.0_231]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [?:1.8.0_231]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_231]
+[18:14:08] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 4104ms behind, skipping 82 tick(s)
+[18:14:16] [Server thread/INFO]: Saving and pausing game...
+[18:14:16] [Server thread/INFO]: Saving chunks for level 'ads'/Overworld
+[18:14:17] [Server thread/INFO]: Saving chunks for level 'ads'/Nether
+[18:14:17] [Server thread/INFO]: Saving chunks for level 'ads'/The End
+[18:14:32] [Server thread/INFO]: Player717 has just earned the achievement [Taking Inventory]
+[18:14:32] [Client thread/INFO]: [CHAT] Player717 has just earned the achievement [Taking Inventory]
+[18:14:42] [Client thread/INFO]: [CHAT] firemod:RedSword, firemod:RedPickaxe, firemod:RedAxe, firemod:RedIngot, firemod:fucc, firemod:RedShovel
+[18:15:12] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 2028ms behind, skipping 40 tick(s)
+[18:15:29] [Server thread/INFO]: Saving and pausing game...
+[18:15:29] [Server thread/INFO]: Saving chunks for level 'ads'/Overworld
+[18:15:30] [Server thread/INFO]: Saving chunks for level 'ads'/Nether
+[18:15:30] [Server thread/INFO]: Saving chunks for level 'ads'/The End
+[18:15:30] [Server thread/WARN]: Can't keep up! Did the system time change, or is the server overloaded? Running 3818ms behind, skipping 76 tick(s)
+[18:15:38] [Server thread/INFO]: Stopping server
+[18:15:38] [Server thread/INFO]: Saving players
+[18:15:38] [Server thread/INFO]: Saving worlds
+[18:15:38] [Server thread/INFO]: Saving chunks for level 'ads'/Overworld
+[18:15:38] [Server thread/INFO]: Saving chunks for level 'ads'/Nether
+[18:15:38] [Server thread/INFO]: Saving chunks for level 'ads'/The End
+[18:16:03] [Client thread/INFO]: Stopping!
+[18:16:03] [Client thread/INFO]: SoundSystem shutting down...
+[18:16:04] [Client thread/WARN]: Author: Paul Lamb, www.paulscode.com
