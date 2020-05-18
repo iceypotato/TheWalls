@@ -18,11 +18,12 @@ public class ArenaManager {
 	private Location greenSpawn;
 	private Location yellowSpawn;
 	
-	public ArenaManager(String name, int id, boolean inProgress, ArrayList<UUID> playersInGame, Location lobbySpawn) {
+	public ArenaManager(String name, int id, boolean enabled, boolean inProgress, ArrayList<UUID> playersInGame, Location lobbySpawn) {
 		this.setName(name);
 		this.setId(id);
-		this.setInProgress(inProgress);
-		this.setPlayersInGame(playersInGame);
+		this.enabled = enabled;
+		this.inProgress = inProgress;
+		this.playersInGame = playersInGame;
 		this.lobbySpawn = lobbySpawn;
 	}
 
