@@ -1,0 +1,8 @@
+name: WallsMinigame
+version: 1.0
+main: com.icey.walls.MainPluginClass
+description: TheHypixelWallsMinigame
+
+commands:
+    walls:
+        usage: /<command> subcommand
