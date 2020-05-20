@@ -16,6 +16,8 @@ public class Arena {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
+	private ArrayList<Location> buildRegions;
+	private ArrayList<Location> wallRegions;
 	
 	public Arena(String name, boolean enabled, boolean inProgress) {
 		this.name = name;

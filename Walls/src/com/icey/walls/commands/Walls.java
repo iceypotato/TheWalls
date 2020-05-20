@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import com.icey.walls.Arena;
 
 import com.icey.walls.MainPluginClass;
+import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
@@ -58,6 +59,16 @@ public class Walls implements CommandExecutor, TabCompleter {
 							}
 						}
 					}
+					else if (args[1].equalsIgnoreCase("tool")) {
+						if (sender instanceof Player) {
+							WallsTool tool = new WallsTool();
+							Player p = (Player) sender;
+							tool.giveTool(p);
+						}
+						else {
+							sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
+						}
+					}
 				}
 				
 				//Display cmds
@@ -90,12 +101,6 @@ public class Walls implements CommandExecutor, TabCompleter {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		ArrayList<String> tabList = new ArrayList<String>();
-		if (args.length == 1) {
-			tabList.add("help");
-			tabList.add("arena");
-			tabList.add("admin");
-			tabList.add("pooploser");
-		}
 		return tabList;
 	}
 }
