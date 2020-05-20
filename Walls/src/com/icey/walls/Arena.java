@@ -5,10 +5,9 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 
-public class ArenaManager {
+public class Arena {
 	
 	private String name;
-	private int id;
 	private boolean inProgress;
 	private boolean enabled;
 	private ArrayList<UUID> playersInGame;
@@ -18,13 +17,11 @@ public class ArenaManager {
 	private Location greenSpawn;
 	private Location yellowSpawn;
 	
-	public ArenaManager(String name, int id, boolean enabled, boolean inProgress, ArrayList<UUID> playersInGame, Location lobbySpawn) {
-		this.setName(name);
-		this.setId(id);
+	public Arena(String name, boolean enabled, boolean inProgress) {
+		this.name = name;
 		this.enabled = enabled;
 		this.inProgress = inProgress;
-		this.playersInGame = playersInGame;
-		this.lobbySpawn = lobbySpawn;
+		this.playersInGame = new ArrayList<UUID>();
 	}
 
 	public boolean isInProgress() {
@@ -41,14 +38,6 @@ public class ArenaManager {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public ArrayList<UUID> getPlayersInGame() {
