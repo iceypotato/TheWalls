@@ -9,6 +9,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.icey.walls.commands.Walls;
+import com.icey.walls.listeners.WallsTool;
 
 public class MainPluginClass extends JavaPlugin {
 
@@ -20,6 +21,7 @@ public class MainPluginClass extends JavaPlugin {
 	public void onEnable() {
 		getLogger().info("Walls 1.0 has been enabled.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this));
+		getServer().getPluginManager().registerEvents(new WallsTool(), this);
 		loadConfig();
 	}
 	@Override
