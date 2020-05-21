@@ -25,6 +25,19 @@ public class Arena {
 		this.inProgress = inProgress;
 		this.playersInGame = new ArrayList<UUID>();
 	}
+	
+	public void runGame() {
+		
+	}
+	public void waiting() {
+		
+	}
+	public void setup() {
+		
+	}
+	public void pvp() {
+		
+	}
 
 	public boolean isInProgress() {
 		return inProgress;

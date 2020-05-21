@@ -19,6 +19,8 @@ public class WallsTool implements Listener {
 	ItemStack item;
 	ItemMeta meta;
 	Player player;
+	Location region1;
+	Location region2;
 	
 	public WallsTool() {
 		item = new ItemStack(Material.BLAZE_ROD);
@@ -48,17 +50,15 @@ public class WallsTool implements Listener {
 				Location loc = block.getLocation();
 				Action action = event.getAction();
 				if (action == Action.LEFT_CLICK_BLOCK) {
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #1:");
-					player.sendMessage(ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX());
-					player.sendMessage(ChatColor.WHITE + "Y: " + ChatColor.GREEN + loc.getBlockY());
-					player.sendMessage(ChatColor.WHITE + "Z: " + ChatColor.GREEN + loc.getBlockZ());
+					region1 = loc;
+					player.sendMessage(region1.toString());
+					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #1: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 				else if (action == Action.RIGHT_CLICK_BLOCK) {
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #2:");
-					player.sendMessage(ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX());
-					player.sendMessage(ChatColor.WHITE + "Y: " + ChatColor.GREEN + loc.getBlockY());
-					player.sendMessage(ChatColor.WHITE + "Z: " + ChatColor.GREEN + loc.getBlockZ());
+					region2 = loc;
+					player.sendMessage(region2.toString());
+					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #2: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 			}

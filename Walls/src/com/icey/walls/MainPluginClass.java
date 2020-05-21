@@ -20,7 +20,7 @@ public class MainPluginClass extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		getLogger().info("Walls 1.0 has been enabled.");
-		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this));
+		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, new ArenaList()));
 		getServer().getPluginManager().registerEvents(new WallsTool(), this);
 		loadConfig();
 	}

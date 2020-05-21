@@ -13,15 +13,17 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import com.icey.walls.Arena;
-
+import com.icey.walls.ArenaList;
 import com.icey.walls.MainPluginClass;
 import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
+	private ArenaList arenaList;
 
-	public Walls(MainPluginClass mainClass) {
+	public Walls(MainPluginClass mainClass, ArenaList arenaList) {
 		myplugin = mainClass;
+		this.arenaList = arenaList;
 	}
 
 	@Override
@@ -59,6 +61,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 							}
 						}
 					}
+					//walls tool
 					else if (args[1].equalsIgnoreCase("tool")) {
 						if (sender instanceof Player) {
 							WallsTool tool = new WallsTool();
@@ -67,6 +70,18 @@ public class Walls implements CommandExecutor, TabCompleter {
 						}
 						else {
 							sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
+						}
+					}
+					//Specifying an arena
+					else {
+						String name = args[1];
+						myplugin.arenaFolder = new File(myplugin.getDataFolder(), "arenas");
+						myplugin.arenas = new File(myplugin.arenaFolder, name + ".yml");
+						if (myplugin.arenas.exists() == true) {
+							
+						}
+						else {
+							sender.sendMessage(ChatColor.RED + "Arena " + name + " does not exist! Do /walls arena create <arenaname>");
 						}
 					}
 				}
