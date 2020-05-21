@@ -36,9 +36,8 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
-
+			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {
-				
 				if (args.length >= 2) {
 					//Create arena
 					if (args[1].equalsIgnoreCase("create")) {
@@ -101,11 +100,17 @@ public class Walls implements CommandExecutor, TabCompleter {
 					sender.sendMessage("Walls Setup Commands");
 				}
 			}
-
+			
+			
+			
+			
+			//Admin
 			else if (args[0].equalsIgnoreCase("admin")) {
 				sender.sendMessage("Walls Admin Commands");
 			}
-
+			
+			
+			//Reload
 			else if (args[0].equalsIgnoreCase("reload")) {
 				sender.sendMessage(ChatColor.GREEN + "Reloading Config...");
 				myplugin.loadConfig();
