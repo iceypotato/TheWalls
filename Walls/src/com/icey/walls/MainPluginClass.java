@@ -1,11 +1,8 @@
 package com.icey.walls;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.icey.walls.commands.Walls;
@@ -13,14 +10,14 @@ import com.icey.walls.listeners.WallsTool;
 
 public class MainPluginClass extends JavaPlugin {
 
-	public HashMap<String, Arena> arenaManagerHashMap = new HashMap<String, Arena>();
+	public ArenaList arenaMang;
 	public File arenas;
 	public File arenaFolder;
 	
 	@Override
 	public void onEnable() {
 		getLogger().info("Walls 1.0 has been enabled.");
-		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, new ArenaList()));
+		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaMang));
 		getServer().getPluginManager().registerEvents(new WallsTool(), this);
 		loadConfig();
 	}

@@ -31,7 +31,10 @@ public class Walls implements CommandExecutor, TabCompleter {
 		if (args.length > 0) {
 
 			if (args[0].equalsIgnoreCase("help")) {
-				sender.sendMessage(ChatColor.GOLD + "Walls Help Placeholder");
+				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
+				sender.sendMessage(ChatColor.AQUA + "/walls arena" + ChatColor.RESET + " Walls Arena Commands");
+				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
+				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
 
 			else if (args[0].equalsIgnoreCase("arena")) {
@@ -54,7 +57,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 								else {
 									sender.sendMessage("Arena " + name + " Already Exists!");
 								}
-								myplugin.arenaManagerHashMap.put(name, new Arena(name, false, false));
+								arenaList.addArena(new Arena(name, false, false, myplugin.arenas));
 								sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -78,7 +81,14 @@ public class Walls implements CommandExecutor, TabCompleter {
 						myplugin.arenaFolder = new File(myplugin.getDataFolder(), "arenas");
 						myplugin.arenas = new File(myplugin.arenaFolder, name + ".yml");
 						if (myplugin.arenas.exists() == true) {
-							
+							if (args.length >= 3) {
+								if (args[2].equals("lobby")) {
+									
+								}
+							}
+							else {
+								sender.sendMessage("no arena command specified!");
+							}
 						}
 						else {
 							sender.sendMessage(ChatColor.RED + "Arena " + name + " does not exist! Do /walls arena create <arenaname>");
@@ -93,7 +103,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 			}
 
 			else if (args[0].equalsIgnoreCase("admin")) {
-				sender.sendMessage("Poopluser");
+				sender.sendMessage("Walls Admin Commands");
 			}
 
 			else if (args[0].equalsIgnoreCase("reload")) {

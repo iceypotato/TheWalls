@@ -3,10 +3,11 @@ package com.icey.walls;
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public class ArenaList {
 	
-	ArrayList<Arena> arenas;
+	private ArrayList<Arena> arenas; 
 	
 	public ArenaList() {
 		arenas = new ArrayList<Arena>();
@@ -14,6 +15,10 @@ public class ArenaList {
 	
 	public ArrayList<Arena> getArenas() {
 		return arenas;
+	}
+	
+	public void addArena(Arena arena) {
+		arenas.add(arena);
 	}
 	
 	public String toString() {
