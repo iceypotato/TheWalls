@@ -1,6 +1,7 @@
 package com.icey.walls.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +11,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.icey.walls.Arena;
@@ -20,6 +23,10 @@ import com.icey.walls.listeners.WallsTool;
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
 	private ArenaList arenaList;
+	private FileConfiguration arenaConfig;
+	private WallsTool wallsTool;
+	private File arenaFile;
+	private File arenaFolder;
 
 	public Walls(MainPluginClass mainClass, ArenaList arenaList) {
 		myplugin = mainClass;
@@ -36,6 +43,9 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
+			else if (args[0].equalsIgnoreCase("listarenas")) {
+				sender.sendMessage(arenaList.toString());
+			}
 			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {
 				if (args.length >= 2) {
@@ -47,17 +57,18 @@ public class Walls implements CommandExecutor, TabCompleter {
 						else {
 							String name = args[2];
 							try {
-								myplugin.arenaFolder = new File(myplugin.getDataFolder() , "arenas");
-								myplugin.arenas = new File(myplugin.arenaFolder, name + ".yml");
-								if (myplugin.arenas.exists() == false) {
-									myplugin.arenaFolder.mkdirs();
-									myplugin.arenas.createNewFile();
+								arenaFolder = new File(myplugin.getDataFolder() , "arenas");
+								arenaFile = new File(arenaFolder, name + ".yml");
+								if (arenaFile.exists() == false) {
+									arenaFolder.mkdirs();
+									arenaFile.createNewFile();
+									arenaList.addArena(new Arena(name, false, false, arenaFile));
+									sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
 								} 
 								else {
 									sender.sendMessage("Arena " + name + " Already Exists!");
 								}
-								arenaList.addArena(new Arena(name, false, false, myplugin.arenas));
-								sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
+
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -77,12 +88,29 @@ public class Walls implements CommandExecutor, TabCompleter {
 					//Specifying an arena
 					else {
 						String name = args[1];
-						myplugin.arenaFolder = new File(myplugin.getDataFolder(), "arenas");
-						myplugin.arenas = new File(myplugin.arenaFolder, name + ".yml");
-						if (myplugin.arenas.exists() == true) {
+						arenaFolder = new File(myplugin.getDataFolder(), "arenas");
+						arenaFile = new File(arenaFolder, name + ".yml");
+						if (arenaFile.exists() == true) {
 							if (args.length >= 3) {
-								if (args[2].equals("lobby")) {
-									
+								if (args[2].equalsIgnoreCase("lobbyspawn")) {
+									if (myplugin.wallsTool.getRegion1() != null) {
+										arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+										sender.sendMessage(arenaConfig.getCurrentPath());
+										arenaConfig.set("lobbyspawn.world", myplugin.wallsTool.getWorld().toString());
+										arenaConfig.set("lobbyspawn.coordX", myplugin.wallsTool.getRegion1().getBlockX());
+										arenaConfig.set("lobbyspawn.coordY", myplugin.wallsTool.getRegion1().getBlockY());
+										arenaConfig.set("lobbyspawn.coordZ", myplugin.wallsTool.getRegion1().getBlockZ());
+										try {
+											arenaConfig.save(arenaFile);
+										} catch (IOException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									}
+									else {
+										sender.sendMessage(ChatColor.RED + "Select a region first!");
+									}
+
 								}
 							}
 							else {

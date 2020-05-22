@@ -28,12 +28,10 @@ public class Arena {
 		this.enabled = enabled;
 		this.inProgress = inProgress;
 		this.playersInGame = new ArrayList<UUID>();
-
 	}
 	
 	public void runGame() {
 		FileConfiguration arenaConfiguration = YamlConfiguration.loadConfiguration(this.arenaConfiguration);
-		arenaConfiguration.addDefault("spawn", lobbySpawn);
 	}
 	public void waiting() {
 		

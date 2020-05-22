@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +20,7 @@ public class WallsTool implements Listener {
 	ItemStack item;
 	ItemMeta meta;
 	Player player;
+	World world;
 	Location region1;
 	Location region2;
 	
@@ -50,18 +52,31 @@ public class WallsTool implements Listener {
 				Location loc = block.getLocation();
 				Action action = event.getAction();
 				if (action == Action.LEFT_CLICK_BLOCK) {
+					world = block.getWorld();
 					region1 = loc;
-					player.sendMessage(region1.toString());
 					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #1: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 				else if (action == Action.RIGHT_CLICK_BLOCK) {
+					world = block.getWorld();
 					region2 = loc;
-					player.sendMessage(region2.toString());
 					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #2: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 			}
 		}
+	}
+	
+	public World getWorld() {
+		return world;
+	}
+	public void setWorld(World world) {
+		this.world = world;
+	}
+	public Location getRegion1() {
+		return region1;
+	}
+	public void setRegion2(Location region2) {
+		this.region2 = region2;
 	}
 }

@@ -7,6 +7,3 @@ commands:
     walls:
         usage: /<command> subcommand
         description: Walls command for version and setup.
-    jimmy:
-        usage: /<command>
-        description: Jimmy sucks
