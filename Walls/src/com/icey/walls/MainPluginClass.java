@@ -10,16 +10,17 @@ import com.icey.walls.listeners.WallsTool;
 
 public class MainPluginClass extends JavaPlugin {
 
-	public ArenaList arenaMang = new ArenaList();
+	public ArenaManager arenaManager = new ArenaManager(this);
 	public WallsTool wallsTool = new WallsTool();
 	
 	@Override
 	public void onEnable() {
-		getLogger().info("Walls 1.0 has been enabled.");
-		getLogger().info(arenaMang.numArenas() + "arenas loaded.");
-		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaMang));
+		arenaManager.reloadArenas();
+		getLogger().info(arenaManager.numArenas() + " arenas loaded.");
+		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager));
 		getServer().getPluginManager().registerEvents(wallsTool, this);
 		loadConfig();
+		getLogger().info("Walls 1.0 has been enabled.");
 	}
 	@Override
 	public void onDisable() {

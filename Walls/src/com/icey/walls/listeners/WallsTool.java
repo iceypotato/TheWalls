@@ -76,6 +76,9 @@ public class WallsTool implements Listener {
 	public Location getRegion1() {
 		return region1;
 	}
+	public Location getRegion2() {
+		return region2;
+	}
 	public void setRegion2(Location region2) {
 		this.region2 = region2;
 	}

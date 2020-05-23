@@ -1,36 +1,28 @@
 package com.icey.walls.commands;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.icey.walls.Arena;
-import com.icey.walls.ArenaList;
+import com.icey.walls.ArenaManager;
 import com.icey.walls.MainPluginClass;
 import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
-	private ArenaList arenaList;
+	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
 	private WallsTool wallsTool;
-	private File arenaFile;
-	private File arenaFolder;
 
-	public Walls(MainPluginClass mainClass, ArenaList arenaList) {
+	public Walls(MainPluginClass mainClass, ArenaManager arenaManager) {
 		myplugin = mainClass;
-		this.arenaList = arenaList;
+		this.arenaManager = arenaManager;
 	}
 
 	@Override
@@ -44,7 +36,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
 			else if (args[0].equalsIgnoreCase("listarenas")) {
-				sender.sendMessage(arenaList.toString());
+				sender.sendMessage(arenaManager.listArenas());
 			}
 			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {
@@ -56,30 +48,18 @@ public class Walls implements CommandExecutor, TabCompleter {
 						}
 						else {
 							String name = args[2];
-							try {
-								arenaFolder = new File(myplugin.getDataFolder() , "arenas");
-								arenaFile = new File(arenaFolder, name + ".yml");
-								if (arenaFile.exists() == false) {
-									arenaFolder.mkdirs();
-									arenaFile.createNewFile();
-									arenaList.addArena(new Arena(name, false, false, arenaFile));
-									sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
-								} 
-								else {
-									sender.sendMessage("Arena " + name + " Already Exists!");
-								}
-
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
+							int result = arenaManager.createArenaConfig(name);
+							if (result == 1) sender.sendMessage(ChatColor.RED + "Arena " + name + " already exists!");
+							if (result == 0) sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
+							if (result == -1) sender.sendMessage(ChatColor.RED + "An error has occured. Check the console.");
 						}
 					}
 					//walls tool
 					else if (args[1].equalsIgnoreCase("tool")) {
 						if (sender instanceof Player) {
-							WallsTool tool = new WallsTool();
+							wallsTool = new WallsTool();
 							Player p = (Player) sender;
-							tool.giveTool(p);
+							wallsTool.giveTool(p);
 						}
 						else {
 							sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
@@ -88,29 +68,103 @@ public class Walls implements CommandExecutor, TabCompleter {
 					//Specifying an arena
 					else {
 						String name = args[1];
-						arenaFolder = new File(myplugin.getDataFolder(), "arenas");
-						arenaFile = new File(arenaFolder, name + ".yml");
-						if (arenaFile.exists() == true) {
+						arenaConfig = arenaManager.getConfigFile(name);
+						if (arenaConfig != null) {
 							if (args.length >= 3) {
-								if (args[2].equalsIgnoreCase("lobbyspawn")) {
-									if (myplugin.wallsTool.getRegion1() != null) {
-										arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
-										sender.sendMessage(arenaConfig.getCurrentPath());
-										arenaConfig.set("lobbyspawn.world", myplugin.wallsTool.getWorld().toString());
-										arenaConfig.set("lobbyspawn.coordX", myplugin.wallsTool.getRegion1().getBlockX());
-										arenaConfig.set("lobbyspawn.coordY", myplugin.wallsTool.getRegion1().getBlockY());
-										arenaConfig.set("lobbyspawn.coordZ", myplugin.wallsTool.getRegion1().getBlockZ());
-										try {
-											arenaConfig.save(arenaFile);
-										} catch (IOException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
+								if (sender instanceof Player) {
+									if (args[2].equalsIgnoreCase("setlobby")) {
+										if (myplugin.wallsTool.getRegion1() != null) {
+											arenaConfig.set("Spawns.Lobby.World", myplugin.wallsTool.getWorld().getName());
+											arenaConfig.set("Spawns.Lobby.X", myplugin.wallsTool.getRegion1().getBlockX());
+											arenaConfig.set("Spawns.Lobby.Y", myplugin.wallsTool.getRegion1().getBlockY());
+											arenaConfig.set("Spawns.Lobby.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+											arenaManager.saveFile(name, arenaConfig);
+											sender.sendMessage(ChatColor.GOLD + "Lobby spawnpoint set for arena " + ChatColor.AQUA+ name);
+										}
+										else {
+											sender.sendMessage(ChatColor.RED + "Select a region first!");
 										}
 									}
-									else {
-										sender.sendMessage(ChatColor.RED + "Select a region first!");
-									}
+									else if (args[2].equalsIgnoreCase("setblue")) {
+										if (myplugin.wallsTool.getRegion1() != null) {
+											arenaConfig.set("Spawns.Blue.World", myplugin.wallsTool.getWorld().getName());
+											arenaConfig.set("Spawns.Blue.X", myplugin.wallsTool.getRegion1().getBlockX());
+											arenaConfig.set("Spawns.Blue.Y", myplugin.wallsTool.getRegion1().getBlockY());
+											arenaConfig.set("Spawns.Blue.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+											arenaManager.saveFile(name, arenaConfig);
+											sender.sendMessage(ChatColor.BLUE + "Blue Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+										}
+										else {
+											sender.sendMessage(ChatColor.RED + "Select a region first!");
+										}
 
+									}
+									else if (args[2].equalsIgnoreCase("setgreen")) {
+										if (myplugin.wallsTool.getRegion1() != null) {
+											arenaConfig.set("Spawns.Green.world", myplugin.wallsTool.getWorld().getName());
+											arenaConfig.set("Spawns.Green.X", myplugin.wallsTool.getRegion1().getBlockX());
+											arenaConfig.set("Spawns.Green.Y", myplugin.wallsTool.getRegion1().getBlockY());
+											arenaConfig.set("Spawns.Green.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+											arenaManager.saveFile(name, arenaConfig);
+											sender.sendMessage(ChatColor.GREEN + "Green Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+										}
+										else {
+											sender.sendMessage(ChatColor.RED + "Select a region first!");
+										}
+
+									}
+									else if (args[2].equalsIgnoreCase("setred")) {
+										if (myplugin.wallsTool.getRegion1() != null) {
+											arenaConfig.set("Spawns.Red.world", myplugin.wallsTool.getWorld().getName());
+											arenaConfig.set("Spawns.Red.X", myplugin.wallsTool.getRegion1().getBlockX());
+											arenaConfig.set("Spawns.Red.Y", myplugin.wallsTool.getRegion1().getBlockY());
+											arenaConfig.set("Spawns.Red.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+											arenaManager.saveFile(name, arenaConfig);
+											sender.sendMessage(ChatColor.RED + "Red Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+										}
+										else {
+											sender.sendMessage(ChatColor.RED + "Select a region first!");
+										}
+
+									}
+									else if (args[2].equalsIgnoreCase("setyellow")) {
+										if (myplugin.wallsTool.getRegion1() != null) {
+											arenaConfig.set("Spawns.Yellow.world", myplugin.wallsTool.getWorld().getName());
+											arenaConfig.set("Spawns.Yellow.X", myplugin.wallsTool.getRegion1().getBlockX());
+											arenaConfig.set("Spawns.Yellow.Y", myplugin.wallsTool.getRegion1().getBlockY());
+											arenaConfig.set("Spawns.Yellow.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+											arenaManager.saveFile(name, arenaConfig);
+											sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+										}
+										else {
+											sender.sendMessage(ChatColor.RED + "Select a region first!");
+										}
+
+									}
+									else if (args[2].equalsIgnoreCase("addwall")) {
+										if (myplugin.wallsTool.getRegion1() != null && myplugin.wallsTool.getRegion2() != null) {
+											int i = 1;
+											if (arenaConfig.getInt("Regions.Walls." + i) != 0) {
+												i = arenaConfig.getInt("Regions.Walls." + i);
+												arenaConfig.set("Regions.Walls." + i +".R1.X", myplugin.wallsTool.getRegion1().getBlockX());
+												arenaConfig.set("Regions.Walls." + i +".R1.Y", myplugin.wallsTool.getRegion1().getBlockY());
+												arenaConfig.set("Regions.Walls." + i +".R1.Z", myplugin.wallsTool.getRegion1().getBlockZ());
+												arenaConfig.set("Regions.Walls." + i +".R2.X", myplugin.wallsTool.getRegion2().getBlockX());
+												arenaConfig.set("Regions.Walls." + i +".R2.Y", myplugin.wallsTool.getRegion2().getBlockY());
+												arenaConfig.set("Regions.Walls." + i +".R2.Z", myplugin.wallsTool.getRegion2().getBlockZ());
+												arenaManager.saveFile(name, arenaConfig);
+												
+											}
+
+										}
+									}
+									else if (args[2].equalsIgnoreCase("addbuild")) {
+										
+									}
+									
+								}
+								else {
+									sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
 								}
 							}
 							else {
@@ -142,6 +196,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 			else if (args[0].equalsIgnoreCase("reload")) {
 				sender.sendMessage(ChatColor.GREEN + "Reloading Config...");
 				myplugin.loadConfig();
+				myplugin.arenaManager.reloadArenas();
 				sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Walls Config Reloaded!");
 			}
 
