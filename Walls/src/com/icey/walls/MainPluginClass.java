@@ -24,6 +24,7 @@ public class MainPluginClass extends JavaPlugin {
 	}
 	@Override
 	public void onDisable() {
+		arenaManager.stopAllArenas();
 		getLogger().info("Walls 1.0 has been disabled.");
 	}
 	

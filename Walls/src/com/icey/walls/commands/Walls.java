@@ -37,6 +37,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
 				sender.sendMessage(ChatColor.AQUA + "/walls arena" + ChatColor.RESET + " Walls Arena Commands");
+				sender.sendMessage(ChatColor.AQUA + "/walls listarenas" + ChatColor.RESET + " List Arenas");
 				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
@@ -67,7 +68,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 							wallsTool.giveTool(p);
 						}
 						else {
-							sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
+							sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 						}
 					}
 					//Specifying an arena
@@ -78,113 +79,54 @@ public class Walls implements CommandExecutor, TabCompleter {
 							if (args.length >= 3) {
 								if (args[2].equalsIgnoreCase("info")) {
 									sender.sendMessage(arenaManager.getArena(name).listSpawns());
-									sender.sendMessage(arenaManager.getArena(name).listWallRegions());
+									sender.sendMessage(arenaManager.getArena(name).listRegions());
+								}
+								else if (args[2].equalsIgnoreCase("stop")){
+									arenaManager.getArena(name).stopGame();
 								}
 								else if (sender instanceof Player) {
 									Player player = (Player) sender;
 									if (args[2].equalsIgnoreCase("setlobby")) {
-										arenaConfig.set("Spawns.Lobby.world", player.getWorld().getName());
-										arenaConfig.set("Spawns.Lobby.x", player.getLocation().getBlockX());
-										arenaConfig.set("Spawns.Lobby.y", player.getLocation().getBlockY());
-										arenaConfig.set("Spawns.Lobby.z", player.getLocation().getBlockZ());
-										arenaConfig.set("Spawns.Lobby.yaw", player.getLocation().getYaw());
-										arenaConfig.set("Spawns.Lobby.pitch", player.getLocation().getPitch());
-										arenaManager.saveFile(name, arenaConfig);
+										arenaManager.writeSpawns(name, "Lobby", player);
 										sender.sendMessage(ChatColor.GOLD + "Lobby spawnpoint set for arena " + ChatColor.AQUA+ name);
 									}
 									else if (args[2].equalsIgnoreCase("setblue")) {
-										arenaConfig.set("Spawns.Blue.world", player.getWorld().getName());
-										arenaConfig.set("Spawns.Blue.x", player.getLocation().getBlockX());
-										arenaConfig.set("Spawns.Blue.y", player.getLocation().getBlockY());
-										arenaConfig.set("Spawns.Blue.z", player.getLocation().getBlockZ());
-										arenaConfig.set("Spawns.Blue.yaw", player.getLocation().getYaw());
-										arenaConfig.set("Spawns.Blue.pitch", player.getLocation().getPitch());
-										arenaManager.saveFile(name, arenaConfig);
+										arenaManager.writeSpawns(name, "Blue", player);
 										sender.sendMessage(ChatColor.BLUE + "Blue Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
 									}
 									else if (args[2].equalsIgnoreCase("setgreen")) {
-										arenaConfig.set("Spawns.Green.world", player.getWorld().getName());
-										arenaConfig.set("Spawns.Green.x", player.getLocation().getBlockX());
-										arenaConfig.set("Spawns.Green.y", player.getLocation().getBlockY());
-										arenaConfig.set("Spawns.Green.z", player.getLocation().getBlockZ());
-										arenaConfig.set("Spawns.Green.yaw", player.getLocation().getYaw());
-										arenaConfig.set("Spawns.Green.pitch", player.getLocation().getPitch());
-										arenaManager.saveFile(name, arenaConfig);
+										arenaManager.writeSpawns(name, "Green", player);
 										sender.sendMessage(ChatColor.GREEN + "Green Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
 									}
 									else if (args[2].equalsIgnoreCase("setred")) {
-										arenaConfig.set("Spawns.Red.world", player.getWorld().getName());
-										arenaConfig.set("Spawns.Red.x", player.getLocation().getBlockX());
-										arenaConfig.set("Spawns.Red.y", player.getLocation().getBlockY());
-										arenaConfig.set("Spawns.Red.z", player.getLocation().getBlockZ());
-										arenaConfig.set("Spawns.Red.yaw", player.getLocation().getYaw());
-										arenaConfig.set("Spawns.Red.pitch", player.getLocation().getPitch());
-										arenaManager.saveFile(name, arenaConfig);
+										arenaManager.writeSpawns(name, "Red", player);
 										sender.sendMessage(ChatColor.RED + "Red Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
 									}
 									else if (args[2].equalsIgnoreCase("setyellow")) {
-										arenaConfig.set("Spawns.Yellow.world", player.getWorld().getName());
-										arenaConfig.set("Spawns.Yellow.x", player.getLocation().getBlockX());
-										arenaConfig.set("Spawns.Yellow.y", player.getLocation().getBlockY());
-										arenaConfig.set("Spawns.Yellow.z", player.getLocation().getBlockZ());
-										arenaConfig.set("Spawns.Yellow.yaw", player.getLocation().getYaw());
-										arenaConfig.set("Spawns.Yellow.pitch", player.getLocation().getPitch());
-										arenaManager.saveFile(name, arenaConfig);
+										arenaManager.writeSpawns(name, "Yellow", player);
 										sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
 									}
 									else if (args[2].equalsIgnoreCase("addwall")) {
-										if (wallsTool.getRegion1() != null && wallsTool.getRegion2() != null) {
-											int i = 1;
-											sender.sendMessage(arenaConfig.getConfigurationSection("Regions.Walls").getKeys(false).toArray().length + "");
-											while (!arenaConfig.getString("Regions.Walls." + i).equals("")) {
-												if (arenaConfig.getString("Regions.Walls." + (i+1)) == null) {
-													i++;
-													break;
-												}
-												i++;
-											}
-											sender.sendMessage(i + "");
-											arenaConfig.set("Regions.Walls." + i + ".world", wallsTool.getWorld().getName());
-											arenaConfig.set("Regions.Walls." + i + ".R1.x", wallsTool.getRegion1().getBlockX());
-											arenaConfig.set("Regions.Walls." + i + ".R1.y", wallsTool.getRegion1().getBlockY());
-											arenaConfig.set("Regions.Walls." + i + ".R1.z", wallsTool.getRegion1().getBlockZ());
-											arenaConfig.set("Regions.Walls." + i + ".R2.x", wallsTool.getRegion2().getBlockX());
-											arenaConfig.set("Regions.Walls." + i + ".R2.y", wallsTool.getRegion2().getBlockY());
-											arenaConfig.set("Regions.Walls." + i + ".R2.z", wallsTool.getRegion2().getBlockZ());
-											arenaManager.saveFile(name, arenaConfig);
-											sender.sendMessage("wall added for " + name);
-
+										if (wallsTool.getPos1() == null || wallsTool.getPos1() == null) {
+											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
 										}
 										else {
-											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
+											arenaManager.writeRegions(name, "Walls", player, wallsTool);
+											sender.sendMessage("wall added for " + name);
 										}
 									}
 									else if (args[2].equalsIgnoreCase("addbuild")) {
-										if (wallsTool.getRegion1() != null && wallsTool.getRegion2() != null) {
-											int i = 1;
-											sender.sendMessage(arenaConfig.getConfigurationSection("Regions.Walls").getKeys(false).toArray().length + "");
-											while (!arenaConfig.getString("Regions.Walls." + i).equals("")) {
-												if (arenaConfig.getString("Regions.Walls." + (i+1)) == null) {
-													i++;
-													break;
-												}
-												i++;
-											}
-											sender.sendMessage(i + "");
-											arenaConfig.set("Regions.Build." + i + ".R1.x", wallsTool.getRegion1().getBlockX());
-											arenaConfig.set("Regions.Build." + i + ".R1.y", wallsTool.getRegion1().getBlockY());
-											arenaConfig.set("Regions.Build." + i + ".R1.z", wallsTool.getRegion1().getBlockZ());
-											arenaConfig.set("Regions.Build." + i + ".R2.x", wallsTool.getRegion2().getBlockX());
-											arenaConfig.set("Regions.Build." + i + ".R2.y", wallsTool.getRegion2().getBlockY());
-											arenaConfig.set("Regions.Build." + i + ".R2.z", wallsTool.getRegion2().getBlockZ());
-											arenaManager.saveFile(name, arenaConfig);
-											sender.sendMessage("wall added for " + name);
-
+										if (wallsTool.getPos2() == null || wallsTool.getPos2() == null) {
+											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
+										}
+										else {
+											arenaManager.writeRegions(name, "Build", player, wallsTool);
+											sender.sendMessage("Build region added for " + name);
 										}
 									}
 								}
 								else {
-									sender.sendMessage(ChatColor.RED + "You must be a player to do this!");
+									sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 								}
 							}
 							else {

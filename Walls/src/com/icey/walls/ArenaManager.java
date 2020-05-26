@@ -9,6 +9,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+
+import com.icey.walls.listeners.Arena;
+import com.icey.walls.listeners.WallsTool;
 
 public class ArenaManager {
 
@@ -56,16 +60,19 @@ public class ArenaManager {
 				configFile.createNewFile();
 				addArena(new Arena(name, false, false, configFile, plugin));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
+				dataConfig.set("Settings.enabled", false);
+				dataConfig.set("Settings.waiting-time", 120);
+				dataConfig.set("Settings.preparation-time", 10);
+				dataConfig.set("Settings.start-min-players", 2);
+				dataConfig.set("Settings.max-players", 24);
 				dataConfig.set("Spawns.Lobby", "");
 				dataConfig.set("Spawns.Blue", "");
 				dataConfig.set("Spawns.Red", "");
 				dataConfig.set("Spawns.Green", "");
 				dataConfig.set("Spawns.Yellow", "");
+				dataConfig.set("Regions.Arena.1", "");
 				dataConfig.set("Regions.Walls.1", "");
 				dataConfig.set("Regions.Build.1", "");
-				dataConfig.set("Settings.preparation-time", 10);
-				dataConfig.set("Settings.start-min-players", 2);
-				dataConfig.set("Settings.max-players", 24);
 				dataConfig.save(configFile);
 				return 0;
 			} else {
@@ -77,7 +84,80 @@ public class ArenaManager {
 		}
 		return -1;
 	}
-
+	
+	public boolean checkConfig(String name) {
+		FileConfiguration arenaConfig = getConfigFile(name);
+		if (!arenaConfig.contains("Settings.preparation-time") || arenaConfig.get("Settings.preparation-time").equals("") ) {
+			return false;
+		}
+		if (!arenaConfig.contains("Settings.enabled") || arenaConfig.getBoolean("Settings.enabled") == false) return false;
+		if (!arenaConfig.contains("Spawns.Lobby") || arenaConfig.get("Spawns.Lobby").equals("")) return false;
+		if (!arenaConfig.contains("Spawns.Blue") || arenaConfig.get("Spawns.Blue").equals("")) return false;
+		if (!arenaConfig.contains("Spawns.Red") || arenaConfig.get("Spawns.Red").equals("")) return false;
+		if (!arenaConfig.contains("Spawns.Green") || arenaConfig.get("Spawns.Green").equals("")) return false;
+		if (!arenaConfig.contains("Spawns.Yellow") || arenaConfig.get("Spawns.Yellow").equals("")) return false;
+		if (!arenaConfig.contains("Regions.Walls")) return false;
+		if (!arenaConfig.contains("Regions.Build")) return false;
+		if (!arenaConfig.contains("Regions.Arena")) return false;
+		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Walls").getKeys(false).toArray().length; i++) {
+			if (arenaConfig.get("Regions.Walls." + i) == null || arenaConfig.get("Regions.Walls." + i).equals("")) {
+				return false;
+			}
+		}
+		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Build").getKeys(false).toArray().length; i++) {
+			if (arenaConfig.get("Regions.Build." + i) == null || arenaConfig.get("Regions.Build." + i).equals("")) {
+				return false;
+			}
+		}
+		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Arena").getKeys(false).toArray().length; i++) {
+			if (arenaConfig.get("Regions.Arena." + i) == null || arenaConfig.get("Regions.Arena." + i).equals("")) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public void writeSpawns(String name, String spawnName, Player player) {
+		FileConfiguration arenaConfig = getConfigFile(name);
+		arenaConfig.set("Spawns." + spawnName + ".world", player.getWorld().getName());
+		arenaConfig.set("Spawns." + spawnName + ".x", player.getLocation().getBlockX());
+		arenaConfig.set("Spawns." + spawnName + ".y", player.getLocation().getBlockY());
+		arenaConfig.set("Spawns." + spawnName + ".z", player.getLocation().getBlockZ());
+		arenaConfig.set("Spawns." + spawnName + ".yaw", player.getLocation().getYaw());
+		arenaConfig.set("Spawns." + spawnName + ".pitch", player.getLocation().getPitch());
+		saveFile(name, arenaConfig);
+	}
+	public void writeRegions(String name, String regionName, Player player,  WallsTool wallsTool) {
+		FileConfiguration arenaConfig = getConfigFile(name);
+		if (!arenaConfig.contains("Regions." + regionName + ".1")) {
+			dataConfig.set("Regions." + regionName + ".1", "");
+		}
+		int i = 1;
+		while (!arenaConfig.getString("Regions." + regionName + "." + i).equals("")) {
+			if (arenaConfig.getString("Regions." + regionName + "." + (i + 1)) == null) {
+				i++;
+				break;
+			}
+			i++;
+		}
+		player.sendMessage(i + "");
+		arenaConfig.set("Regions." + regionName + "." + i + ".world", wallsTool.getWorld().getName());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.x", wallsTool.getPos1().getBlockX());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.y", wallsTool.getPos1().getBlockY());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.z", wallsTool.getPos1().getBlockZ());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.x", wallsTool.getPos2().getBlockX());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.y", wallsTool.getPos2().getBlockY());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.z", wallsTool.getPos2().getBlockZ());
+		saveFile(name, arenaConfig);
+	}
+	
+	public void stopAllArenas() {
+		for (int i = 0; i < arenas.size(); i++) {
+			arenas.get(i).stopGame();
+		}
+	}
+	
+	
 	public int numArenas() {
 		int i = 0;
 		while (i < arenas.size()) {
@@ -126,7 +206,6 @@ public class ArenaManager {
 				for (int i = 0; i < arenaFolder.list().length; i++) {
 					configFile = new File(arenaFolder, arenaFolder.list()[i]);
 					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
-					plugin.getLogger().info(name + "");
 					dataConfig = YamlConfiguration.loadConfiguration(configFile);
 					addArena(new Arena(name, false, false, configFile, plugin));
 					arenas.get(i).loadConfig();

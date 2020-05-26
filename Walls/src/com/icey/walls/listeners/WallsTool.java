@@ -21,8 +21,8 @@ public class WallsTool implements Listener {
 	ItemMeta meta;
 	Player player;
 	World world;
-	Location region1;
-	Location region2;
+	Location pos1;
+	Location pos2;
 	
 	public WallsTool() {
 		item = new ItemStack(Material.BLAZE_ROD);
@@ -31,7 +31,6 @@ public class WallsTool implements Listener {
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add(ChatColor.DARK_PURPLE + "Left-Click to set the first corner of a region,");
 		lore.add(ChatColor.DARK_PURPLE + "Right-Click to set the second corner of a region.");
-		lore.add(ChatColor.DARK_PURPLE + "Left-Click to set the spawnpoint for lobbies or team spawns.");
 		meta.setLore(lore);
 		item.setItemMeta(meta);
 	}
@@ -53,14 +52,14 @@ public class WallsTool implements Listener {
 				Action action = event.getAction();
 				if (action == Action.LEFT_CLICK_BLOCK) {
 					world = block.getWorld();
-					region1 = loc;
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #1: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
+					pos1 = loc;
+					player.sendMessage(ChatColor.LIGHT_PURPLE + "Position #1: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 				else if (action == Action.RIGHT_CLICK_BLOCK) {
 					world = block.getWorld();
-					region2 = loc;
-					player.sendMessage(ChatColor.LIGHT_PURPLE + "Region #2: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
+					pos2 = loc;
+					player.sendMessage(ChatColor.LIGHT_PURPLE + "Position #2: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
 					event.setCancelled(true);
 				}
 			}
@@ -73,13 +72,13 @@ public class WallsTool implements Listener {
 	public void setWorld(World world) {
 		this.world = world;
 	}
-	public Location getRegion1() {
-		return region1;
+	public Location getPos1() {
+		return pos1;
 	}
-	public Location getRegion2() {
-		return region2;
+	public Location getPos2() {
+		return pos2;
 	}
-	public void setRegion2(Location region2) {
-		this.region2 = region2;
+	public void setPos2(Location pos2) {
+		this.pos2 = pos2;
 	}
 }
