@@ -3,7 +3,9 @@ package com.icey.walls;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -52,7 +54,7 @@ public class ArenaManager {
 			if (configFile.exists() == false) {
 				arenaFolder.mkdirs();
 				configFile.createNewFile();
-				addArena(new Arena(name, false, false, configFile));
+				addArena(new Arena(name, false, false, configFile, plugin));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
 				dataConfig.set("Spawns.Lobby", "");
 				dataConfig.set("Spawns.Blue", "");
@@ -61,6 +63,9 @@ public class ArenaManager {
 				dataConfig.set("Spawns.Yellow", "");
 				dataConfig.set("Regions.Walls.1", "");
 				dataConfig.set("Regions.Build.1", "");
+				dataConfig.set("Settings.preparation-time", 10);
+				dataConfig.set("Settings.start-min-players", 2);
+				dataConfig.set("Settings.max-players", 24);
 				dataConfig.save(configFile);
 				return 0;
 			} else {
@@ -95,7 +100,7 @@ public class ArenaManager {
 
 	public Arena getArena(String name) {
 		for (int i = 0; i < arenas.size(); i++) {
-			if (arenas.get(i).getName() == name)
+			if (arenas.get(i).getName().equals(name))
 				return arenas.get(i);
 		}
 		return null;
@@ -108,22 +113,23 @@ public class ArenaManager {
 	public String listArenas() {
 		String arenaList = ChatColor.GOLD + "Arenas: \n";
 		for (int i = 0; i < arenas.size(); i++) {
-			arenaList += i + ": " + getArenaNames()[i] + "\n";
+			arenaList += i+1 + ": " + getArenaNames()[i] + "\n";
 		}
 		return arenaList;
 	}
 
 	public void reloadArenas() {
-		getArenas().removeAll(getArenas());
+		arenas.clear();
 		if (configFile == null) {
 			arenaFolder = new File(plugin.getDataFolder(), "arenas");
 			if (arenaFolder.exists()) {
 				for (int i = 0; i < arenaFolder.list().length; i++) {
 					configFile = new File(arenaFolder, arenaFolder.list()[i]);
 					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
+					plugin.getLogger().info(name + "");
 					dataConfig = YamlConfiguration.loadConfiguration(configFile);
-					addArena(new Arena(name, false, false, configFile));
-					arenas.get(i).loadConfig(configFile);
+					addArena(new Arena(name, false, false, configFile, plugin));
+					arenas.get(i).loadConfig();
 				}
 			} else {
 				plugin.getLogger().info("No arenas exist.");

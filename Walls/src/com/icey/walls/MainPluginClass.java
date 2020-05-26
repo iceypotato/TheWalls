@@ -17,7 +17,7 @@ public class MainPluginClass extends JavaPlugin {
 	public void onEnable() {
 		arenaManager.reloadArenas();
 		getLogger().info(arenaManager.numArenas() + " arenas loaded.");
-		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager));
+		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
 		getServer().getPluginManager().registerEvents(wallsTool, this);
 		loadConfig();
 		getLogger().info("Walls 1.0 has been enabled.");
