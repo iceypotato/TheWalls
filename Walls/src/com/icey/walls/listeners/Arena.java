@@ -21,6 +21,7 @@ import com.icey.walls.MainPluginClass;
 public class Arena implements EventListener {
 
 	private MainPluginClass plugin;
+	private boolean running;
 	private String name;
 	private boolean inProgress;
 	private boolean enabled;
@@ -63,6 +64,7 @@ public class Arena implements EventListener {
 	public void runGame() {
 		
 	}
+	
 	public void stopGame() {
 		inProgress = false;
 		playersInGame.clear();
@@ -73,10 +75,12 @@ public class Arena implements EventListener {
 			}
 		}
 	}
+	
 	@EventHandler
 	public void waiting(BlockBreakEvent block) {
 		block.setCancelled(true);
 	}
+	
 	@EventHandler
 	public void setup(PlayerInteractEvent event, BlockExplodeEvent block) {
 		for (int i = 0; i < buildRegions.size(); i++) {
@@ -105,6 +109,7 @@ public class Arena implements EventListener {
 			}
 		}
 	}
+	
 	public void pvp() {
 		
 	}
@@ -132,6 +137,7 @@ public class Arena implements EventListener {
 	public void setPlayersInGame(ArrayList<UUID> playersInGame) {
 		this.playersInGame = playersInGame;
 	}
+	
 	public void addArenaRegion() {
 		int i = 1;
 		if (arenaConfig.get("Regions.Arena." + i) != null) {
@@ -158,7 +164,7 @@ public class Arena implements EventListener {
 				for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
 					for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
 						for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
-							protectedBlocks.add(new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena.world")), x, y, z));
+							protectedBlocks.add(new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z));
 						}
 					}
 				}
@@ -217,7 +223,11 @@ public class Arena implements EventListener {
 		}
 		else plugin.getLogger().info(name + " arena has an invalid config! Check the build regions");
 	}
-	
+	public void readSettings() {
+		if (arenaConfig.get("Settings.enabled") != null) {
+			enabled = arenaConfig.getBoolean("Settings.enabled");
+		}
+	}
 	public void readLobbySpawn() {
 		if (arenaConfig.contains("Spawns.Lobby.world") && arenaConfig.contains("Spawns.Lobby.x") && arenaConfig.contains("Spawns.Lobby.y") && arenaConfig.contains("Spawns.Lobby.z")) {
 			lobbySpawn = new Location(Bukkit.getWorld(arenaConfig.getString("Spawns.Lobby.world")), arenaConfig.getDouble("Spawns.Lobby.x"), arenaConfig.getDouble("Spawns.Lobby.y"), arenaConfig.getDouble("Spawns.Lobby.x"));
