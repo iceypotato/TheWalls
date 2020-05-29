@@ -208,6 +208,9 @@ public class ArenaManager {
 					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
 					dataConfig = YamlConfiguration.loadConfiguration(configFile);
 					addArena(new Arena(name, false, false, configFile, plugin));
+					if (checkConfig(name) == false) {
+						dataConfig.set("Settings.enabled", false);
+					}
 					arenas.get(i).loadConfig();
 				}
 			} else {

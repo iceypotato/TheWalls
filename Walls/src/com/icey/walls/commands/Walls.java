@@ -47,7 +47,10 @@ public class Walls implements CommandExecutor, TabCompleter {
 			else if (args[0].equalsIgnoreCase("join")) {
 				if (args.length >= 2 && sender instanceof Player) {
 					Player player = (Player) sender;
-					arenaManager.getArena(args[1]);
+					if (arenaManager.getArena(args[1]).isEnabled()) {
+						player.teleport(arenaManager.getArena(args[1]).getLobbySpawn());
+					}
+					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");;
 				}
 				else {
 					sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
