@@ -150,6 +150,10 @@ public class ArenaManager {
 		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.z", wallsTool.getPos2().getBlockZ());
 		saveFile(name, arenaConfig);
 	}
+	public void writeSettings(String name, String value) {
+		FileConfiguration arenaConfig = getConfigFile(name);
+		arenaConfig.set("Settings." + name, value);
+	}
 	
 	public void stopAllArenas() {
 		for (int i = 0; i < arenas.size(); i++) {

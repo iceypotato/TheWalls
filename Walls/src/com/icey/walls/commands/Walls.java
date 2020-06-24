@@ -50,7 +50,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 					if (arenaManager.getArena(args[1]).isEnabled()) {
 						player.teleport(arenaManager.getArena(args[1]).getLobbySpawn());
 					}
-					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");;
+					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
 				}
 				else {
 					sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
@@ -95,6 +95,10 @@ public class Walls implements CommandExecutor, TabCompleter {
 								}
 								else if (args[2].equalsIgnoreCase("stop")){
 									arenaManager.getArena(name).stopGame();
+								}
+								else if (args[2].equalsIgnoreCase("enable")) {
+									arenaManager.getArena(name).setEnabled(true);
+									arenaManager.writeSettings("enabled", "true");
 								}
 								else if (sender instanceof Player) {
 									Player player = (Player) sender;

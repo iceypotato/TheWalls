@@ -17,6 +17,12 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.icey.walls.MainPluginClass;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.regions.CuboidRegion;
 
 public class Arena implements EventListener {
 
@@ -68,11 +74,15 @@ public class Arena implements EventListener {
 	public void stopGame() {
 		inProgress = false;
 		playersInGame.clear();
-		if (protectedBlocks != null) {
-			for (int i = 0; i < protectedBlocks.size(); i++) {
-				Location loc = protectedBlocks.get(i);
-				loc.getBlock().setType(protectedBlocks.get(i).getBlock().getType());
-			}
+		CuboidRegion region = new CuboidRegion(world, min, max);
+		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+
+		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1)) {
+		    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
+		        editSession, region, clipboard, region.getMinimumPoint()
+		    );
+		    // configure here
+		    Operations.complete(forwardExtentCopy);
 		}
 	}
 	
