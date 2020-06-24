@@ -1,12 +1,9 @@
 package com.icey.walls.commands;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,12 +14,24 @@ import org.bukkit.entity.Player;
 import com.icey.walls.ArenaManager;
 import com.icey.walls.MainPluginClass;
 import com.icey.walls.listeners.WallsTool;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.session.ClipboardHolder;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
 	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
 	private WallsTool wallsTool;
+	private ArrayList<BlockArrayClipboard> clipboard;
 
 	public Walls(MainPluginClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
 		myplugin = mainClass;
@@ -33,7 +42,6 @@ public class Walls implements CommandExecutor, TabCompleter {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
-
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
 				sender.sendMessage(ChatColor.AQUA + "/walls arena" + ChatColor.RESET + " Walls Arena Commands");
@@ -55,6 +63,46 @@ public class Walls implements CommandExecutor, TabCompleter {
 				else {
 					sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 				}
+			}
+			else if (args[0].equalsIgnoreCase("addcopy")) {
+				sender.sendMessage("copied");
+				CuboidRegion region = new CuboidRegion(BukkitAdapter.adapt(wallsTool.getWorld()), BukkitAdapter.asBlockVector(wallsTool.getPos1()), BukkitAdapter.asBlockVector(wallsTool.getPos2()));
+				clipboard = new ArrayList<BlockArrayClipboard>();
+				BlockArrayClipboard blockArrayClipboard = new BlockArrayClipboard(region);
+				clipboard.add(blockArrayClipboard);
+				
+				try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(wallsTool.getWorld()), -1)) {
+				    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
+				        editSession, region, clipboard.get(clipboard.size()-1), region.getMinimumPoint()
+				    );
+				    // configure here
+				    try {
+						Operations.complete(forwardExtentCopy);
+					} catch (WorldEditException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			else if (args[0].equalsIgnoreCase("paste")) {
+				for (int j = 0; j < clipboard.size(); j++) {
+					try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(wallsTool.getWorld()), -1)) {
+					    Operation operation = new ClipboardHolder(clipboard.get(j))
+					            .createPaste(editSession)
+					            .to(BlockVector3.at(clipboard.get(j).getMinimumPoint().getBlockX(), clipboard.get(j).getMinimumPoint().getBlockY(), clipboard.get(j).getMinimumPoint().getBlockZ()))
+					            // configure here
+					            .build();
+					    try {
+							Operations.complete(operation);
+						} catch (WorldEditException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			else if (args[0].equalsIgnoreCase("clear")) {
+				clipboard.clear();
 			}
 			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {

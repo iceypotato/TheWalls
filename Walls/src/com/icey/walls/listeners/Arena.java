@@ -3,6 +3,7 @@ package com.icey.walls.listeners;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,9 +20,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import com.icey.walls.MainPluginClass;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 
 public class Arena implements EventListener {
@@ -41,6 +45,7 @@ public class Arena implements EventListener {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
+	private ArrayList<BlockArrayClipboard> clipboard;
 	private ArrayList<Location> protectedBlocks;
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
@@ -68,22 +73,12 @@ public class Arena implements EventListener {
 	}
 	
 	public void runGame() {
-		
 	}
 	
 	public void stopGame() {
 		inProgress = false;
 		playersInGame.clear();
-		CuboidRegion region = new CuboidRegion(world, min, max);
-		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 
-		try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1)) {
-		    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-		        editSession, region, clipboard, region.getMinimumPoint()
-		    );
-		    // configure here
-		    Operations.complete(forwardExtentCopy);
-		}
 	}
 	
 	@EventHandler
@@ -169,13 +164,21 @@ public class Arena implements EventListener {
 				arenaRegions.add(region);
 				i++;
 			}
-			protectedBlocks = new ArrayList<Location>();
-			for (int j = 0; j < arenaRegions.size(); j++) {
-				for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
-					for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
-						for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
-							protectedBlocks.add(new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z));
-						}
+			for (int j = 0; j < buildRegions.size(); j++) {
+				CuboidRegion cubregion = new CuboidRegion(BukkitAdapter.adapt(buildRegions.get(i)[0].getWorld()), BukkitAdapter.asBlockVector(buildRegions.get(i)[0]), BukkitAdapter.asBlockVector(buildRegions.get(i)[1]));
+				clipboard = new ArrayList<BlockArrayClipboard>();
+				BlockArrayClipboard blockclipboard = new BlockArrayClipboard(cubregion);
+				clipboard.add(blockclipboard);
+				try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(buildRegions.get(i)[0].getWorld()), -1)) {
+				    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
+				        editSession, cubregion, clipboard.get(i), cubregion.getMinimumPoint()
+				    );
+				    // configure here
+				    try {
+						Operations.complete(forwardExtentCopy);
+					} catch (WorldEditException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
