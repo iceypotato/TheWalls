@@ -3,7 +3,11 @@ package com.icey.walls.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,26 +16,16 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import com.icey.walls.ArenaManager;
+import com.icey.walls.BlockClipboard;
 import com.icey.walls.MainPluginClass;
 import com.icey.walls.listeners.WallsTool;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.session.ClipboardHolder;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
 	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
 	private WallsTool wallsTool;
-	private ArrayList<BlockArrayClipboard> clipboard;
+	private BlockClipboard protectedBlocks;
 
 	public Walls(MainPluginClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
 		myplugin = mainClass;
@@ -65,44 +59,47 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 			}
 			else if (args[0].equalsIgnoreCase("addcopy")) {
-				sender.sendMessage("copied");
-				CuboidRegion region = new CuboidRegion(BukkitAdapter.adapt(wallsTool.getWorld()), BukkitAdapter.asBlockVector(wallsTool.getPos1()), BukkitAdapter.asBlockVector(wallsTool.getPos2()));
-				clipboard = new ArrayList<BlockArrayClipboard>();
-				BlockArrayClipboard blockArrayClipboard = new BlockArrayClipboard(region);
-				clipboard.add(blockArrayClipboard);
-				
-				try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(wallsTool.getWorld()), -1)) {
-				    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-				        editSession, region, clipboard.get(clipboard.size()-1), region.getMinimumPoint()
-				    );
-				    // configure here
-				    try {
-						Operations.complete(forwardExtentCopy);
-					} catch (WorldEditException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				if (protectedBlocks == null) {
+					protectedBlocks = new BlockClipboard();
+				}
+				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
+					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
+						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
+							Location loc = new Location(wallsTool.getWorld(), x, y, z);
+							sender.sendMessage(loc.toString());
+							protectedBlocks.addBlock(loc.getBlock());
+						}
 					}
 				}
+				sender.sendMessage("copied");
 			}
 			else if (args[0].equalsIgnoreCase("paste")) {
-				for (int j = 0; j < clipboard.size(); j++) {
-					try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(wallsTool.getWorld()), -1)) {
-					    Operation operation = new ClipboardHolder(clipboard.get(j))
-					            .createPaste(editSession)
-					            .to(BlockVector3.at(clipboard.get(j).getMinimumPoint().getBlockX(), clipboard.get(j).getMinimumPoint().getBlockY(), clipboard.get(j).getMinimumPoint().getBlockZ()))
-					            // configure here
-					            .build();
-					    try {
-							Operations.complete(operation);
-						} catch (WorldEditException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+				ArrayList<Location> locations = new ArrayList<Location>();
+				int i = 0;
+				for (Block block : protectedBlocks.getBlockList()) {
+					protectedBlocks.getBlockList().get(i).setType(protectedBlocks.getMaterial(i));
+					protectedBlocks.getBlockList().get(i).setData(protectedBlocks.getBlockData(i));
+				}
+				sender.sendMessage("pasted");
+			}
+			else if (args[0].equalsIgnoreCase("listcopy")) {
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("nothing");
+				}
+				else {
+					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
+						sender.sendMessage(protectedBlocks.getBlockList().get(i).toString());
 					}
 				}
 			}
 			else if (args[0].equalsIgnoreCase("clear")) {
-				clipboard.clear();
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("Empty");
+				}
+				else {
+					protectedBlocks.clear();
+					sender.sendMessage("cleared.");
+				}
 			}
 			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {

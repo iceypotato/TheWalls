@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -18,15 +19,6 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.icey.walls.MainPluginClass;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
 
 public class Arena implements EventListener {
 
@@ -45,8 +37,7 @@ public class Arena implements EventListener {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
-	private ArrayList<BlockArrayClipboard> clipboard;
-	private ArrayList<Location> protectedBlocks;
+	private ArrayList<Block> protectedBlocks;
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
@@ -55,12 +46,13 @@ public class Arena implements EventListener {
 	
 	public Arena(String name, boolean enabled, boolean inProgress, File arenaFile, MainPluginClass plugin) {
 		this.name = name;
-		this.setEnabled(enabled);
+		this.enabled = enabled;
 		this.inProgress = inProgress;
-		this.playersInGame = new ArrayList<UUID>();
 		this.arenaFile = arenaFile;
-		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 		this.plugin = plugin;
+		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
+		this.playersInGame = new ArrayList<UUID>();
+		this.running = false;
 	}
 	public void loadConfig() {
 		readLobbySpawn();
@@ -76,9 +68,19 @@ public class Arena implements EventListener {
 	}
 	
 	public void stopGame() {
-		inProgress = false;
-		playersInGame.clear();
-
+		if (running) {
+			running = false;
+			inProgress = false;
+			playersInGame.clear();
+			ArrayList<Location> locations = new ArrayList<Location>();
+			for (int i = 0; i < protectedBlocks.size(); i++) {
+				locations.add(protectedBlocks.get(i).getLocation());
+			}
+			for (int i = 0; i < protectedBlocks.size(); i++) {
+				locations.get(i).getBlock().setType(protectedBlocks.get(i).getType());
+				locations.get(i).getBlock().setData(protectedBlocks.get(i).getData());
+			}
+		}
 	}
 	
 	@EventHandler
@@ -164,21 +166,14 @@ public class Arena implements EventListener {
 				arenaRegions.add(region);
 				i++;
 			}
-			for (int j = 0; j < buildRegions.size(); j++) {
-				CuboidRegion cubregion = new CuboidRegion(BukkitAdapter.adapt(buildRegions.get(i)[0].getWorld()), BukkitAdapter.asBlockVector(buildRegions.get(i)[0]), BukkitAdapter.asBlockVector(buildRegions.get(i)[1]));
-				clipboard = new ArrayList<BlockArrayClipboard>();
-				BlockArrayClipboard blockclipboard = new BlockArrayClipboard(cubregion);
-				clipboard.add(blockclipboard);
-				try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(buildRegions.get(i)[0].getWorld()), -1)) {
-				    ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(
-				        editSession, cubregion, clipboard.get(i), cubregion.getMinimumPoint()
-				    );
-				    // configure here
-				    try {
-						Operations.complete(forwardExtentCopy);
-					} catch (WorldEditException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+			protectedBlocks = new ArrayList<Block>();
+			for (int j = 0; j < arenaRegions.size(); j++) {
+				for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
+					for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
+						for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
+							Location loc = new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z);
+							protectedBlocks.add(loc.getBlock());
+						}
 					}
 				}
 			}
