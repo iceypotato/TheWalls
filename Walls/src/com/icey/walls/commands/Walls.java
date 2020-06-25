@@ -74,11 +74,9 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage("copied");
 			}
 			else if (args[0].equalsIgnoreCase("paste")) {
-				ArrayList<Location> locations = new ArrayList<Location>();
-				int i = 0;
-				for (Block block : protectedBlocks.getBlockList()) {
-					protectedBlocks.getBlockList().get(i).setType(protectedBlocks.getMaterial(i));
-					protectedBlocks.getBlockList().get(i).setData(protectedBlocks.getBlockData(i));
+				for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
+					protectedBlocks.getBlock(i).setType(protectedBlocks.getMaterial(i));
+					protectedBlocks.getBlock(i).setData(protectedBlocks.getBlockData(i));
 				}
 				sender.sendMessage("pasted");
 			}
@@ -88,7 +86,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 				else {
 					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
-						sender.sendMessage(protectedBlocks.getBlockList().get(i).toString());
+						sender.sendMessage(protectedBlocks.getBlock(i).toString());
 					}
 				}
 			}

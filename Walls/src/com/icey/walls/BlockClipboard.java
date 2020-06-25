@@ -16,15 +16,28 @@ public class BlockClipboard {
 	
 	public BlockClipboard() {
 		blockList = new ArrayList<Block>();
-		setMaterialList(new ArrayList<Material>());
-		setBlockStates(new ArrayList<BlockState>());
+		materialList = new ArrayList<Material>();
+		blockStates = new ArrayList<BlockState>();
+		blockData = new ArrayList<Byte>();
 	}
 	
 	public void addBlock(Block block) {
-		blockList.add(block);
-		materialList.add(block.getType());
-		blockStates.add(block.getState());
-		blockData.add(block.getData());
+		if (!blockList.isEmpty()) {
+			for (int i = 0; i < blockList.size(); i++) {
+				if (getBlock(i).getLocation().equals(block.getLocation())) {
+					blockList.set(i, block);
+					materialList.set(i, block.getType());
+					blockStates.set(i, block.getState());
+					blockData.set(i, block.getData());
+				}
+			}
+		}
+		else {
+			blockList.add(block);
+			materialList.add(block.getType());
+			blockStates.add(block.getState());
+			blockData.add(block.getData());
+		}
 	}
 	
 	public int numBlocks() {
