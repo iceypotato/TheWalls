@@ -72,14 +72,6 @@ public class Arena implements EventListener {
 			running = false;
 			inProgress = false;
 			playersInGame.clear();
-			ArrayList<Location> locations = new ArrayList<Location>();
-			for (int i = 0; i < protectedBlocks.size(); i++) {
-				locations.add(protectedBlocks.get(i).getLocation());
-			}
-			for (int i = 0; i < protectedBlocks.size(); i++) {
-				locations.get(i).getBlock().setType(protectedBlocks.get(i).getType());
-				locations.get(i).getBlock().setData(protectedBlocks.get(i).getData());
-			}
 		}
 	}
 	

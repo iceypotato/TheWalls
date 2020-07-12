@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 
 import com.icey.walls.ArenaManager;
 import com.icey.walls.BlockClipboard;
@@ -62,6 +63,9 @@ public class Walls implements CommandExecutor, TabCompleter {
 				if (protectedBlocks == null) {
 					protectedBlocks = new BlockClipboard();
 				}
+				if (!protectedBlocks.getBlockList().isEmpty()) {
+					sender.sendMessage("Clipboard was not empty");
+				}
 				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
 					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
 						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
@@ -74,10 +78,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage("copied");
 			}
 			else if (args[0].equalsIgnoreCase("paste")) {
-				for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
-					protectedBlocks.getBlock(i).setType(protectedBlocks.getMaterial(i));
-					protectedBlocks.getBlock(i).setData(protectedBlocks.getBlockData(i));
-				}
+				protectedBlocks.pasteBlocksInClipboard();
 				sender.sendMessage("pasted");
 			}
 			else if (args[0].equalsIgnoreCase("listcopy")) {
@@ -87,6 +88,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				else {
 					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
 						sender.sendMessage(protectedBlocks.getBlock(i).toString());
+						sender.sendMessage(protectedBlocks.getBlock(i).getState().toString());
 					}
 				}
 			}
