@@ -1,4 +1,4 @@
-package com.icey.walls;
+package com.icey.walls.framework;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import com.icey.walls.MainPluginClass;
 import com.icey.walls.listeners.Arena;
 import com.icey.walls.listeners.WallsTool;
 

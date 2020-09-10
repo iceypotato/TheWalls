@@ -1,4 +1,4 @@
-package com.icey.walls;
+package com.icey.walls.framework;
 
 import java.io.File;
 import java.io.FileInputStream;

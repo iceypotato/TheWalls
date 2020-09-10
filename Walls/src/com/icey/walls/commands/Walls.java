@@ -16,9 +16,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
-import com.icey.walls.ArenaManager;
-import com.icey.walls.BlockClipboard;
 import com.icey.walls.MainPluginClass;
+import com.icey.walls.framework.ArenaManager;
+import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
@@ -87,8 +87,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 				else {
 					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
-						sender.sendMessage(protectedBlocks.getBlock(i).toString());
-						sender.sendMessage(protectedBlocks.getBlock(i).getState().toString());
+						sender.sendMessage(protectedBlocks.listBlocksInClipboard());
 					}
 				}
 			}

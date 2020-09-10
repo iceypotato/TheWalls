@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.icey.walls.commands.Walls;
+import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.listeners.WallsTool;
 
 public class MainPluginClass extends JavaPlugin {

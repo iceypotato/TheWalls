@@ -1,0 +1,103 @@
+package com.icey.walls.framework;
+
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
+
+import net.minecraft.server.v1_8_R3.BlockLadder;
+
+public class SavedBlockInfo {
+	
+	private Block block;
+	private Material material;
+	private byte blockData;
+	private BlockState blockState;
+	private MaterialData materialData;
+	private Inventory blockInventory;
+	private ItemStack[] itemStack;
+	private boolean isContainer;
+	
+	//Regular Block
+	public SavedBlockInfo(Block block, Material material, byte blockData) {
+		this.block = block;
+		this.material = material;
+		this.blockData = blockData;
+	}
+	
+	//container
+	public SavedBlockInfo(Block block, Material material, byte blockData, Inventory blockInventory, ItemStack[] itemStack) {
+		this.block = block;
+		this.material = material;
+		this.blockData = blockData;
+		this.blockInventory = blockInventory;
+		this.itemStack = itemStack;
+		this.isContainer = true;
+	}
+
+	public Inventory getBlockInventory() {
+		return blockInventory;
+	}
+
+	public void setBlockInventory(Inventory blockInventory) {
+		this.blockInventory = blockInventory;
+	}
+
+	public Block getBlock() {
+		return block;
+	}
+
+	public void setBlock(Block block) {
+		this.block = block;
+	}
+
+	public Material getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(Material material) {
+		this.material = material;
+	}
+
+	public byte getBlockData() {
+		return blockData;
+	}
+
+	public void setBlockData(byte blockData) {
+		this.blockData = blockData;
+	}
+
+	public BlockState getBlockState() {
+		return blockState;
+	}
+
+	public void setBlockState(BlockState blockState) {
+		this.blockState = blockState;
+	}
+
+	public MaterialData getMaterialData() {
+		return materialData;
+	}
+
+	public void setMaterialData(MaterialData materialData) {
+		this.materialData = materialData;
+	}
+
+	public ItemStack[] getItemStack() {
+		return itemStack;
+	}
+
+	public void setItemStack(ItemStack[] itemStack) {
+		this.itemStack = itemStack;
+	}
+
+	public boolean isContainer() {
+		return isContainer;
+	}
+
+	public void setContainer(boolean isContainer) {
+		this.isContainer = isContainer;
+	}
+}
