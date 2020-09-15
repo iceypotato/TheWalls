@@ -91,6 +91,16 @@ public class Walls implements CommandExecutor, TabCompleter {
 					}
 				}
 			}
+			else if (args[0].equalsIgnoreCase("listitems")) {
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("nothing");
+				}
+				else {
+					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
+						protectedBlocks.listItemStacks();
+					}
+				}
+			}
 			else if (args[0].equalsIgnoreCase("clear")) {
 				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
 					sender.sendMessage("Empty");

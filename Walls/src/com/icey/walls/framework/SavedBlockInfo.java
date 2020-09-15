@@ -21,17 +21,19 @@ public class SavedBlockInfo {
 	private boolean isContainer;
 	
 	//Regular Block
-	public SavedBlockInfo(Block block, Material material, byte blockData) {
+	public SavedBlockInfo(Block block, Material material, byte blockData, BlockState blockState) {
 		this.block = block;
 		this.material = material;
 		this.blockData = blockData;
+		this.blockState = blockState;
 	}
 	
 	//container
-	public SavedBlockInfo(Block block, Material material, byte blockData, Inventory blockInventory, ItemStack[] itemStack) {
+	public SavedBlockInfo(Block block, Material material, byte blockData, BlockState blockState, Inventory blockInventory, ItemStack[] itemStack) {
 		this.block = block;
 		this.material = material;
 		this.blockData = blockData;
+		this.blockState = blockState;
 		this.blockInventory = blockInventory;
 		this.itemStack = itemStack;
 		this.isContainer = true;

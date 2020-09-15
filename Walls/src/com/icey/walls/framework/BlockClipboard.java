@@ -2,9 +2,12 @@ package com.icey.walls.framework;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 public class BlockClipboard {
 	
@@ -18,9 +21,11 @@ public class BlockClipboard {
 	public void addBlock(Block block) {
 		if (block.getState() instanceof InventoryHolder) {
 			InventoryHolder inventory = (InventoryHolder) block.getState();
-			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), inventory.getInventory(), inventory.getInventory().getContents()));
+			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState(), inventory.getInventory(), inventory.getInventory().getContents()));
 		}
-		blockList.add(new SavedBlockInfo(block, block.getType(), block.getData()));
+		else {
+			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState()));
+		}
 	}
 	
 	public void pasteBlocksInClipboard() {
@@ -48,6 +53,16 @@ public class BlockClipboard {
 			output += (i+1) + ": " + blockList.get(i).getBlock() + "\n";
 		}
 		return output;
+	}
+	public void listItemStacks() {
+	    for (SavedBlockInfo block : blockList) {
+	        if (block.getBlockState() instanceof InventoryHolder) {
+	            InventoryHolder inventory = (InventoryHolder) block.getBlockState();
+	            for (ItemStack stack : inventory.getInventory().getContents()) {
+	                Bukkit.broadcastMessage("Type: " + stack.getType().toString() + " Amount: " + stack.getAmount());
+	            }
+	        }
+	    }
 	}
 	
 	public ArrayList<SavedBlockInfo> getBlockList() {
