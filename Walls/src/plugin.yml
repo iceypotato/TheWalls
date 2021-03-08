@@ -7,3 +7,6 @@ commands:
     walls:
         usage: /<command> subcommand
         description: Walls command for version and setup.
+    test:
+        usage: /test addcopy | paste ...
+        description: testing copying and pasting

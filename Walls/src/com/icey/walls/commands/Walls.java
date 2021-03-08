@@ -59,13 +59,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Vector vec1 = new Vector(wallsTool.getPos1().getBlockX(), wallsTool.getPos1().getBlockY(), wallsTool.getPos1().getBlockZ());
-		Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
-		World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
-		CuboidRegion region = new CuboidRegion(world, vec1, vec2);
-		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
-		ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
+		
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
@@ -89,87 +83,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 					sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 				}
 			}
-			else if (args[0].equalsIgnoreCase("addcopy")) {
-
-
-				forwardExtentCopy.setRemovingEntities(false);
-				try {
-					Operations.complete(forwardExtentCopy);
-				} catch (WorldEditException e) {
-					e.printStackTrace();
-				}
-				try (ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(myplugin.getDataFolder() + "/" + "something.schem"))) {
-				    writer.write(clipboard, world.getWorldData());
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-//				if (protectedBlocks == null) {
-//					protectedBlocks = new BlockClipboard();
-//				}
-//				if (!protectedBlocks.getBlockList().isEmpty()) {
-//					sender.sendMessage("Clipboard was not empty");
-//				}
-//				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
-//					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
-//						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
-//							Location loc = new Location(wallsTool.getWorld(), x, y, z);
-//							sender.sendMessage(loc.toString());
-//							protectedBlocks.addBlock(loc.getBlock());
-//						}
-//					}
-//				}
-				sender.sendMessage("copied");
-			}
-			else if (args[0].equalsIgnoreCase("paste")) {
-				File file = new File(myplugin.getDataFolder() + "/" + "something.schem");
-				ClipboardFormat format = ClipboardFormat.findByFile(file);
-				ClipboardReader reader = format.getReader(new FileInputStream(file));
-				clipboard = reader.read(world.getWorldData());
-				world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
-				editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
-				Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
-				try {
-					Operations.complete(operation);
-				} catch (WorldEditException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				//protectedBlocks.pasteBlocksInClipboard();
-				sender.sendMessage("pasted");
-			}
-			else if (args[0].equalsIgnoreCase("listcopy")) {
-				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
-					sender.sendMessage("nothing");
-				}
-				else {
-					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
-						sender.sendMessage(protectedBlocks.listBlocksInClipboard());
-					}
-				}
-			}
-			else if (args[0].equalsIgnoreCase("listitems")) {
-				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
-					sender.sendMessage("nothing");
-				}
-				else {
-					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
-						protectedBlocks.listItemStacks();
-					}
-				}
-			}
-			else if (args[0].equalsIgnoreCase("clear")) {
-				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
-					sender.sendMessage("Empty");
-				}
-				else {
-					protectedBlocks.clear();
-					sender.sendMessage("cleared.");
-				}
-			}
+			
 			//Arena
 			else if (args[0].equalsIgnoreCase("arena")) {
 				if (args.length >= 2) {

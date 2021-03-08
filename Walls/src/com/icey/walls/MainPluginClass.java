@@ -5,6 +5,7 @@ import java.io.File;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.icey.walls.commands.Test;
 import com.icey.walls.commands.Walls;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.listeners.WallsTool;
@@ -20,6 +21,7 @@ public class MainPluginClass extends JavaPlugin {
 		arenaManager.reloadArenas();
 		getLogger().info(arenaManager.numArenas() + " arenas loaded.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
+		this.getCommand("test").setExecutor((CommandExecutor) new Test(this, wallsTool));
 		getServer().getPluginManager().registerEvents(wallsTool, this);
 		loadConfig();
 		getLogger().info("Walls 1.0 has been enabled.");
