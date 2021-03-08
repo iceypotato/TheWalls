@@ -35,6 +35,7 @@ import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
 import com.sk89q.worldedit.function.operation.Operation;
@@ -125,9 +126,8 @@ public class Walls implements CommandExecutor, TabCompleter {
 			else if (args[0].equalsIgnoreCase("paste")) {
 				File file = new File(myplugin.getDataFolder() + "/" + "something.schem");
 				ClipboardFormat format = ClipboardFormat.findByFile(file);
-				try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
-				    clipboard = reader.read();
-				}
+				ClipboardReader reader = format.getReader(new FileInputStream(file));
+				clipboard = reader.read(world.getWorldData());
 				world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
 				editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
 				Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
