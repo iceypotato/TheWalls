@@ -16,6 +16,7 @@ import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
+	
 	private MainClass myplugin;
 	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;

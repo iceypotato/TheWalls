@@ -1,6 +1,6 @@
 name: WallsMinigame
 version: 1.0
-main: com.icey.walls.MainPluginClass
+main: com.icey.walls.MainClass
 description: The Hypixel Walls Minigame
 
 commands:
