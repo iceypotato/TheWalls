@@ -8,9 +8,12 @@ import org.bukkit.block.Block;
 
 import net.minecraft.server.v1_8_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
+
 public class PasteSchematic {
+	
 	 @SuppressWarnings("deprecation")
-	    public PasteSchematic(File f,Location loc){
+	 
+	    public PasteSchematic(File f, Location loc){
 	        try {
 	            FileInputStream fis;
 	            fis = new FileInputStream(f);

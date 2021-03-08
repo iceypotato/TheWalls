@@ -20,6 +20,16 @@ import com.icey.walls.MainPluginClass;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.world.World;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
@@ -60,21 +70,38 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 			}
 			else if (args[0].equalsIgnoreCase("addcopy")) {
-				if (protectedBlocks == null) {
-					protectedBlocks = new BlockClipboard();
+				Vector vec1 = new Vector(wallsTool.getPos1().getBlockX(), wallsTool.getPos1().getBlockY(), wallsTool.getPos1().getBlockZ());
+				Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
+				World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
+				CuboidRegion region = new CuboidRegion(world, vec1, vec2);
+				BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+
+				EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
+
+				ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
+				forwardExtentCopy.setRemovingEntities(false);
+				try {
+					Operations.complete(forwardExtentCopy);
+				} catch (WorldEditException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				if (!protectedBlocks.getBlockList().isEmpty()) {
-					sender.sendMessage("Clipboard was not empty");
-				}
-				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
-					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
-						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
-							Location loc = new Location(wallsTool.getWorld(), x, y, z);
-							sender.sendMessage(loc.toString());
-							protectedBlocks.addBlock(loc.getBlock());
-						}
-					}
-				}
+				
+//				if (protectedBlocks == null) {
+//					protectedBlocks = new BlockClipboard();
+//				}
+//				if (!protectedBlocks.getBlockList().isEmpty()) {
+//					sender.sendMessage("Clipboard was not empty");
+//				}
+//				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
+//					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
+//						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
+//							Location loc = new Location(wallsTool.getWorld(), x, y, z);
+//							sender.sendMessage(loc.toString());
+//							protectedBlocks.addBlock(loc.getBlock());
+//						}
+//					}
+//				}
 				sender.sendMessage("copied");
 			}
 			else if (args[0].equalsIgnoreCase("paste")) {

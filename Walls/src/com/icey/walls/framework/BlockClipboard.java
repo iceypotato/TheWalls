@@ -31,11 +31,13 @@ public class BlockClipboard {
 	public void pasteBlocksInClipboard() {
 		for (int i = 0; i < getBlockList().size(); i++) {
 			blockList.get(i).getBlock().setType(blockList.get(i).getMaterial());
-			blockList.get(i).getBlock().setData(blockList.get(i).getBlockData());
-			if (blockList.get(i).isContainer()) {
+			blockList.get(i).getBlockState().update(true, false);
+			//blockList.get(i).getBlock().setType(blockList.get(i).getMaterial());
+			//blockList.get(i).getBlock().setData(blockList.get(i).getBlockData());
+			/*if (blockList.get(i).isContainer()) {
 				InventoryHolder inv = (InventoryHolder) blockList.get(i).getBlock().getState();
 				inv.getInventory().setContents(blockList.get(i).getItemStack());
-			}
+			}*/
 		}
 	}
 	
