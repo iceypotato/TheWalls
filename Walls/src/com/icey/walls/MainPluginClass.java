@@ -13,6 +13,7 @@ public class MainPluginClass extends JavaPlugin {
 
 	public ArenaManager arenaManager = new ArenaManager(this);
 	public WallsTool wallsTool = new WallsTool();
+	public String pluginDataFolder = "WallsMinigame";
 	
 	@Override
 	public void onEnable() {

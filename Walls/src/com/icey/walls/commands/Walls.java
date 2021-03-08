@@ -1,5 +1,10 @@
 package com.icey.walls.commands;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,16 +25,23 @@ import com.icey.walls.MainPluginClass;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
+import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
 import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
+import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
+import com.sk89q.worldedit.session.ClipboardHolder;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	private MainPluginClass myplugin;
@@ -46,6 +58,13 @@ public class Walls implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		Vector vec1 = new Vector(wallsTool.getPos1().getBlockX(), wallsTool.getPos1().getBlockY(), wallsTool.getPos1().getBlockZ());
+		Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
+		World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
+		CuboidRegion region = new CuboidRegion(world, vec1, vec2);
+		BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
+		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
+		ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
@@ -70,20 +89,19 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 			}
 			else if (args[0].equalsIgnoreCase("addcopy")) {
-				Vector vec1 = new Vector(wallsTool.getPos1().getBlockX(), wallsTool.getPos1().getBlockY(), wallsTool.getPos1().getBlockZ());
-				Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
-				World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
-				CuboidRegion region = new CuboidRegion(world, vec1, vec2);
-				BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 
-				EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
 
-				ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 				forwardExtentCopy.setRemovingEntities(false);
 				try {
 					Operations.complete(forwardExtentCopy);
 				} catch (WorldEditException e) {
-					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try (ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(myplugin.getDataFolder() + "/" + "something.schem"))) {
+				    writer.write(clipboard, world.getWorldData());
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				
@@ -105,7 +123,22 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage("copied");
 			}
 			else if (args[0].equalsIgnoreCase("paste")) {
-				protectedBlocks.pasteBlocksInClipboard();
+				File file = new File(myplugin.getDataFolder() + "/" + "something.schem");
+				ClipboardFormat format = ClipboardFormat.findByFile(file);
+				try (ClipboardReader reader = format.getReader(new FileInputStream(file))) {
+				    clipboard = reader.read();
+				}
+				world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
+				editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
+				Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
+				try {
+					Operations.complete(operation);
+				} catch (WorldEditException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				//protectedBlocks.pasteBlocksInClipboard();
 				sender.sendMessage("pasted");
 			}
 			else if (args[0].equalsIgnoreCase("listcopy")) {
