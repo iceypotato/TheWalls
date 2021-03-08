@@ -10,8 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import com.icey.walls.MainPluginClass;
-import com.icey.walls.framework.BlockClipboard;
+import com.icey.walls.MainClass;
 import com.icey.walls.listeners.WallsTool;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
@@ -32,10 +31,10 @@ import com.sk89q.worldedit.world.World;
 
 public class Test implements CommandExecutor {
 	
-	private MainPluginClass myplugin;
+	private MainClass myplugin;
 	private WallsTool wallsTool;
 	
-	public Test(MainPluginClass main, WallsTool wallsTool) {
+	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
 		this.wallsTool = wallsTool;
 	}
@@ -49,12 +48,12 @@ public class Test implements CommandExecutor {
 			Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
 			World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
 			CuboidRegion region = new CuboidRegion(world, vec1, vec2);
-			BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
 
 			
 			// addcopy \\
 			if (args[0].equalsIgnoreCase("addcopy")) {
+				BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
 				ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
 				forwardExtentCopy.setRemovingEntities(false);
 			    try {
@@ -76,19 +75,15 @@ public class Test implements CommandExecutor {
 			// paste \\
 			else if (args[0].equalsIgnoreCase("paste")) {
 				File file = new File(myplugin.getDataFolder() + "/" + "region.schem");
-				Clipboard clipboard2;
+				Clipboard clipboard;
 				ClipboardFormat format = ClipboardFormat.findByFile(file);
 				ClipboardReader reader;
 				try {
 					reader = format.getReader(new FileInputStream(file));
-					clipboard2 = reader.read(world.getWorldData());
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
-				try {
+					clipboard = reader.read(world.getWorldData());
+					Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
 					Operations.complete(operation);
-				} catch (WorldEditException e) {
+				} catch (WorldEditException | IOException e) {
 					e.printStackTrace();
 				}
 				sender.sendMessage("pasted");

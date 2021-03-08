@@ -1,7 +1,5 @@
 package com.icey.walls;
 
-import java.io.File;
-
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,7 +8,7 @@ import com.icey.walls.commands.Walls;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.listeners.WallsTool;
 
-public class MainPluginClass extends JavaPlugin {
+public class MainClass extends JavaPlugin {
 
 	public ArenaManager arenaManager = new ArenaManager(this);
 	public WallsTool wallsTool = new WallsTool();

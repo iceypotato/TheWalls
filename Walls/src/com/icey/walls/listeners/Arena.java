@@ -3,7 +3,6 @@ package com.icey.walls.listeners;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
-import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -18,11 +17,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import com.icey.walls.MainPluginClass;
+import com.icey.walls.MainClass;
 
 public class Arena implements EventListener {
 
-	private MainPluginClass plugin;
+	private MainClass plugin;
 	private boolean running;
 	private String name;
 	private boolean inProgress;
@@ -44,7 +43,7 @@ public class Arena implements EventListener {
 	private File arenaFile;
 	private	FileConfiguration arenaConfig;
 	
-	public Arena(String name, boolean enabled, boolean inProgress, File arenaFile, MainPluginClass plugin) {
+	public Arena(String name, boolean enabled, boolean inProgress, File arenaFile, MainClass plugin) {
 		this.name = name;
 		this.enabled = enabled;
 		this.inProgress = inProgress;

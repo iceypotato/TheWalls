@@ -1,57 +1,28 @@
 package com.icey.walls.commands;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.InventoryHolder;
-
-import com.icey.walls.MainPluginClass;
+import com.icey.walls.MainClass;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.extent.Extent;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
-import com.sk89q.worldedit.function.operation.ForwardExtentCopy;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.world.World;
-import com.sk89q.worldedit.session.ClipboardHolder;
 
 public class Walls implements CommandExecutor, TabCompleter {
-	private MainPluginClass myplugin;
+	private MainClass myplugin;
 	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
 	private WallsTool wallsTool;
 	private BlockClipboard protectedBlocks;
 
-	public Walls(MainPluginClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
+	public Walls(MainClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
 		myplugin = mainClass;
 		this.arenaManager = arenaManager;
 		this.wallsTool = wallsTool;

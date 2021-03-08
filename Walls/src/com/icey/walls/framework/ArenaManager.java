@@ -3,28 +3,25 @@ package com.icey.walls.framework;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.icey.walls.MainPluginClass;
+import com.icey.walls.MainClass;
 import com.icey.walls.listeners.Arena;
 import com.icey.walls.listeners.WallsTool;
 
 public class ArenaManager {
 
-	private MainPluginClass plugin;
+	private MainClass plugin;
 	private FileConfiguration dataConfig;
 	private File arenaFolder;
 	private File configFile;
 	private int numArenas;
 	private ArrayList<Arena> arenas;
 
-	public ArenaManager(MainPluginClass plugin) {
+	public ArenaManager(MainClass plugin) {
 		arenas = new ArrayList<Arena>();
 		this.plugin = plugin;
 		this.numArenas = 0;
