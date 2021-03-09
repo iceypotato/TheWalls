@@ -20,8 +20,8 @@ public class BlockClipboard {
 	
 	public void addBlock(Block block) {
 		if (block.getState() instanceof InventoryHolder) {
-			InventoryHolder inventory = (InventoryHolder) block.getState();
-			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState(), inventory.getInventory(), inventory.getInventory().getContents()));
+			InventoryHolder invHolder = (InventoryHolder) block.getState();
+			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState(), invHolder.getInventory(), invHolder.getInventory().getContents()));
 		}
 		else {
 			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState()));
@@ -29,15 +29,13 @@ public class BlockClipboard {
 	}
 	
 	public void pasteBlocksInClipboard() {
-		for (int i = 0; i < getBlockList().size(); i++) {
+		for (int i = 0; i < blockList.size(); i++) {
 			blockList.get(i).getBlock().setType(blockList.get(i).getMaterial());
-			blockList.get(i).getBlockState().update(true, false);
-			//blockList.get(i).getBlock().setType(blockList.get(i).getMaterial());
-			//blockList.get(i).getBlock().setData(blockList.get(i).getBlockData());
-			/*if (blockList.get(i).isContainer()) {
-				InventoryHolder inv = (InventoryHolder) blockList.get(i).getBlock().getState();
-				inv.getInventory().setContents(blockList.get(i).getItemStack());
-			}*/
+			blockList.get(i).getBlock().setData(blockList.get(i).getBlockData());
+			if (blockList.get(i).isContainer()) {
+				InventoryHolder invHolder = (InventoryHolder) blockList.get(i).getBlock().getState();
+				invHolder.getInventory().setContents(blockList.get(i).getItemStack());
+			}
 		}
 	}
 	
@@ -58,11 +56,16 @@ public class BlockClipboard {
 	}
 	public void listItemStacks() {
 	    for (SavedBlockInfo block : blockList) {
-	        if (block.getBlockState() instanceof InventoryHolder) {
-	            InventoryHolder inventory = (InventoryHolder) block.getBlockState();
-	            for (ItemStack stack : inventory.getInventory().getContents()) {
-	                Bukkit.broadcastMessage("Type: " + stack.getType().toString() + " Amount: " + stack.getAmount());
-	            }
+	        if (block.getItemStack() != null) {
+	        	ItemStack[] itemstack = block.getItemStack();
+	        	for (ItemStack itemStack2 : itemstack) {
+		            if (itemStack2 != null) {
+		            	Bukkit.broadcastMessage("Type: " + itemStack2.getType().toString() + " Amount: " + itemStack2.getAmount());
+		            }
+		            else {
+		            	Bukkit.broadcastMessage("Type: no value");
+		            }
+				}
 	        }
 	    }
 	}

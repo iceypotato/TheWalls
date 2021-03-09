@@ -6,11 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import com.icey.walls.MainClass;
+import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
@@ -33,6 +35,7 @@ public class Test implements CommandExecutor {
 	
 	private MainClass myplugin;
 	private WallsTool wallsTool;
+	private BlockClipboard protectedBlocks;
 	
 	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
@@ -44,49 +47,62 @@ public class Test implements CommandExecutor {
 		
 		if (args.length > 0) {
 			
-			Vector vec1 = new Vector(wallsTool.getPos1().getBlockX(), wallsTool.getPos1().getBlockY(), wallsTool.getPos1().getBlockZ());
-			Vector vec2 = new Vector(wallsTool.getPos2().getBlockX(), wallsTool.getPos2().getBlockY(), wallsTool.getPos2().getBlockZ());
-			World world = BukkitUtil.getLocalWorld(wallsTool.getWorld());
-			CuboidRegion region = new CuboidRegion(world, vec1, vec2);
-			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(region.getWorld(), -1);
-
-			
-			// addcopy \\
+			/* 
+			 * addcopy
+			 */
 			if (args[0].equalsIgnoreCase("addcopy")) {
-				BlockArrayClipboard clipboard = new BlockArrayClipboard(region);
-				ForwardExtentCopy forwardExtentCopy = new ForwardExtentCopy(editSession, region, clipboard, region.getMinimumPoint());
-				forwardExtentCopy.setRemovingEntities(false);
-			    try {
-					Operations.complete(forwardExtentCopy);
-				} catch (WorldEditException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				if (protectedBlocks == null) {
+					protectedBlocks = new BlockClipboard();
 				}
-				try (ClipboardWriter writer = ClipboardFormat.SCHEMATIC.getWriter(new FileOutputStream(myplugin.getDataFolder() + "/" + "region.schem"))) {
-				    writer.write(clipboard, world.getWorldData());
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (!protectedBlocks.getBlockList().isEmpty()) {
+					sender.sendMessage("Clipboard was not empty");
+				}
+				for (int x = Math.min(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x <= Math.max(wallsTool.getPos1().getBlockX(), wallsTool.getPos2().getBlockX()); x++) {
+					for (int y = Math.min(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y <= Math.max(wallsTool.getPos1().getBlockY(), wallsTool.getPos2().getBlockY()); y++) {
+						for (int z = Math.min(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z <= Math.max(wallsTool.getPos1().getBlockZ(), wallsTool.getPos2().getBlockZ()); z++) {
+							Location loc = new Location(wallsTool.getWorld(), x, y, z);
+							sender.sendMessage(loc.toString());
+							protectedBlocks.addBlock(loc.getBlock());
+						}
+					}
 				}
 				sender.sendMessage("copied");
 			}
-			
-			// paste \\
+			/*
+			 * paste
+			 */
 			else if (args[0].equalsIgnoreCase("paste")) {
-				File file = new File(myplugin.getDataFolder() + "/" + "region.schem");
-				Clipboard clipboard;
-				ClipboardFormat format = ClipboardFormat.findByFile(file);
-				ClipboardReader reader;
-				try {
-					reader = format.getReader(new FileInputStream(file));
-					clipboard = reader.read(world.getWorldData());
-					Operation operation = new ClipboardHolder(clipboard, world.getWorldData()).createPaste(clipboard, world.getWorldData()).to(vec1).ignoreAirBlocks(false).build();
-					Operations.complete(operation);
-				} catch (WorldEditException | IOException e) {
-					e.printStackTrace();
-				}
+				protectedBlocks.pasteBlocksInClipboard();
 				sender.sendMessage("pasted");
+			}
+			else if (args[0].equalsIgnoreCase("listcopy")) {
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("nothing");
+				}
+				else {
+					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
+						sender.sendMessage(protectedBlocks.listBlocksInClipboard());
+					}
+				}
+			}
+			else if (args[0].equalsIgnoreCase("listitems")) {
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("nothing");
+				}
+				else {
+					for (int i = 0; i < protectedBlocks.getBlockList().size(); i++) {
+						protectedBlocks.listItemStacks();
+					}
+				}
+			}
+			else if (args[0].equalsIgnoreCase("clear")) {
+				if (protectedBlocks == null || protectedBlocks.getBlockList().size() == 0) {
+					sender.sendMessage("Empty");
+				}
+				else {
+					protectedBlocks.clear();
+					sender.sendMessage("cleared.");
+				}
 			}
 			return true;
 		}

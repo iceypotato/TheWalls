@@ -7,8 +7,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
-import net.minecraft.server.v1_8_R3.BlockLadder;
-
 public class SavedBlockInfo {
 	
 	private Block block;
@@ -35,8 +33,20 @@ public class SavedBlockInfo {
 		this.blockData = blockData;
 		this.blockState = blockState;
 		this.blockInventory = blockInventory;
-		this.itemStack = itemStack;
+		this.itemStack = cloneItemStack(itemStack);
 		this.isContainer = true;
+	}
+
+	private ItemStack[] cloneItemStack(ItemStack[] input) {
+		ItemStack[] newItemStack = new ItemStack[input.length];
+		int i = 0;
+		for (ItemStack itemstack : input) {
+			if (itemstack != null) {
+				newItemStack[i] = itemstack.clone();
+			}
+			i++;
+		}
+		return newItemStack;
 	}
 
 	public Inventory getBlockInventory() {
