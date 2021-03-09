@@ -31,8 +31,9 @@ public class Walls implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		
 		if (args.length > 0) {
+			
+			// help \\
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
 				sender.sendMessage(ChatColor.AQUA + "/walls arena" + ChatColor.RESET + " Walls Arena Commands");
@@ -40,29 +41,40 @@ public class Walls implements CommandExecutor, TabCompleter {
 				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
+			// listarenas \\
 			else if (args[0].equalsIgnoreCase("listarenas")) {
 				sender.sendMessage(arenaManager.listArenas());
 			}
+			// join \\
 			else if (args[0].equalsIgnoreCase("join")) {
 				if (args.length >= 2 && sender instanceof Player) {
 					Player player = (Player) sender;
-					if (arenaManager.getArena(args[1]).isEnabled()) {
-						player.teleport(arenaManager.getArena(args[1]).getLobbySpawn());
+					if (arenaManager.getArena(args[1]).isEnabled() && arenaManager.getArenaFromPlayer(player) == null) {
+						arenaManager.getArena(args[1]).playerJoin(player);
 					}
 					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
 				}
-				else {
-					sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
+				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
+			}
+			// leave \\
+			else if (args[0].equalsIgnoreCase("leave")) {
+				if (args.length >= 2 && sender instanceof Player) {
+					Player player = (Player) sender;
+					if (arenaManager.getArenaFromPlayer(player) != null) {
+						arenaManager.getArenaFromPlayer(player).playerLeave(player);
+					}
+					else sender.sendMessage(ChatColor.YELLOW + "You have to join an arena to leave one.");
 				}
+				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 			}
 			
-			//Arena
+			// arena \\
 			else if (args[0].equalsIgnoreCase("arena")) {
 				if (args.length >= 2) {
 					//Create arena
 					if (args[1].equalsIgnoreCase("create")) {
 						if (args.length != 3) {
-							sender.sendMessage(ChatColor.RED + "No arena name specified! /walls create arena <name>");
+							sender.sendMessage(ChatColor.RED + "No arena name specified! /walls arena create <name>");
 						}
 						else {
 							String name = args[2];

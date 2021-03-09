@@ -36,7 +36,8 @@ public class SavedBlockInfo {
 		this.itemStack = cloneItemStack(itemStack);
 		this.isContainer = true;
 	}
-
+	
+	// This code is needed because copying chest contents is glitched. Items get set to 0. (GarbageMule helped)
 	private ItemStack[] cloneItemStack(ItemStack[] input) {
 		ItemStack[] newItemStack = new ItemStack[input.length];
 		int i = 0;

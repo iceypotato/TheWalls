@@ -3,6 +3,9 @@ package com.icey.walls.framework;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -56,7 +59,7 @@ public class ArenaManager {
 			if (configFile.exists() == false) {
 				arenaFolder.mkdirs();
 				configFile.createNewFile();
-				addArena(new Arena(name, false, false, configFile, plugin));
+				addArena(new Arena(name, false, false, false, configFile, plugin));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
 				dataConfig.set("Settings.enabled", false);
 				dataConfig.set("Settings.waiting-time", 120);
@@ -176,10 +179,6 @@ public class ArenaManager {
 		return names;
 	}
 
-	public ArrayList<Arena> getArenas() {
-		return arenas;
-	}
-
 	public Arena getArena(String name) {
 		for (int i = 0; i < arenas.size(); i++) {
 			if (arenas.get(i).getName().equals(name))
@@ -209,7 +208,7 @@ public class ArenaManager {
 					configFile = new File(arenaFolder, arenaFolder.list()[i]);
 					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
 					dataConfig = YamlConfiguration.loadConfiguration(configFile);
-					addArena(new Arena(name, false, false, configFile, plugin));
+					addArena(new Arena(name, false, false, false, configFile, plugin));
 					if (checkConfig(name) == false) {
 						dataConfig.set("Settings.enabled", false);
 					}
@@ -219,5 +218,19 @@ public class ArenaManager {
 				plugin.getLogger().info("No arenas exist.");
 			}
 		}
+	}
+	public Arena getArenaFromPlayer(Player player) {
+		for (Arena arena : arenas) {
+			for (UUID uuid : arena.getPlayersInGame()) {
+				if (player.getUniqueId().equals(uuid)) return arena;
+			}
+		}
+		return null;
+	}
+	
+	/* Getters and Setters */
+	
+	public ArrayList<Arena> getArenas() {
+		return arenas;
 	}
 }
