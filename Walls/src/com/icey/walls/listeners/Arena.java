@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -22,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
 
-public class Arena implements EventListener {
+public class Arena implements Listener{
 
 	private MainClass plugin;
 	private boolean running;
@@ -42,8 +43,7 @@ public class Arena implements EventListener {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
-	private ArrayList<Block> protectedBlocks;
-	private BlockClipboard savedBlocks;
+	private BlockClipboard protectedBlocks;
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
@@ -57,10 +57,15 @@ public class Arena implements EventListener {
 		this.waiting = waiting;
 		this.arenaFile = arenaFile;
 		this.plugin = plugin;
+		
 		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 		this.playersInGame = new ArrayList<UUID>();
 		this.playersInventory = new HashMap<UUID, ItemStack[]>();
 		this.playersOriginalLoc = new HashMap<UUID, Location>();
+		this.protectedBlocks = new BlockClipboard();
+		this.arenaRegions = new ArrayList<>();
+		this.buildRegions = new ArrayList<>();
+		this.wallRegions = new ArrayList<>();
 		this.running = false;
 	}
 	public void loadConfig() {
@@ -68,17 +73,27 @@ public class Arena implements EventListener {
 		readBlueSpawn();
 		readRedSpawn();
 		readYellowSpawn();
+		readGreenSpawn();
 		addArenaRegion();
 		addWallRegion();
 		addBuildRegion();
+		readSettings();
 	}
 	
+	
+	
 	public void playerJoin(Player player) {
+		if (playersInGame.size() == 0) {
+			loadConfig();
+			saveArenaState();
+		}
 		playersInGame.add(player.getUniqueId());
 		playersOriginalLoc.put(player.getUniqueId(), player.getLocation());
 		playersInventory.put(player.getUniqueId(), player.getInventory().getContents());
 		player.getInventory().clear();
 		player.teleport(lobbySpawn);
+		waiting = true;
+		
 	}
 	public void playerLeave(Player player) {
 		player.teleport(playersOriginalLoc.get(player.getUniqueId()));
@@ -87,13 +102,15 @@ public class Arena implements EventListener {
 		playersInGame.remove(player.getUniqueId());
 		playersOriginalLoc.remove(player.getUniqueId());
 		playersInventory.remove(player.getUniqueId());
+		if (playersInGame.size() == 0) {
+			waiting = false;
+			plugin.getLogger().info("last player left");
+			protectedBlocks.pasteBlocksInClipboard();
+		}
 	}
 	
 	@EventHandler
-	public void waitingForPlayers(BlockBreakEvent block, UUID uuid, Location location, ItemStack[] playerInv) {
-		playersInGame.add(uuid);
-		playersInventory.put(uuid, playerInv);
-		playersOriginalLoc.put(uuid, location);
+	public void waitingForPlayers(BlockBreakEvent block) {
 		waiting = true;
 		block.setCancelled(true);
 	}
@@ -103,14 +120,25 @@ public class Arena implements EventListener {
 	}
 	
 	public void stopGame() {
-		if (running) {
-			running = false;
-			inProgress = false;
-			playersInGame.clear();
-		}
+		running = false;
+		inProgress = false;
+		playersInGame.clear();
+		playersInventory.clear();
+		playersOriginalLoc.clear();
 	}
 	
-
+	public void pvp() {
+		
+	}
+	
+	//run this only when one person joins
+	public void saveArenaState() {
+		protectedBlocks.clear();
+		for (int i = 0; i < arenaRegions.size(); i++) {
+			protectedBlocks.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
+		}
+		plugin.getLogger().info(protectedBlocks.listBlocksInClipboard());
+	}
 	
 	@EventHandler
 	public void setup(PlayerInteractEvent event, BlockExplodeEvent block) {
@@ -141,40 +169,39 @@ public class Arena implements EventListener {
 		}
 	}
 	
-	public void pvp() {
-		
-	}
+
 	
 	public void addArenaRegion() {
-		readRegions("Arena", arenaRegions);
-		protectedBlocks = new ArrayList<Block>();
-		for (int j = 0; j < arenaRegions.size(); j++) {
-			for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
-				for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
-					for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
-						Location loc = new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z);
-						protectedBlocks.add(loc.getBlock());
-					}
-				}
-			}
-		}
+		arenaRegions = readRegions("Arena");
+//		if (arenaRegions != null) {
+//			for (int j = 0; j < arenaRegions.size(); j++) {
+//				for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
+//					for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
+//						for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
+//							Location loc = new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z);
+//							protectedBlocks.addBlock(loc.getBlock());
+//						}
+//					}
+//				}
+//			}
+//		}
 	}
 	public void addWallRegion() {
-		readRegions("Walls", wallRegions);
+		wallRegions = readRegions("Walls");
 	}
 	public void addBuildRegion() {
-		readRegions("Build", buildRegions);
+		buildRegions = readRegions("Build");
 	}
 	
-	public void readRegions(String name, ArrayList<Location[]> inRegion) {
+	public ArrayList<Location[]> readRegions(String name) {
 		int i = 1;
+		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
 		if (arenaConfig.get("Regions." + name + "." + i) != null) {
 			while (i <= arenaConfig.getConfigurationSection("Regions." + name + "").getKeys(false).toArray().length) {
 				if (arenaConfig.get("Regions." + name + "." + i).equals("") || arenaConfig.get("Regions." + name + "." + i) == null) {
-					plugin.getLogger().info(name + " arena has an invalid config! Check the " + name + " regions");
-					break;
+					plugin.getLogger().info(this.name + " arena has an invalid config! Check the " + name + " regions");
+					return null;
 				}
-				inRegion = new ArrayList<Location[]>();
 				Location[] region = new Location[2];
 				region[0] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.x"),
@@ -188,7 +215,11 @@ public class Arena implements EventListener {
 				i++;
 			}
 		}
-		else plugin.getLogger().info(name + " arena has an invalid config! Check the "+ name +" regions");
+		else {
+			plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
+			return null;
+		}
+		return inRegion;
 	}
 	
 	public void readSettings() {
@@ -197,26 +228,28 @@ public class Arena implements EventListener {
 		}
 	}
 	public void readLobbySpawn() {
-		readSpawns("Lobby", lobbySpawn);
+		lobbySpawn = readSpawns("Lobby");
 	}
 	public void readBlueSpawn() {
-		readSpawns("Blue", blueSpawn);
+		blueSpawn = readSpawns("Blue");
 	}
 	public void readRedSpawn() {
-		readSpawns("Red", redSpawn);
+		redSpawn = readSpawns("Red");
 	}
 	public void readGreenSpawn() {
-		readSpawns("Green", greenSpawn);
+		greenSpawn = readSpawns("Green");
 	}
 	public void readYellowSpawn() {
-		readSpawns("Yellow", yellowSpawn);
+		yellowSpawn = readSpawns("Yellow");
 	}
-	public void readSpawns(String name, Location spawn) {
+	public Location readSpawns(String name) {
 		if (arenaConfig.contains("Spawns." + name + ".world") && arenaConfig.contains("Spawns." + name + ".x") && arenaConfig.contains("Spawns." + name + ".y") && arenaConfig.contains("Spawns." + name + ".z")) {
-			spawn = new Location(Bukkit.getWorld(arenaConfig.getString("Spawns." + name + ".world")), arenaConfig.getDouble("Spawns." + name + ".x"), arenaConfig.getDouble("Spawns." + name + ".y"), arenaConfig.getDouble("Spawns." + name + ".z"));
+			Location spawn = new Location(Bukkit.getWorld(arenaConfig.getString("Spawns." + name + ".world")), arenaConfig.getDouble("Spawns." + name + ".x"), arenaConfig.getDouble("Spawns." + name + ".y"), arenaConfig.getDouble("Spawns." + name + ".z"));
 			spawn.setPitch((float) arenaConfig.getDouble("Spawns." + name + ".pitch"));
 			spawn.setYaw((float) arenaConfig.getDouble("Spawns." + name + ".yaw"));
+			return spawn;
 		}
+		return null;
 	}
 
 	public String listRegions() {

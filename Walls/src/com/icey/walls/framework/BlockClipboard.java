@@ -3,6 +3,7 @@ package com.icey.walls.framework;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
@@ -25,6 +26,17 @@ public class BlockClipboard {
 		}
 		else {
 			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState()));
+		}
+	}
+	//Add a bunch of blocks from a region.
+	public void addRegion(Location pos1, Location pos2) {
+		for (int x = Math.min(pos1.getBlockX(), pos2.getBlockX()); x <= Math.max(pos1.getBlockX(), pos2.getBlockX()); x++) {
+			for (int y = Math.min(pos1.getBlockY(), pos2.getBlockY()); y <= Math.max(pos1.getBlockY(), pos2.getBlockY()); y++) {
+				for (int z = Math.min(pos1.getBlockZ(), pos2.getBlockZ()); z <= Math.max(pos1.getBlockZ(), pos2.getBlockZ()); z++) {
+					Location loc = new Location(pos1.getWorld(), x, y, z);
+					addBlock(loc.getBlock());
+				}
+			}
 		}
 	}
 	

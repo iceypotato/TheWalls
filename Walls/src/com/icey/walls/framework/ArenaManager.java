@@ -89,9 +89,10 @@ public class ArenaManager {
 	public boolean checkConfig(String name) {
 		FileConfiguration arenaConfig = getConfigFile(name);
 		if (!arenaConfig.contains("Settings.preparation-time") || arenaConfig.get("Settings.preparation-time").equals("") ) {
+			plugin.getLogger().info("no prep");
 			return false;
 		}
-		if (!arenaConfig.contains("Settings.enabled") || arenaConfig.getBoolean("Settings.enabled") == false) return false;
+		if (!arenaConfig.contains("Settings.enabled") || arenaConfig.get("Settings.enabled").equals("")) return false;
 		if (!arenaConfig.contains("Spawns.Lobby") || arenaConfig.get("Spawns.Lobby").equals("")) return false;
 		if (!arenaConfig.contains("Spawns.Blue") || arenaConfig.get("Spawns.Blue").equals("")) return false;
 		if (!arenaConfig.contains("Spawns.Red") || arenaConfig.get("Spawns.Red").equals("")) return false;
@@ -102,16 +103,19 @@ public class ArenaManager {
 		if (!arenaConfig.contains("Regions.Arena")) return false;
 		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Walls").getKeys(false).toArray().length; i++) {
 			if (arenaConfig.get("Regions.Walls." + i) == null || arenaConfig.get("Regions.Walls." + i).equals("")) {
+				plugin.getLogger().info("no walls");
 				return false;
 			}
 		}
 		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Build").getKeys(false).toArray().length; i++) {
 			if (arenaConfig.get("Regions.Build." + i) == null || arenaConfig.get("Regions.Build." + i).equals("")) {
+				plugin.getLogger().info("no build");
 				return false;
 			}
 		}
 		for (int i = 1; i <= arenaConfig.getConfigurationSection("Regions.Arena").getKeys(false).toArray().length; i++) {
 			if (arenaConfig.get("Regions.Arena." + i) == null || arenaConfig.get("Regions.Arena." + i).equals("")) {
+				plugin.getLogger().info("no arena");
 				return false;
 			}
 		}
@@ -151,9 +155,11 @@ public class ArenaManager {
 		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.z", wallsTool.getPos2().getBlockZ());
 		saveFile(name, arenaConfig);
 	}
-	public void writeSettings(String name, String value) {
-		FileConfiguration arenaConfig = getConfigFile(name);
+	public void writeSettings(String arena, String name, Object value) {
+		FileConfiguration arenaConfig = getConfigFile(arena);
+		plugin.getLogger().warning(arena + name + value);
 		arenaConfig.set("Settings." + name, value);
+		saveFile(arena, arenaConfig);
 	}
 	
 	public void stopAllArenas() {

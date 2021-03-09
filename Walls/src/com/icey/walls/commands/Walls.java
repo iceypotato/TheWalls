@@ -47,18 +47,18 @@ public class Walls implements CommandExecutor, TabCompleter {
 			}
 			// join \\
 			else if (args[0].equalsIgnoreCase("join")) {
-				if (args.length >= 2 && sender instanceof Player) {
+				if (args.length >= 1 && sender instanceof Player) {
 					Player player = (Player) sender;
-					if (arenaManager.getArena(args[1]).isEnabled() && arenaManager.getArenaFromPlayer(player) == null) {
-						arenaManager.getArena(args[1]).playerJoin(player);
-					}
+					if (arenaManager.getArena(args[1]) == null) sender.sendMessage(ChatColor.RED + "That arena does not exist!");
+					else if (arenaManager.getArenaFromPlayer(player) != null) sender.sendMessage(ChatColor.RED+"You must leave your current arena before joining another.");
+					else if (arenaManager.getArena(args[1]).isEnabled()) arenaManager.getArena(args[1]).playerJoin(player);
 					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
 				}
 				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 			}
 			// leave \\
 			else if (args[0].equalsIgnoreCase("leave")) {
-				if (args.length >= 2 && sender instanceof Player) {
+				if (args.length >= 1 && sender instanceof Player) {
 					Player player = (Player) sender;
 					if (arenaManager.getArenaFromPlayer(player) != null) {
 						arenaManager.getArenaFromPlayer(player).playerLeave(player);
@@ -109,8 +109,13 @@ public class Walls implements CommandExecutor, TabCompleter {
 									arenaManager.getArena(name).stopGame();
 								}
 								else if (args[2].equalsIgnoreCase("enable")) {
-									arenaManager.getArena(name).setEnabled(true);
-									arenaManager.writeSettings("enabled", "true");
+									sender.sendMessage(args[1]);
+									if (arenaManager.checkConfig(args[1])) {
+										arenaManager.getArena(args[1]).setEnabled(true);
+										arenaManager.writeSettings(args[1], "enabled", true);
+										sender.sendMessage("Arena " + args[1] + " enabled.");
+									}
+									else sender.sendMessage("Error: cannot enable arena. Check the config.");
 								}
 								else if (sender instanceof Player) {
 									Player player = (Player) sender;
@@ -134,13 +139,20 @@ public class Walls implements CommandExecutor, TabCompleter {
 										arenaManager.writeSpawns(name, "Yellow", player);
 										sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
 									}
+									else if (args[2].equalsIgnoreCase("addarenaregion")) {
+										if (wallsTool.getPos1() == null || wallsTool.getPos1() == null) { sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!"); }
+										else {
+											arenaManager.writeRegions(name, "Arena", player, wallsTool);
+											sender.sendMessage("Arena region added for " + name);
+										}
+									}
 									else if (args[2].equalsIgnoreCase("addwall")) {
 										if (wallsTool.getPos1() == null || wallsTool.getPos1() == null) {
 											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
 										}
 										else {
 											arenaManager.writeRegions(name, "Walls", player, wallsTool);
-											sender.sendMessage("wall added for " + name);
+											sender.sendMessage("Wall region added for " + name);
 										}
 									}
 									else if (args[2].equalsIgnoreCase("addbuild")) {
