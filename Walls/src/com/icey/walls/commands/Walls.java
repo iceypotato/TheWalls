@@ -51,7 +51,10 @@ public class Walls implements CommandExecutor, TabCompleter {
 					Player player = (Player) sender;
 					if (arenaManager.getArena(args[1]) == null) sender.sendMessage(ChatColor.RED + "That arena does not exist!");
 					else if (arenaManager.getArenaFromPlayer(player) != null) sender.sendMessage(ChatColor.RED+"You must leave your current arena before joining another.");
-					else if (arenaManager.getArena(args[1]).isEnabled()) arenaManager.getArena(args[1]).playerJoin(player);
+					else if (arenaManager.getArena(args[1]).isEnabled()) {
+						sender.sendMessage(ChatColor.GREEN + "You have joined " + args[1] + ".");
+						arenaManager.getArena(args[1]).playerJoin(player);
+					}
 					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
 				}
 				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
@@ -62,6 +65,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 					Player player = (Player) sender;
 					if (arenaManager.getArenaFromPlayer(player) != null) {
 						arenaManager.getArenaFromPlayer(player).playerLeave(player);
+						sender.sendMessage(ChatColor.GOLD + "You have left the arena.");
 					}
 					else sender.sendMessage(ChatColor.YELLOW + "You have to join an arena to leave one.");
 				}

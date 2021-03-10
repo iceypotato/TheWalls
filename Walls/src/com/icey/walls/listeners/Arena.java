@@ -1,9 +1,12 @@
 package com.icey.walls.listeners;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Timer;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -17,13 +20,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
+import com.icey.walls.framework.WallsCountdown;
 
-public class Arena implements Listener{
+public class Arena implements Listener {
 
 	private MainClass plugin;
 	private boolean running;
@@ -36,6 +41,10 @@ public class Arena implements Listener{
 	private int minPlayers;
 	private int prepTime;
 	private ArrayList<UUID> playersInGame;
+	private ArrayList<UUID> teamRed;
+	private ArrayList<UUID> teamGreen;
+	private ArrayList<UUID> teamBlue;
+	private ArrayList<UUID> teamYellow;
 	private HashMap<UUID, ItemStack[]> playersInventory;
 	private HashMap<UUID, Location> playersOriginalLoc;
 	private Location lobbySpawn;
@@ -47,6 +56,7 @@ public class Arena implements Listener{
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
+	private Timer tm;
 	private File arenaFile;
 	private	FileConfiguration arenaConfig;
 	
@@ -67,7 +77,9 @@ public class Arena implements Listener{
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
 		this.running = false;
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
+	
 	public void loadConfig() {
 		readLobbySpawn();
 		readBlueSpawn();
@@ -80,8 +92,6 @@ public class Arena implements Listener{
 		readSettings();
 	}
 	
-	
-	
 	public void playerJoin(Player player) {
 		if (playersInGame.size() == 0) {
 			loadConfig();
@@ -93,8 +103,20 @@ public class Arena implements Listener{
 		player.getInventory().clear();
 		player.teleport(lobbySpawn);
 		waiting = true;
-		
+		if (playersInGame.size() >= minPlayers) countdown();
 	}
+	
+	public void countdown() {
+		int delay = 1000;
+		WallsCountdown countdown = new WallsCountdown(20);
+		tm = new Timer();
+		try {
+			tm.schedule(countdown, 0, delay);
+		} catch (IllegalStateException e) {
+			// timer already scheduled
+		}
+	}
+	
 	public void playerLeave(Player player) {
 		player.teleport(playersOriginalLoc.get(player.getUniqueId()));
 		player.getInventory().clear();
@@ -102,20 +124,27 @@ public class Arena implements Listener{
 		playersInGame.remove(player.getUniqueId());
 		playersOriginalLoc.remove(player.getUniqueId());
 		playersInventory.remove(player.getUniqueId());
+		if (playersInGame.size() >= minPlayers) countdown();
 		if (playersInGame.size() == 0) {
 			waiting = false;
-			plugin.getLogger().info("last player left");
 			protectedBlocks.pasteBlocksInClipboard();
 		}
 	}
 	
 	@EventHandler
-	public void waitingForPlayers(BlockBreakEvent block) {
+	public void waitingForPlayers(PlayerInteractEvent event, EntityDamageEvent dmgEvent) {
 		waiting = true;
-		block.setCancelled(true);
+		if(waiting && playersInGame.contains(event.getPlayer().getUniqueId())) {
+			event.setCancelled(true);
+			dmgEvent.setCancelled(true);
+		}
 	}
 	
-	public void runGame() {
+	public void startPrep() {
+		
+	}
+	
+	public void startPvp() {
 		
 	}
 	
@@ -125,10 +154,9 @@ public class Arena implements Listener{
 		playersInGame.clear();
 		playersInventory.clear();
 		playersOriginalLoc.clear();
-	}
-	
-	public void pvp() {
-		
+		for (UUID uuid : playersInGame) {
+			playerLeave(Bukkit.getPlayer(uuid));
+		}
 	}
 	
 	//run this only when one person joins
@@ -137,7 +165,6 @@ public class Arena implements Listener{
 		for (int i = 0; i < arenaRegions.size(); i++) {
 			protectedBlocks.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
 		}
-		plugin.getLogger().info(protectedBlocks.listBlocksInClipboard());
 	}
 	
 	@EventHandler
@@ -169,22 +196,8 @@ public class Arena implements Listener{
 		}
 	}
 	
-
-	
 	public void addArenaRegion() {
 		arenaRegions = readRegions("Arena");
-//		if (arenaRegions != null) {
-//			for (int j = 0; j < arenaRegions.size(); j++) {
-//				for (int x = Math.min(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x < Math.max(arenaRegions.get(j)[0].getBlockX(), arenaRegions.get(j)[1].getBlockX()); x++) {
-//					for (int y = Math.min(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y < Math.max(arenaRegions.get(j)[0].getBlockY(), arenaRegions.get(j)[1].getBlockY()); y++) {
-//						for (int z = Math.min(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z < Math.max(arenaRegions.get(j)[0].getBlockZ(), arenaRegions.get(j)[1].getBlockZ()); z++) {
-//							Location loc = new Location(Bukkit.getWorld(arenaConfig.getString("Regions.Arena." + (j+1) + ".world")), x, y, z);
-//							protectedBlocks.addBlock(loc.getBlock());
-//						}
-//					}
-//				}
-//			}
-//		}
 	}
 	public void addWallRegion() {
 		wallRegions = readRegions("Walls");
