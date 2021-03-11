@@ -21,13 +21,11 @@ public class ArenaManager {
 	private FileConfiguration dataConfig;
 	private File arenaFolder;
 	private File configFile;
-	private int numArenas;
 	private ArrayList<Arena> arenas;
 
 	public ArenaManager(MainClass plugin) {
 		arenas = new ArrayList<Arena>();
 		this.plugin = plugin;
-		this.numArenas = 0;
 	}
 
 	public FileConfiguration getConfigFile(String name) {
@@ -207,12 +205,25 @@ public class ArenaManager {
 
 	public void reloadArenas() {
 		arenas.clear();
+		
+		plugin.getLogger().info(configFile+"");
+		
 		if (configFile == null) {
 			arenaFolder = new File(plugin.getDataFolder(), "arenas");
+			plugin.getLogger().info(arenaFolder.exists()+"");
 			if (arenaFolder.exists()) {
+				
+				plugin.getLogger().info(arenaFolder.list().length+"");
+				
 				for (int i = 0; i < arenaFolder.list().length; i++) {
+					
+					plugin.getLogger().info(arenaFolder.list().length+"");
+					
 					configFile = new File(arenaFolder, arenaFolder.list()[i]);
 					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
+					
+					//plugin.getLogger().info(name);
+					
 					dataConfig = YamlConfiguration.loadConfiguration(configFile);
 					addArena(new Arena(name, false, false, false, configFile, plugin));
 					if (checkConfig(name) == false) {

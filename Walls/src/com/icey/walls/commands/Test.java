@@ -53,29 +53,17 @@ public class Test implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
-			if (args[0].equalsIgnoreCase("setsc")) {
-				wallsSc = new WallsScoreboard(2, 0, 0, 0, 0, 0, "walls1", ChatColor.GOLD+""+ChatColor.BOLD +"The Walls", "dummy", DisplaySlot.SIDEBAR);
-				wallsSc.updatePlayersSB((Player) sender);
+			if (args[0].equalsIgnoreCase("copy")) {
+				protectedBlocks.addRegion(wallsTool.getPos1(), wallsTool.getPos2());
 			}
-			else if (args[0].equalsIgnoreCase("starttm")) {
-				wallsSc.startTimer((Player) sender);
+			else if (args[0].equalsIgnoreCase("paste")) {
+				protectedBlocks.pasteBlocksInClipboard();
 			}
 			else if (args[0].equalsIgnoreCase("addred")) {
-				wallsSc.setReds(wallsSc.getReds()+1);
-				wallsSc.clearSB();
-				wallsSc.putPrepTime();
-				wallsSc.putPlayersAlive();
-				wallsSc.updatePlayersSB((Player) sender);
 			}
 			else if (args[0].equalsIgnoreCase("rmred")) {
-				wallsSc.setReds(wallsSc.getReds()-1);
-				wallsSc.clearSB();
-				wallsSc.putPrepTime();
-				wallsSc.putPlayersAlive();
-				wallsSc.updatePlayersSB((Player) sender);
 			}
 			else if (args[0].equalsIgnoreCase("stop")) {
-				wallsSc.cancelTimer();
 			}
 			return true;
 		}

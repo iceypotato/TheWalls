@@ -17,32 +17,43 @@ public class WallsScoreboard {
 	
 	private int minutes;
 	private int seconds;
+	private int players;
+	private int maxPlayers;
 	private int reds;
 	private int greens;
 	private int blues;
 	private int yellows;
 	private ScoreboardManager manager;
+	private Team redTeam;
+	private Team greenTeam;
+	private Team blueTeam;
+	private Team yellowTeam;
 	private Scoreboard board;
 	private Objective objective;
-	private Timer wallsFall;
-	String name;
-	String displayName;
-	String criteria;
-	DisplaySlot slot;
+	private String name;
+	private String displayName;
+	private String criteria;
+	private DisplaySlot slot;
 	
-	public WallsScoreboard(int minutes, int seconds, int reds, int greens, int blues, int yellows, String name, String displayName, String criteria, DisplaySlot slot) {
-		this.minutes = minutes;
-		this.seconds = seconds;
-		this.reds = reds;
-		this.greens = greens;
-		this.blues = blues;
-		this.yellows = yellows;
+	public WallsScoreboard(String name, String displayName, String criteria, DisplaySlot slot) {
 		this.name = name;
 		this.displayName = displayName;
 		this.criteria = criteria;
 		this.slot = slot;
 		manager = Bukkit.getScoreboardManager();
 		board = manager.getNewScoreboard();
+		redTeam = board.registerNewTeam("red");
+		greenTeam = board.registerNewTeam("green");
+		blueTeam = board.registerNewTeam("blue");
+		yellowTeam = board.registerNewTeam("yellow");
+		redTeam.setAllowFriendlyFire(false);
+		greenTeam.setAllowFriendlyFire(false);
+		blueTeam.setAllowFriendlyFire(false);
+		yellowTeam.setAllowFriendlyFire(false);
+		redTeam.setPrefix(ChatColor.RED+"");
+		greenTeam.setPrefix(ChatColor.GREEN+"");
+		blueTeam.setPrefix(ChatColor.BLUE+"");
+		yellowTeam.setPrefix(ChatColor.YELLOW+"");
 	}
 	public void addScore(Score score, String text) {
 		
@@ -79,20 +90,26 @@ public class WallsScoreboard {
 			time.setScore(6);
 		}
 		Score space1 = objective.getScore("");
+		space1.setScore(0);
 	}
-	public void putWaitingTime() {
-		Score space1 = objective.getScore("");
-		space1.setScore(2);
+	
+	//Put the waiting scorboard
+	public void putWaiting() {
+		Score space1 = objective.getScore(" ");
+		space1.setScore(3);
 		Score time;
 		if (seconds != -1) {
 			String seconds = this.seconds+"";
 			if (seconds.length() == 1) seconds = "0" + seconds;
 			time = objective.getScore("Waiting For Players: " + ChatColor.GREEN + minutes + ":" + seconds);
-			time.setScore(1);
+			time.setScore(2);
 		}
+		Score players = objective.getScore("Players: " + ChatColor.GREEN + this.players + "/" + maxPlayers);
+		players.setScore(1);
 		Score space2 = objective.getScore("");
 		space2.setScore(0);
 	}
+	
 	//Displays the scoreboard to the player.
 	public void updatePlayersSB(Player player) {
 		player.setScoreboard(board);
@@ -105,65 +122,57 @@ public class WallsScoreboard {
 		objective.setDisplayName(displayName);
 		objective.setDisplaySlot(slot);
 	}
-
-	public void startTimer(Player player) {
-		WallsCountdown wallsCD = new WallsCountdown(minutes, seconds, this, player);
-		wallsFall = new Timer();
-		wallsFall.schedule(wallsCD, 0, 1000);
+	
+	public void joinRedTeam(Player player) {
+		redTeam.addEntry(player.getName());
+	}
+	public void joinGreenTeam(Player player) {
+		greenTeam.addEntry(player.getName());
+	}
+	public void joinBlueTeam(Player player) {
+		blueTeam.addEntry(player.getName());
+	}
+	public void joinYellowTeam(Player player) {
+		yellowTeam.addEntry(player.getName());
 	}
 	
-	public void cancelTimer() {
-		wallsFall.cancel();
-	}
 	
-	public int getReds() {
-		return reds;
-	}
-
-	public void setReds(int reds) {
-		this.reds = reds;
-	}
-
-	public int getMinutes() {
-		return minutes;
-	}
-
-	public void setMinutes(int minutes) {
-		this.minutes = minutes;
-	}
-
-	public int getSeconds() {
-		return seconds;
-	}
-
-	public void setSeconds(int seconds) {
-		this.seconds = seconds;
-	}
-
-	public int getGreens() {
-		return greens;
-	}
-
-	public void setGreens(int greens) {
-		this.greens = greens;
-	}
-
-	public int getBlues() {
-		return blues;
-	}
-
-	public void setBlues(int blues) {
-		this.blues = blues;
-	}
-
-	public int getYellows() {
-		return yellows;
-	}
-
-	public void setYellows(int yellows) {
-		this.yellows = yellows;
-	}
-	public Objective getObjective() {
-		return this.objective;
-	}
+	// Getters and Setters \\
+	
+	public int getReds() {return reds;}
+	
+	public void setReds(int reds) {this.reds = reds;}
+	
+	public int getMinutes() {return minutes;}
+	
+	public void setMinutes(int minutes) {this.minutes = minutes;}
+	
+	public int getSeconds() {return seconds;}
+	
+	public void setSeconds(int seconds) {this.seconds = seconds;}
+	
+	public int getGreens() {return greens;}
+	
+	public void setGreens(int greens) {this.greens = greens;}
+	
+	public int getBlues() {return blues;}
+	
+	public void setBlues(int blues) {this.blues = blues;}
+	
+	public int getYellows() {return yellows;}
+	
+	public void setYellows(int yellows) {this.yellows = yellows;}
+	
+	public Objective getObjective() {return this.objective;}
+	
+	public int getPlayers() {return players;}
+	
+	public void setPlayers(int players) {this.players = players;}
+	
+	public int getMaxPlayers() {return maxPlayers;}
+	
+	public void setMaxPlayers(int maxPlayers) {this.maxPlayers = maxPlayers;}
+	
+	public ScoreboardManager getManager() {return manager;}
+	public void setManager(ScoreboardManager manager) {this.manager = manager;}
 }

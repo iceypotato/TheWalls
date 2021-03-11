@@ -1,31 +1,40 @@
 package com.icey.walls.framework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+
+import com.icey.walls.MainClass;
 
 public class BlockClipboard {
 	
 	private ArrayList<SavedBlockInfo> blockList;
 	
-	
 	public BlockClipboard() {
+
 		blockList = new ArrayList<SavedBlockInfo>();
 	}
 	
 	public void addBlock(Block block) {
 		if (block.getState() instanceof InventoryHolder) {
 			InventoryHolder invHolder = (InventoryHolder) block.getState();
-			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState(), invHolder.getInventory(), invHolder.getInventory().getContents()));
+			blockList.add(new SavedBlockInfo(block, block.getState(), invHolder.getInventory(), invHolder.getInventory().getContents()));
+		}
+		else if (block.getState() instanceof Sign) {
+			Sign sign = (Sign) block.getState();
+			blockList.add(new SavedBlockInfo(block, block.getState(), sign.getLines()));
 		}
 		else {
-			blockList.add(new SavedBlockInfo(block, block.getType(), block.getData(), block.getState()));
+			blockList.add(new SavedBlockInfo(block, block.getState()));
 		}
 	}
 	//Add a bunch of blocks from a region.
@@ -42,11 +51,17 @@ public class BlockClipboard {
 	
 	public void pasteBlocksInClipboard() {
 		for (int i = 0; i < blockList.size(); i++) {
-			blockList.get(i).getBlock().setType(blockList.get(i).getMaterial());
-			blockList.get(i).getBlock().setData(blockList.get(i).getBlockData());
+			blockList.get(i).getBlockState().update(true);
 			if (blockList.get(i).isContainer()) {
 				InventoryHolder invHolder = (InventoryHolder) blockList.get(i).getBlock().getState();
 				invHolder.getInventory().setContents(blockList.get(i).getItemStack());
+			}
+			if (blockList.get(i).isSign()) {
+				Sign sign = (Sign) blockList.get(i).getBlock().getState();
+				for (int j = 0; j < blockList.get(i).getLines().length; j++) {
+					sign.setLine(j, blockList.get(i).getLines()[j]);
+				}
+				sign.update(true);
 			}
 		}
 	}

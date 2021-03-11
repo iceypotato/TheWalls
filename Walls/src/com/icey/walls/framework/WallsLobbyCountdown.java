@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 import com.icey.walls.listeners.Arena;
 
-public class WallsFallCountdown extends TimerTask {
+public class WallsLobbyCountdown extends TimerTask {
 	
 	private int minutes;
 	private int seconds;
@@ -18,7 +18,7 @@ public class WallsFallCountdown extends TimerTask {
 	private ArrayList<UUID> player;
 	private Arena arena;
 	
-	public WallsFallCountdown(int minutes, int seconds, WallsScoreboard wallsSB, ArrayList<UUID> player, Arena arena) {
+	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, ArrayList<UUID> player, Arena arena) {
 		this.minutes = minutes;
 		this.seconds = seconds;
 		this.wallsSB = wallsSB;
@@ -30,7 +30,7 @@ public class WallsFallCountdown extends TimerTask {
 	public void run() {
 		seconds--;
 		if (minutes <= 0 && seconds < 0) {
-			arena.startPvp();
+			arena.startPrep();
 			this.cancel();
 		}
 		else {
@@ -42,8 +42,7 @@ public class WallsFallCountdown extends TimerTask {
 		wallsSB.setMinutes(minutes);
 		wallsSB.setSeconds(seconds);
 		wallsSB.clearSB();
-		wallsSB.putPrepTime();
-		wallsSB.putPlayersAlive();
+		wallsSB.putWaiting();
 		for (UUID id : player) {
 			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}

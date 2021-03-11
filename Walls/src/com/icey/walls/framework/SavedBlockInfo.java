@@ -1,5 +1,7 @@
 package com.icey.walls.framework;
 
+import java.util.Iterator;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -10,34 +12,39 @@ import org.bukkit.material.MaterialData;
 public class SavedBlockInfo {
 	
 	private Block block;
-	private Material material;
-	private byte blockData;
 	private BlockState blockState;
 	private MaterialData materialData;
 	private Inventory blockInventory;
 	private ItemStack[] itemStack;
+	private String[] lines;
 	private boolean isContainer;
+	private boolean isSign;
 	
 	//Regular Block
-	public SavedBlockInfo(Block block, Material material, byte blockData, BlockState blockState) {
+	public SavedBlockInfo(Block block, BlockState blockState) {
 		this.block = block;
-		this.material = material;
-		this.blockData = blockData;
 		this.blockState = blockState;
 	}
 	
 	//container
-	public SavedBlockInfo(Block block, Material material, byte blockData, BlockState blockState, Inventory blockInventory, ItemStack[] itemStack) {
+	public SavedBlockInfo(Block block, BlockState blockState, Inventory blockInventory, ItemStack[] itemStack) {
 		this.block = block;
-		this.material = material;
-		this.blockData = blockData;
 		this.blockState = blockState;
 		this.blockInventory = blockInventory;
 		this.itemStack = cloneItemStack(itemStack);
 		this.isContainer = true;
 	}
 	
-	// This code is needed because copying chest contents is glitched. Items get set to 0. (GarbageMule helped)
+	//sign
+	public SavedBlockInfo(Block block, BlockState blockState, String[] lines) {
+		this.block = block;
+		this.blockState = blockState;
+		this.blockInventory = blockInventory;
+		this.lines = cloneText(lines);
+		this.isSign = true;
+	}
+	
+
 	private ItemStack[] cloneItemStack(ItemStack[] input) {
 		ItemStack[] newItemStack = new ItemStack[input.length];
 		int i = 0;
@@ -48,6 +55,15 @@ public class SavedBlockInfo {
 			i++;
 		}
 		return newItemStack;
+	}
+	private String[] cloneText(String[] input) {
+		String[] newLines = new String[input.length];
+		for (int i = 0; i < input.length; i++) {
+			if (input[i] != null) {
+				newLines[i] = input[i];
+			}
+		}
+		return newLines;
 	}
 
 	public Inventory getBlockInventory() {
@@ -64,22 +80,6 @@ public class SavedBlockInfo {
 
 	public void setBlock(Block block) {
 		this.block = block;
-	}
-
-	public Material getMaterial() {
-		return material;
-	}
-
-	public void setMaterial(Material material) {
-		this.material = material;
-	}
-
-	public byte getBlockData() {
-		return blockData;
-	}
-
-	public void setBlockData(byte blockData) {
-		this.blockData = blockData;
 	}
 
 	public BlockState getBlockState() {
@@ -112,5 +112,21 @@ public class SavedBlockInfo {
 
 	public void setContainer(boolean isContainer) {
 		this.isContainer = isContainer;
+	}
+
+	public boolean isSign() {
+		return isSign;
+	}
+
+	public void setSign(boolean isSign) {
+		this.isSign = isSign;
+	}
+
+	public String[] getLines() {
+		return lines;
+	}
+
+	public void setLines(String[] lines) {
+		this.lines = lines;
 	}
 }

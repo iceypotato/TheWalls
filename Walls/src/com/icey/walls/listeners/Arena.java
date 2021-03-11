@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Timer;
 import java.util.UUID;
 
@@ -23,11 +24,14 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
-import com.icey.walls.framework.WallsCountdown;
 import com.icey.walls.framework.WallsFallCountdown;
+import com.icey.walls.framework.WallsLobbyCountdown;
+import com.icey.walls.framework.WallsScoreboard;
 
 public class Arena implements Listener {
 
@@ -37,9 +41,9 @@ public class Arena implements Listener {
 	private boolean inProgress;
 	private boolean waiting;
 	private boolean enabled;
-	private int waitingTime;
 	private int maxPlayers;
 	private int minPlayers;
+	private int waitingTime;
 	private int prepTime;
 	private ArrayList<UUID> playersInGame;
 	private ArrayList<UUID> teamRed;
@@ -59,19 +63,22 @@ public class Arena implements Listener {
 	private ArrayList<Location[]> wallRegions;
 	private Timer tm;
 	private File arenaFile;
-	private WallsFallCountdown wallsCountdown;
+	private WallsScoreboard wallsSB;
 	private	FileConfiguration arenaConfig;
 	
 	public Arena(String name, boolean enabled, boolean inProgress, boolean waiting, File arenaFile, MainClass plugin) {
 		this.name = name;
+		this.running = false;
 		this.enabled = enabled;
 		this.inProgress = inProgress;
 		this.waiting = waiting;
 		this.arenaFile = arenaFile;
 		this.plugin = plugin;
-		
-		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 		this.playersInGame = new ArrayList<UUID>();
+		this.teamRed = new ArrayList<>();
+		this.teamGreen = new ArrayList<>();
+		this.teamBlue = new ArrayList<>();
+		this.teamYellow = new ArrayList<>();
 		this.playersInventory = new HashMap<UUID, ItemStack[]>();
 		this.playersOriginalLoc = new HashMap<UUID, Location>();
 		this.protectedBlocks = new BlockClipboard();
@@ -79,7 +86,8 @@ public class Arena implements Listener {
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
 		this.running = false;
-		this.wallsCountdown = new WallsFallCountdown(2, 0, null, null);
+		this.tm = new Timer();
+		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
@@ -95,17 +103,41 @@ public class Arena implements Listener {
 		readSettings();
 	}
 	
+	/*
+	 * 
+	 * Arena Events
+	 * 
+	 */
+	
 	public void playerJoin(Player player) {
+		Random random = new Random();
+		int randNum = random.nextInt(4);
+		if (randNum == 0) teamRed.add(player.getUniqueId());
+		if (randNum == 1) teamGreen.add(player.getUniqueId());
+		if (randNum == 2) teamBlue.add(player.getUniqueId());
+		if (randNum == 3) teamYellow.add(player.getUniqueId());
 		if (playersInGame.size() == 0) {
 			loadConfig();
 			saveArenaState();
+			wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+			wallsSB.setMinutes(waitingTime / 60);
+			plugin.getLogger().info(waitingTime+"");
+			plugin.getLogger().info(waitingTime / 60 + ":" + waitingTime % 60);
+			wallsSB.setSeconds(waitingTime % 60);
 		}
 		playersInGame.add(player.getUniqueId());
 		playersOriginalLoc.put(player.getUniqueId(), player.getLocation());
 		playersInventory.put(player.getUniqueId(), player.getInventory().getContents());
 		player.getInventory().clear();
 		player.teleport(lobbySpawn);
+		wallsSB.setPlayers(playersInGame.size());
+		wallsSB.setMaxPlayers(maxPlayers);
 		waiting = true;
+		wallsSB.clearSB();
+		wallsSB.putWaiting();
+		for (UUID id : playersInGame) {
+			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
+		}
 		if (playersInGame.size() >= minPlayers) lobbyCountdown();
 	}
 	
@@ -113,10 +145,21 @@ public class Arena implements Listener {
 		player.teleport(playersOriginalLoc.get(player.getUniqueId()));
 		player.getInventory().clear();
 		player.getInventory().setContents(playersInventory.get(player.getUniqueId()));
+		player.setScoreboard(wallsSB.getManager().getMainScoreboard());
 		playersInGame.remove(player.getUniqueId());
 		playersOriginalLoc.remove(player.getUniqueId());
 		playersInventory.remove(player.getUniqueId());
-		if (playersInGame.size() >= minPlayers) lobbyCountdown();
+		teamRed.remove(player.getUniqueId());
+		teamGreen.remove(player.getUniqueId());
+		teamBlue.remove(player.getUniqueId());
+		teamYellow.remove(player.getUniqueId());
+		wallsSB.setPlayers(playersInGame.size());
+		wallsSB.clearSB();
+		wallsSB.putWaiting();
+		for (UUID id : playersInGame) {
+			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
+		}
+		if (playersInGame.size() < minPlayers) stopLobbyCountdown();
 		if (playersInGame.size() == 0) {
 			waiting = false;
 			protectedBlocks.pasteBlocksInClipboard();
@@ -126,20 +169,27 @@ public class Arena implements Listener {
 
 	
 	@EventHandler
-	public void waitingForPlayers(PlayerInteractEvent event, EntityDamageEvent dmgEvent) {
+	public void waitingForPlayers(PlayerInteractEvent event) {
 		waiting = true;
 		if(waiting && playersInGame.contains(event.getPlayer().getUniqueId())) {
 			event.setCancelled(true);
-			dmgEvent.setCancelled(true);
 		}
 	}
 	
 	public void lobbyCountdown() {
-		
+		tm = new Timer();
+		WallsLobbyCountdown wallsCountdown = new WallsLobbyCountdown(waitingTime / 60, waitingTime % 60, wallsSB, playersInGame, this);
+		tm.schedule(wallsCountdown, 0, 1000);
+	}
+	public void stopLobbyCountdown() {
+		tm.cancel();
 	}
 	
 	public void startPrep() {
-		
+		waiting = false;
+		tm = new Timer();
+		WallsFallCountdown wallsCountdown = new WallsFallCountdown(waitingTime / 60, waitingTime % 60, wallsSB, playersInGame, this);
+		tm.schedule(wallsCountdown, 0, 1000);
 	}
 	
 	public void startPvp() {
@@ -155,12 +205,14 @@ public class Arena implements Listener {
 		for (UUID uuid : playersInGame) {
 			playerLeave(Bukkit.getPlayer(uuid));
 		}
+		protectedBlocks.pasteBlocksInClipboard();
 	}
 	
 	//run this only when one person joins
 	public void saveArenaState() {
 		protectedBlocks.clear();
 		for (int i = 0; i < arenaRegions.size(); i++) {
+			plugin.getLogger().info(arenaRegions.size()+"");
 			protectedBlocks.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
 		}
 	}
@@ -193,6 +245,12 @@ public class Arena implements Listener {
 			}
 		}
 	}
+	
+	/*
+	 * 
+	 * Arena Configuration
+	 * 
+	 */
 	
 	public void addArenaRegion() {
 		arenaRegions = readRegions("Arena");
@@ -234,10 +292,12 @@ public class Arena implements Listener {
 	}
 	
 	public void readSettings() {
-		if (arenaConfig.get("Settings.enabled") != null) {
-			enabled = arenaConfig.getBoolean("Settings.enabled");
-		}
+		if (arenaConfig.get("Settings.enabled") != null) enabled = arenaConfig.getBoolean("Settings.enabled");
+		if (arenaConfig.get("Settings.waiting-time") != null) waitingTime = arenaConfig.getInt("Settings.waiting-time");
+		if (arenaConfig.get("Settings.preparation-time") != null) prepTime = arenaConfig.getInt("Settings.preparation-time");
+		if (arenaConfig.get("Settings.max-players") != null) maxPlayers = arenaConfig.getInt("Settings.max-players");
 	}
+	
 	public void readLobbySpawn() {
 		lobbySpawn = readSpawns("Lobby");
 	}
@@ -339,6 +399,14 @@ public class Arena implements Listener {
 	public void setName(String name) { this.name = name; }
 	public ArrayList<UUID> getPlayersInGame() { return playersInGame; }
 	public void setPlayersInGame(ArrayList<UUID> playersInGame) { this.playersInGame = playersInGame; }
+	public ArrayList<UUID> getTeamRed() {return teamRed;}
+	public void setTeamRed(ArrayList<UUID> teamRed) {this.teamRed = teamRed;}
+	public ArrayList<UUID> getTeamGreen() {return teamGreen;}
+	public void setTeamGreen(ArrayList<UUID> teamGreen) {this.teamGreen = teamGreen;}
+	public ArrayList<UUID> getTeamBlue() {return teamBlue;}
+	public void setTeamBlue(ArrayList<UUID> teamBlue) {this.teamBlue = teamBlue;}
+	public ArrayList<UUID> getTeamYellow() {return teamYellow;}
+	public void setTeamYellow(ArrayList<UUID> teamYellow) {this.teamYellow = teamYellow;}
 	public Location getLobbySpawn() { return lobbySpawn; }
 	public Location getBlueSpawn() { return blueSpawn; }
 	public Location getRedSpawn() { return redSpawn; }
