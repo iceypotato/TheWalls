@@ -205,36 +205,21 @@ public class ArenaManager {
 
 	public void reloadArenas() {
 		arenas.clear();
-		
-		plugin.getLogger().info(configFile+"");
-		
-		if (configFile == null) {
-			arenaFolder = new File(plugin.getDataFolder(), "arenas");
-			plugin.getLogger().info(arenaFolder.exists()+"");
-			if (arenaFolder.exists()) {
-				
-				plugin.getLogger().info(arenaFolder.list().length+"");
-				
-				for (int i = 0; i < arenaFolder.list().length; i++) {
-					
-					plugin.getLogger().info(arenaFolder.list().length+"");
-					
-					configFile = new File(arenaFolder, arenaFolder.list()[i]);
-					String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
-					
-					//plugin.getLogger().info(name);
-					
-					dataConfig = YamlConfiguration.loadConfiguration(configFile);
-					addArena(new Arena(name, false, false, false, configFile, plugin));
-					if (checkConfig(name) == false) {
-						dataConfig.set("Settings.enabled", false);
-					}
-					arenas.get(i).loadConfig();
+		arenaFolder = new File(plugin.getDataFolder(), "arenas");
+		if (arenaFolder.exists()) {
+			for (int i = 0; i < arenaFolder.list().length; i++) {
+				configFile = new File(arenaFolder, arenaFolder.list()[i]);
+				String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
+				dataConfig = YamlConfiguration.loadConfiguration(configFile);
+				addArena(new Arena(name, false, false, false, configFile, plugin));
+				if (checkConfig(name) == false) {
+					dataConfig.set("Settings.enabled", false);
 				}
-			} else {
-				plugin.getLogger().info("No arenas exist.");
+				arenas.get(i).loadConfig();
 			}
+			if (arenaFolder.list().length <= 0) plugin.getLogger().info("No arenas exist.");
 		}
+		else plugin.getLogger().info("No arenas exist.");
 	}
 	public Arena getArenaFromPlayer(Player player) {
 		for (Arena arena : arenas) {
