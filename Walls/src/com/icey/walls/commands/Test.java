@@ -6,11 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
@@ -33,11 +35,15 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 
+import net.minecraft.server.v1_8_R3.Scoreboard;
+
 public class Test implements CommandExecutor {
 	
 	private MainClass myplugin;
 	private WallsTool wallsTool;
 	private BlockClipboard protectedBlocks;
+	private WallsScoreboard wallsSc;
+	
 	
 	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
@@ -46,16 +52,35 @@ public class Test implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		
 		if (args.length > 0) {
-			
-			/* 
-			 * addcopy
-			 */
 			if (args[0].equalsIgnoreCase("setsc")) {
-				WallsScoreboard.setScoreboard((Player) sender);
+				wallsSc = new WallsScoreboard(2, 0, 0, 0, 0, 0, "walls1", ChatColor.GOLD+""+ChatColor.BOLD +"The Walls", "dummy", DisplaySlot.SIDEBAR);
+				wallsSc.updatePlayersSB((Player) sender);
+			}
+			else if (args[0].equalsIgnoreCase("starttm")) {
+				wallsSc.startTimer((Player) sender);
+			}
+			else if (args[0].equalsIgnoreCase("addred")) {
+				wallsSc.setReds(wallsSc.getReds()+1);
+				wallsSc.clearSB();
+				wallsSc.putPrepTime();
+				wallsSc.putPlayersAlive();
+				wallsSc.updatePlayersSB((Player) sender);
+			}
+			else if (args[0].equalsIgnoreCase("rmred")) {
+				wallsSc.setReds(wallsSc.getReds()-1);
+				wallsSc.clearSB();
+				wallsSc.putPrepTime();
+				wallsSc.putPlayersAlive();
+				wallsSc.updatePlayersSB((Player) sender);
+			}
+			else if (args[0].equalsIgnoreCase("stop")) {
+				wallsSc.cancelTimer();
 			}
 			return true;
+		}
+		else {
+			sender.sendMessage("Invalid Command.");
 		}
 		return false;
 	}

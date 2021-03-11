@@ -27,12 +27,13 @@ import org.bukkit.inventory.ItemStack;
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.framework.WallsCountdown;
+import com.icey.walls.framework.WallsFallCountdown;
 
 public class Arena implements Listener {
 
 	private MainClass plugin;
-	private boolean running;
 	private String name;
+	private boolean running;
 	private boolean inProgress;
 	private boolean waiting;
 	private boolean enabled;
@@ -58,6 +59,7 @@ public class Arena implements Listener {
 	private ArrayList<Location[]> wallRegions;
 	private Timer tm;
 	private File arenaFile;
+	private WallsFallCountdown wallsCountdown;
 	private	FileConfiguration arenaConfig;
 	
 	public Arena(String name, boolean enabled, boolean inProgress, boolean waiting, File arenaFile, MainClass plugin) {
@@ -77,6 +79,7 @@ public class Arena implements Listener {
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
 		this.running = false;
+		this.wallsCountdown = new WallsFallCountdown(2, 0, null, null);
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
@@ -103,18 +106,7 @@ public class Arena implements Listener {
 		player.getInventory().clear();
 		player.teleport(lobbySpawn);
 		waiting = true;
-		if (playersInGame.size() >= minPlayers) countdown();
-	}
-	
-	public void countdown() {
-		int delay = 1000;
-		WallsCountdown countdown = new WallsCountdown(20);
-		tm = new Timer();
-		try {
-			tm.schedule(countdown, 0, delay);
-		} catch (IllegalStateException e) {
-			// timer already scheduled
-		}
+		if (playersInGame.size() >= minPlayers) lobbyCountdown();
 	}
 	
 	public void playerLeave(Player player) {
@@ -124,12 +116,14 @@ public class Arena implements Listener {
 		playersInGame.remove(player.getUniqueId());
 		playersOriginalLoc.remove(player.getUniqueId());
 		playersInventory.remove(player.getUniqueId());
-		if (playersInGame.size() >= minPlayers) countdown();
+		if (playersInGame.size() >= minPlayers) lobbyCountdown();
 		if (playersInGame.size() == 0) {
 			waiting = false;
 			protectedBlocks.pasteBlocksInClipboard();
 		}
 	}
+	
+
 	
 	@EventHandler
 	public void waitingForPlayers(PlayerInteractEvent event, EntityDamageEvent dmgEvent) {
@@ -138,6 +132,10 @@ public class Arena implements Listener {
 			event.setCancelled(true);
 			dmgEvent.setCancelled(true);
 		}
+	}
+	
+	public void lobbyCountdown() {
+		
 	}
 	
 	public void startPrep() {
