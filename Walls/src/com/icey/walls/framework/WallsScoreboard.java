@@ -18,6 +18,7 @@ public class WallsScoreboard {
 	private int minutes;
 	private int seconds;
 	private int players;
+	private int minPlayers;
 	private int maxPlayers;
 	private int reds;
 	private int greens;
@@ -109,6 +110,10 @@ public class WallsScoreboard {
 		Score space2 = objective.getScore("");
 		space2.setScore(0);
 	}
+	public void putRequiredToStart() {
+		Score required = objective.getScore(ChatColor.GREEN+""+ minPlayers +""+ChatColor.WHITE +" required to start.");
+		required.setScore(0);
+	}
 	
 	//Displays the scoreboard to the player.
 	public void updatePlayersSB(Player player) {
@@ -175,4 +180,6 @@ public class WallsScoreboard {
 	
 	public ScoreboardManager getManager() {return manager;}
 	public void setManager(ScoreboardManager manager) {this.manager = manager;}
+	public int getMinPlayers() {return minPlayers;}
+	public void setMinPlayers(int minPlayers) {this.minPlayers = minPlayers;}
 }

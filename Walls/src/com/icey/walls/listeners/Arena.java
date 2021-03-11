@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,6 +30,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
+import com.icey.walls.framework.PlayerOriginalState;
 import com.icey.walls.framework.WallsFallCountdown;
 import com.icey.walls.framework.WallsLobbyCountdown;
 import com.icey.walls.framework.WallsScoreboard;
@@ -50,8 +52,7 @@ public class Arena implements Listener {
 	private ArrayList<UUID> teamGreen;
 	private ArrayList<UUID> teamBlue;
 	private ArrayList<UUID> teamYellow;
-	private HashMap<UUID, ItemStack[]> playersInventory;
-	private HashMap<UUID, Location> playersOriginalLoc;
+	private HashMap<UUID, PlayerOriginalState> playerOriginalState;
 	private Location lobbySpawn;
 	private Location blueSpawn;
 	private Location redSpawn;
@@ -79,8 +80,7 @@ public class Arena implements Listener {
 		this.teamGreen = new ArrayList<>();
 		this.teamBlue = new ArrayList<>();
 		this.teamYellow = new ArrayList<>();
-		this.playersInventory = new HashMap<UUID, ItemStack[]>();
-		this.playersOriginalLoc = new HashMap<UUID, Location>();
+		this.playerOriginalState = new HashMap<UUID, PlayerOriginalState>();
 		this.protectedBlocks = new BlockClipboard();
 		this.arenaRegions = new ArrayList<>();
 		this.buildRegions = new ArrayList<>();
@@ -120,45 +120,35 @@ public class Arena implements Listener {
 			loadConfig();
 			saveArenaState();
 			wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
-			wallsSB.setMinutes(waitingTime / 60);
-			plugin.getLogger().info(waitingTime+"");
-			plugin.getLogger().info(waitingTime / 60 + ":" + waitingTime % 60);
-			wallsSB.setSeconds(waitingTime % 60);
 		}
 		playersInGame.add(player.getUniqueId());
-		playersOriginalLoc.put(player.getUniqueId(), player.getLocation());
-		playersInventory.put(player.getUniqueId(), player.getInventory().getContents());
+		playerOriginalState.put(player.getUniqueId(), new PlayerOriginalState(player));
+		updateScoreboard();
 		player.getInventory().clear();
+		player.getEquipment().clear();
 		player.teleport(lobbySpawn);
-		wallsSB.setPlayers(playersInGame.size());
-		wallsSB.setMaxPlayers(maxPlayers);
+		player.setGameMode(GameMode.ADVENTURE);
+		player.setHealth(20);
+		player.setSaturation(100);
+		player.setFoodLevel(20);
+		player.getActivePotionEffects().clear();
 		waiting = true;
-		wallsSB.clearSB();
-		wallsSB.putWaiting();
-		for (UUID id : playersInGame) {
-			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
-		}
 		if (playersInGame.size() >= minPlayers) lobbyCountdown();
 	}
 	
 	public void playerLeave(Player player) {
-		player.teleport(playersOriginalLoc.get(player.getUniqueId()));
 		player.getInventory().clear();
-		player.getInventory().setContents(playersInventory.get(player.getUniqueId()));
+		player.getEquipment().clear();
 		player.setScoreboard(wallsSB.getManager().getMainScoreboard());
+		playerOriginalState.get(player.getUniqueId()).restoreState();
 		playersInGame.remove(player.getUniqueId());
-		playersOriginalLoc.remove(player.getUniqueId());
-		playersInventory.remove(player.getUniqueId());
+		playerOriginalState.remove(player.getUniqueId());
 		teamRed.remove(player.getUniqueId());
 		teamGreen.remove(player.getUniqueId());
 		teamBlue.remove(player.getUniqueId());
 		teamYellow.remove(player.getUniqueId());
-		wallsSB.setPlayers(playersInGame.size());
-		wallsSB.clearSB();
-		wallsSB.putWaiting();
-		for (UUID id : playersInGame) {
-			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
-		}
+		updateScoreboard();
+
 		if (playersInGame.size() < minPlayers) stopLobbyCountdown();
 		if (playersInGame.size() == 0) {
 			waiting = false;
@@ -166,6 +156,20 @@ public class Arena implements Listener {
 		}
 	}
 	
+	public void updateScoreboard() {
+		wallsSB.clearSB();
+		wallsSB.setMinutes(waitingTime / 60);
+		wallsSB.setSeconds(waitingTime % 60);
+		wallsSB.setPlayers(playersInGame.size());
+		wallsSB.setPlayers(playersInGame.size());
+		wallsSB.setMaxPlayers(maxPlayers);
+		wallsSB.setMinPlayers(minPlayers);
+		wallsSB.putWaiting();
+		if (playersInGame.size() < minPlayers) wallsSB.putRequiredToStart();
+		for (UUID id : playersInGame) {
+			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
+		}
+	}
 
 	
 	@EventHandler
@@ -200,8 +204,7 @@ public class Arena implements Listener {
 		running = false;
 		inProgress = false;
 		playersInGame.clear();
-		playersInventory.clear();
-		playersOriginalLoc.clear();
+		playerOriginalState.clear();
 		for (UUID uuid : playersInGame) {
 			playerLeave(Bukkit.getPlayer(uuid));
 		}
@@ -212,7 +215,6 @@ public class Arena implements Listener {
 	public void saveArenaState() {
 		protectedBlocks.clear();
 		for (int i = 0; i < arenaRegions.size(); i++) {
-			plugin.getLogger().info(arenaRegions.size()+"");
 			protectedBlocks.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
 		}
 	}
@@ -252,16 +254,17 @@ public class Arena implements Listener {
 	 * 
 	 */
 	
-	public void addArenaRegion() {
-		arenaRegions = readRegions("Arena");
-	}
-	public void addWallRegion() {
-		wallRegions = readRegions("Walls");
-	}
-	public void addBuildRegion() {
-		buildRegions = readRegions("Build");
+	public void readSettings() {
+		if (arenaConfig.get("Settings.enabled") != null) enabled = arenaConfig.getBoolean("Settings.enabled");
+		if (arenaConfig.get("Settings.waiting-time") != null) waitingTime = arenaConfig.getInt("Settings.waiting-time");
+		if (arenaConfig.get("Settings.preparation-time") != null) prepTime = arenaConfig.getInt("Settings.preparation-time");
+		if (arenaConfig.get("Settings.max-players") != null) maxPlayers = arenaConfig.getInt("Settings.max-players");
+		if (arenaConfig.get("Settings.start-min-players") != null) minPlayers = arenaConfig.getInt("Settings.start-min-players");
 	}
 	
+	public void addArenaRegion() { arenaRegions = readRegions("Arena"); }
+	public void addWallRegion() { wallRegions = readRegions("Walls"); }
+	public void addBuildRegion() { buildRegions = readRegions("Build"); }
 	public ArrayList<Location[]> readRegions(String name) {
 		int i = 1;
 		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
@@ -291,28 +294,11 @@ public class Arena implements Listener {
 		return inRegion;
 	}
 	
-	public void readSettings() {
-		if (arenaConfig.get("Settings.enabled") != null) enabled = arenaConfig.getBoolean("Settings.enabled");
-		if (arenaConfig.get("Settings.waiting-time") != null) waitingTime = arenaConfig.getInt("Settings.waiting-time");
-		if (arenaConfig.get("Settings.preparation-time") != null) prepTime = arenaConfig.getInt("Settings.preparation-time");
-		if (arenaConfig.get("Settings.max-players") != null) maxPlayers = arenaConfig.getInt("Settings.max-players");
-	}
-	
-	public void readLobbySpawn() {
-		lobbySpawn = readSpawns("Lobby");
-	}
-	public void readBlueSpawn() {
-		blueSpawn = readSpawns("Blue");
-	}
-	public void readRedSpawn() {
-		redSpawn = readSpawns("Red");
-	}
-	public void readGreenSpawn() {
-		greenSpawn = readSpawns("Green");
-	}
-	public void readYellowSpawn() {
-		yellowSpawn = readSpawns("Yellow");
-	}
+	public void readLobbySpawn() {lobbySpawn = readSpawns("Lobby");}
+	public void readBlueSpawn() {blueSpawn = readSpawns("Blue");}
+	public void readRedSpawn() {redSpawn = readSpawns("Red");}
+	public void readGreenSpawn() {greenSpawn = readSpawns("Green");}
+	public void readYellowSpawn() {yellowSpawn = readSpawns("Yellow");}
 	public Location readSpawns(String name) {
 		if (arenaConfig.contains("Spawns." + name + ".world") && arenaConfig.contains("Spawns." + name + ".x") && arenaConfig.contains("Spawns." + name + ".y") && arenaConfig.contains("Spawns." + name + ".z")) {
 			Location spawn = new Location(Bukkit.getWorld(arenaConfig.getString("Spawns." + name + ".world")), arenaConfig.getDouble("Spawns." + name + ".x"), arenaConfig.getDouble("Spawns." + name + ".y"), arenaConfig.getDouble("Spawns." + name + ".z"));
@@ -423,8 +409,5 @@ public class Arena implements Listener {
 	public void setPrepTime(int prepTime) { this.prepTime = prepTime; }
 	public ArrayList<Location[]> getArenaRegion() { return arenaRegions; }
 	public void setArenaRegion(ArrayList<Location[]> arenaRegion) { this.arenaRegions = arenaRegion; }
-	public HashMap<UUID, Location> getPlayersOriginalLoc() { return playersOriginalLoc; }
-	public void setPlayersOriginalLoc(HashMap<UUID, Location> playersOriginalLoc) { this.playersOriginalLoc = playersOriginalLoc; }
-	public HashMap<UUID, ItemStack[]> getPlayersInv() { return playersInventory; }
 	
 }

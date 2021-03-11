@@ -5,9 +5,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-
 import com.icey.walls.listeners.Arena;
 
 public class WallsLobbyCountdown extends TimerTask {
@@ -47,11 +44,18 @@ public class WallsLobbyCountdown extends TimerTask {
 			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}
 	}
+	
 	public int getMinutes() {
 		return minutes;
 	}
+	public void setMinutes(int minutes) {
+		this.minutes = minutes;
+	}
 	public int getSeconds() {
 		return seconds;
+	}
+	public void setSeconds(int seconds) {
+		this.seconds = seconds;
 	}
 	
 }
