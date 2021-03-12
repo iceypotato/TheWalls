@@ -1,9 +1,7 @@
 package com.icey.walls.listeners;
 
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -14,23 +12,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
-
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.framework.PlayerOriginalState;
+import com.icey.walls.framework.SavedBlockInfo;
 import com.icey.walls.framework.WallsFallCountdown;
 import com.icey.walls.framework.WallsLobbyCountdown;
 import com.icey.walls.framework.WallsScoreboard;
@@ -39,10 +35,10 @@ public class Arena implements Listener {
 
 	private MainClass plugin;
 	private String name;
-	private boolean running;
-	private boolean inProgress;
-	private boolean waiting;
 	private boolean enabled;
+	private boolean waiting;
+	private boolean inProgress;
+	private boolean wallsFall;
 	private int maxPlayers;
 	private int minPlayers;
 	private int waitingTime;
@@ -58,7 +54,9 @@ public class Arena implements Listener {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
-	private BlockClipboard protectedBlocks;
+	private Location oldLocation; // used for people trying to climb over the walls.
+	private BlockClipboard originalArena;
+	private BlockClipboard wallBlocks;
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
@@ -67,12 +65,12 @@ public class Arena implements Listener {
 	private WallsScoreboard wallsSB;
 	private	FileConfiguration arenaConfig;
 	
-	public Arena(String name, boolean enabled, boolean inProgress, boolean waiting, File arenaFile, MainClass plugin) {
+	public Arena(String name, File arenaFile, MainClass plugin) {
 		this.name = name;
-		this.running = false;
-		this.enabled = enabled;
-		this.inProgress = inProgress;
-		this.waiting = waiting;
+		this.enabled = false;
+		this.inProgress = false;
+		this.waiting = false;
+		this.wallsFall = false;
 		this.arenaFile = arenaFile;
 		this.plugin = plugin;
 		this.playersInGame = new ArrayList<UUID>();
@@ -80,12 +78,12 @@ public class Arena implements Listener {
 		this.teamGreen = new ArrayList<>();
 		this.teamBlue = new ArrayList<>();
 		this.teamYellow = new ArrayList<>();
+		this.originalArena = new BlockClipboard();
+		this.wallBlocks = new BlockClipboard();
 		this.playerOriginalState = new HashMap<UUID, PlayerOriginalState>();
-		this.protectedBlocks = new BlockClipboard();
 		this.arenaRegions = new ArrayList<>();
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
-		this.running = false;
 		this.tm = new Timer();
 		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -110,30 +108,35 @@ public class Arena implements Listener {
 	 */
 	
 	public void playerJoin(Player player) {
-		Random random = new Random();
-		int randNum = random.nextInt(4);
-		if (randNum == 0) teamRed.add(player.getUniqueId());
-		if (randNum == 1) teamGreen.add(player.getUniqueId());
-		if (randNum == 2) teamBlue.add(player.getUniqueId());
-		if (randNum == 3) teamYellow.add(player.getUniqueId());
-		if (playersInGame.size() == 0) {
-			loadConfig();
-			saveArenaState();
-			wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+		if (!inProgress) {
+			waiting = true;
+			Random random = new Random();
+			int randNum = random.nextInt(4);
+			if (randNum == 0) teamRed.add(player.getUniqueId());
+			if (randNum == 1) teamGreen.add(player.getUniqueId());
+			if (randNum == 2) teamBlue.add(player.getUniqueId());
+			if (randNum == 3) teamYellow.add(player.getUniqueId());
+			if (playersInGame.size() == 0) {
+				loadConfig();
+				saveArenaState();
+				wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+			}
+			playersInGame.add(player.getUniqueId());
+			playerOriginalState.put(player.getUniqueId(), new PlayerOriginalState(player));
+			updateScoreboard();
+			player.getInventory().clear();
+			player.getEquipment().clear();
+			player.teleport(lobbySpawn);
+			player.setGameMode(GameMode.ADVENTURE);
+			player.setHealth(20);
+			player.setSaturation(100);
+			player.setFoodLevel(20);
+			player.getActivePotionEffects().clear();
+			if (playersInGame.size() >= minPlayers) lobbyCountdown();
 		}
-		playersInGame.add(player.getUniqueId());
-		playerOriginalState.put(player.getUniqueId(), new PlayerOriginalState(player));
-		updateScoreboard();
-		player.getInventory().clear();
-		player.getEquipment().clear();
-		player.teleport(lobbySpawn);
-		player.setGameMode(GameMode.ADVENTURE);
-		player.setHealth(20);
-		player.setSaturation(100);
-		player.setFoodLevel(20);
-		player.getActivePotionEffects().clear();
-		waiting = true;
-		if (playersInGame.size() >= minPlayers) lobbyCountdown();
+		else {
+			player.sendMessage(ChatColor.YELLOW + "This arena has already started!");
+		}
 	}
 	
 	public void playerLeave(Player player) {
@@ -152,33 +155,28 @@ public class Arena implements Listener {
 		if (playersInGame.size() < minPlayers) stopLobbyCountdown();
 		if (playersInGame.size() == 0) {
 			waiting = false;
-			protectedBlocks.pasteBlocksInClipboard();
+			originalArena.pasteBlocksInClipboard();
 		}
 	}
 	
 	public void updateScoreboard() {
-		wallsSB.clearSB();
-		wallsSB.setMinutes(waitingTime / 60);
-		wallsSB.setSeconds(waitingTime % 60);
-		wallsSB.setPlayers(playersInGame.size());
-		wallsSB.setPlayers(playersInGame.size());
-		wallsSB.setMaxPlayers(maxPlayers);
-		wallsSB.setMinPlayers(minPlayers);
-		wallsSB.putWaiting();
+		if (waiting) {
+			wallsSB.clearSB();
+			wallsSB.setPlayers(playersInGame.size());
+			wallsSB.setPlayers(playersInGame.size());
+			wallsSB.setMaxPlayers(maxPlayers);
+			wallsSB.setMinPlayers(minPlayers);
+			wallsSB.putWaiting();
+		}
+		if (inProgress) {
+			
+		}
 		if (playersInGame.size() < minPlayers) wallsSB.putRequiredToStart();
 		for (UUID id : playersInGame) {
 			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}
 	}
 
-	
-	@EventHandler
-	public void waitingForPlayers(PlayerInteractEvent event) {
-		waiting = true;
-		if(waiting && playersInGame.contains(event.getPlayer().getUniqueId())) {
-			event.setCancelled(true);
-		}
-	}
 	
 	public void lobbyCountdown() {
 		tm = new Timer();
@@ -191,59 +189,117 @@ public class Arena implements Listener {
 	
 	public void startPrep() {
 		waiting = false;
+		inProgress = true;
 		tm = new Timer();
-		WallsFallCountdown wallsCountdown = new WallsFallCountdown(waitingTime / 60, waitingTime % 60, wallsSB, playersInGame, this);
+		WallsFallCountdown wallsCountdown = new WallsFallCountdown(prepTime / 60, prepTime % 60, wallsSB, playersInGame, this);
 		tm.schedule(wallsCountdown, 0, 1000);
 	}
 	
 	public void startPvp() {
-		
+		wallsFall = true;
+		for (SavedBlockInfo block : wallBlocks.getBlockList()) {
+			block.getBlock().setType(Material.AIR);
+		}
 	}
 	
 	public void stopGame() {
-		running = false;
 		inProgress = false;
+		waiting = false;
 		playersInGame.clear();
 		playerOriginalState.clear();
 		for (UUID uuid : playersInGame) {
 			playerLeave(Bukkit.getPlayer(uuid));
 		}
-		protectedBlocks.pasteBlocksInClipboard();
+		originalArena.pasteBlocksInClipboard();
 	}
 	
 	//run this only when one person joins
 	public void saveArenaState() {
-		protectedBlocks.clear();
+		this.originalArena = new BlockClipboard();
+		originalArena.clear();
 		for (int i = 0; i < arenaRegions.size(); i++) {
-			protectedBlocks.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
+			originalArena.addRegion(arenaRegions.get(i)[0], arenaRegions.get(i)[1]);
+		}
+		for (int i = 0; i < wallRegions.size(); i++) {
+			wallBlocks.addRegion(wallRegions.get(i)[0], wallRegions.get(i)[1]);
 		}
 	}
 	
 	@EventHandler
-	public void setup(PlayerInteractEvent event, BlockExplodeEvent block) {
-		for (int i = 0; i < buildRegions.size(); i++) {
-			if (!(event.getClickedBlock().getLocation().getBlockX() >= Math.min(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) && 
-				event.getClickedBlock().getLocation().getBlockX() <= Math.max(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) &&
-				event.getClickedBlock().getLocation().getBlockY() >= Math.min(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) && 
-				event.getClickedBlock().getLocation().getBlockY() <= Math.max(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) &&
-				event.getClickedBlock().getLocation().getBlockZ() >= Math.min(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ()) && 
-				event.getClickedBlock().getLocation().getBlockZ() <= Math.max(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ())))
-			{
-				Player player = event.getPlayer();
-				player.sendMessage(ChatColor.RED + "You cannot break those blocks!");
+	public void waitingForPlayers(PlayerInteractEvent event) {
+		if(waiting && playersInGame.contains(event.getPlayer().getUniqueId())) {
+			event.setCancelled(true);
+		}
+	}
+	@EventHandler
+	public void waitingForplayers(EntityDamageEvent event) {
+		if(waiting && event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+			if (playersInGame.contains(player.getUniqueId())) {
 				event.setCancelled(true);
 			}
 		}
+	}
+	
+	@EventHandler
+	public void preventBreakBlockoutofBuildRegion(PlayerInteractEvent interact) {
+		if (inProgress) {
+			Player player = interact.getPlayer();
+			for (int i = 0; i < buildRegions.size(); i++) {
+				if (!(interact.getClickedBlock().getLocation().getBlockX() >= Math.min(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) && 
+					interact.getClickedBlock().getLocation().getBlockX() <= Math.max(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) &&
+					interact.getClickedBlock().getLocation().getBlockY() >= Math.min(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) && 
+					interact.getClickedBlock().getLocation().getBlockY() <= Math.max(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) &&
+					interact.getClickedBlock().getLocation().getBlockZ() >= Math.min(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ()) && 
+					interact.getClickedBlock().getLocation().getBlockZ() <= Math.max(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ()))) {
+					player.sendMessage(ChatColor.RED + "You cannot break those blocks!");
+					interact.setCancelled(true);
+				}
+			}
+			if (!wallsFall) {
+				for (int i = 0; i < wallBlocks.getBlockList().size(); i++) {
+					if (interact.getClickedBlock().getLocation().equals(wallBlocks.getBlockList().get(i).getBlock().getLocation())) {
+						player.sendMessage(ChatColor.RED + "You cannot break those blocks!");
+						interact.setCancelled(true);
+					}
+				}
+			}
+		}
+	}
+	@EventHandler
+	public void preventBreakBlockoutofBuildRegion(BlockExplodeEvent block) {
+		if (inProgress) {
 		for (int i = 0; i < buildRegions.size(); i++) {
-			if (!(block.getBlock().getLocation().getBlockX() >= Math.min(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) && 
+				if (!(block.getBlock().getLocation().getBlockX() >= Math.min(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) && 
 				block.getBlock().getLocation().getBlockX() <= Math.max(buildRegions.get(i)[0].getBlockX(), buildRegions.get(i)[1].getBlockX()) &&
 				block.getBlock().getLocation().getBlockY() >= Math.min(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) && 
 				block.getBlock().getLocation().getBlockY() <= Math.max(buildRegions.get(i)[0].getBlockY(), buildRegions.get(i)[1].getBlockY()) &&
 				block.getBlock().getLocation().getBlockZ() >= Math.min(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ()) && 
-				block.getBlock().getLocation().getBlockZ() <= Math.max(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ())))
-			{
-				block.blockList().clear();
-				block.setCancelled(true);
+				block.getBlock().getLocation().getBlockZ() <= Math.max(buildRegions.get(i)[0].getBlockZ(), buildRegions.get(i)[1].getBlockZ()))) {
+					block.blockList().clear();
+					block.setCancelled(true);
+				}
+			}
+		}
+	}
+	@EventHandler
+	public void preventCrossingWalls(PlayerMoveEvent pMoveEvent) {
+		if (!wallsFall && inProgress) {
+			for (int i = 0; i < wallBlocks.getBlockList().size(); i++) {
+				if (pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() ||
+				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ()) {
+					oldLocation = pMoveEvent.getPlayer().getLocation();
+					plugin.getLogger().info("Recording");
+				}
+				else if (wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockZ() == pMoveEvent.getPlayer().getLocation().getBlockZ() && wallBlocks.getBlockList().get(i).getBlock().getLocation().getBlockX() == pMoveEvent.getPlayer().getLocation().getBlockX()) {
+					pMoveEvent.getPlayer().teleport(oldLocation);
+				}
 			}
 		}
 	}

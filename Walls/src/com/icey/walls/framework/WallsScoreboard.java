@@ -99,7 +99,7 @@ public class WallsScoreboard {
 		Score space1 = objective.getScore(" ");
 		space1.setScore(3);
 		Score time;
-		if (seconds != -1) {
+		if (seconds != -1 && players >= minPlayers) {
 			String seconds = this.seconds+"";
 			if (seconds.length() == 1) seconds = "0" + seconds;
 			time = objective.getScore("Waiting For Players: " + ChatColor.GREEN + minutes + ":" + seconds);

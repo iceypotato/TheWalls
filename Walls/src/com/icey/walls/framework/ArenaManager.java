@@ -56,7 +56,7 @@ public class ArenaManager {
 			if (configFile.exists() == false) {
 				arenaFolder.mkdirs();
 				configFile.createNewFile();
-				addArena(new Arena(name, false, false, false, configFile, plugin));
+				addArena(new Arena(name, configFile, plugin));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
 				dataConfig.set("Settings.enabled", false);
 				dataConfig.set("Settings.waiting-time", 120);
@@ -210,7 +210,7 @@ public class ArenaManager {
 				configFile = new File(arenaFolder, arenaFolder.list()[i]);
 				String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
-				addArena(new Arena(name, false, false, false, configFile, plugin));
+				addArena(new Arena(name, configFile, plugin));
 				if (checkConfig(name) == false) {
 					dataConfig.set("Settings.enabled", false);
 				}

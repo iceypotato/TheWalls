@@ -14,7 +14,7 @@ public class MainClass extends JavaPlugin {
 
 	public ArenaManager arenaManager = new ArenaManager(this);
 	public WallsTool wallsTool = new WallsTool();
-	public TestListener testL = new TestListener(wallsTool);
+	public TestListener testL = new TestListener(wallsTool, this);
 	public String pluginDataFolder = "WallsMinigame";
 	
 	@Override
