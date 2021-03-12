@@ -1,13 +1,15 @@
 package com.icey.walls.framework;
 
 import java.util.ArrayList;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
 import com.icey.walls.listeners.Arena;
 
-public class WallsLobbyCountdown extends TimerTask {
+public class WallsLobbyCountdown extends BukkitRunnable {
 	
 	private int minutes;
 	private int seconds;
@@ -57,5 +59,4 @@ public class WallsLobbyCountdown extends TimerTask {
 	public void setSeconds(int seconds) {
 		this.seconds = seconds;
 	}
-	
 }

@@ -1,13 +1,14 @@
 package com.icey.walls.framework;
 
 import java.util.ArrayList;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import com.icey.walls.listeners.Arena;
 
-public class WallsFallCountdown extends TimerTask {
+public class WallsFallCountdown extends BukkitRunnable {
 	
 	private int minutes;
 	private int seconds;

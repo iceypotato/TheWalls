@@ -96,8 +96,6 @@ public class WallsScoreboard {
 	
 	//Put the waiting scorboard
 	public void putWaiting() {
-		Score space1 = objective.getScore(" ");
-		space1.setScore(3);
 		Score time;
 		if (seconds != -1 && players >= minPlayers) {
 			String seconds = this.seconds+"";
@@ -107,8 +105,6 @@ public class WallsScoreboard {
 		}
 		Score players = objective.getScore("Players: " + ChatColor.GREEN + this.players + "/" + maxPlayers);
 		players.setScore(1);
-		Score space2 = objective.getScore("");
-		space2.setScore(0);
 	}
 	public void putRequiredToStart() {
 		Score required = objective.getScore(ChatColor.GREEN+""+ minPlayers +""+ChatColor.WHITE +" required to start.");
