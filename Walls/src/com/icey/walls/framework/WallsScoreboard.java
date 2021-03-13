@@ -33,6 +33,7 @@ public class WallsScoreboard {
 	private Team yellowTeam;
 	private Scoreboard board;
 	private Objective objective;
+	private Objective health;
 	private String name;
 	private String displayName;
 	private String criteria;
@@ -45,6 +46,7 @@ public class WallsScoreboard {
 		this.slot = slot;
 		manager = Bukkit.getScoreboardManager();
 		board = manager.getNewScoreboard();
+		health = board.registerNewObjective("health", "health");
 		redTeam = board.registerNewTeam("red");
 		greenTeam = board.registerNewTeam("green");
 		blueTeam = board.registerNewTeam("blue");
@@ -57,9 +59,6 @@ public class WallsScoreboard {
 		greenTeam.setPrefix(ChatColor.GREEN+"");
 		blueTeam.setPrefix(ChatColor.BLUE+"");
 		yellowTeam.setPrefix(ChatColor.YELLOW+"");
-	}
-	public void addScore(Score score, String text) {
-		
 	}
 	
 	// Put the players alive on the scoreboard
@@ -113,11 +112,24 @@ public class WallsScoreboard {
 		players.setScore(1);
 	}
 	
+	//Game End
+	public void putEndingTimer() {
+		String seconds = this.seconds+"";
+		if (seconds.length() == 1) seconds = "0" + seconds;
+		Score time = objective.getScore("Game Over " + ChatColor.GREEN + minutes + ":" + seconds);
+		time.setScore(6);
+		Score space1 = objective.getScore("");
+		space1.setScore(5);
+	}
+	
 	//Displays the scoreboard to the player.
 	public void updatePlayersSB(Player player) {
 		player.setScoreboard(board);
 	}
-	
+	public void showHealth() {
+		health.setDisplayName(ChatColor.RED+"❤");
+		health.setDisplaySlot(DisplaySlot.BELOW_NAME);
+	}
 	//clears the scoreboard, but keep the name and objective
 	public void clearSB() {
 		if (objective != null) objective.unregister();

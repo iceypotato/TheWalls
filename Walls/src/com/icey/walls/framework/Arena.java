@@ -3,6 +3,7 @@ package com.icey.walls.framework;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -11,22 +12,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.v1_8_R3.CraftSound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
@@ -42,6 +34,7 @@ public class Arena {
 	private boolean enabled;
 	private boolean waiting;
 	private boolean inProgress;
+	private boolean ending;
 	private boolean wallsFall;
 	private int maxPlayers;
 	private int minPlayers;
@@ -69,6 +62,10 @@ public class Arena {
 	private ArrayList<UUID> teamGreen;
 	private ArrayList<UUID> teamBlue;
 	private ArrayList<UUID> teamYellow;
+	private boolean redEliminated;
+	private boolean greenEliminated;
+	private boolean blueEliminated;
+	private boolean yellowEliminated;
 	private BlockClipboard originalArena;
 	private ArrayList<Location> wallBlocks;
 	private ArrayList<Location> buildRegionBlocks;
@@ -80,6 +77,7 @@ public class Arena {
 		this.inProgress = false;
 		this.waiting = false;
 		this.wallsFall = false;
+		this.ending = false;
 		this.arenaFile = arenaFile;
 		this.plugin = plugin;
 		this.remainingTeams = 0;
@@ -142,7 +140,6 @@ public class Arena {
 			player.setSaturation(100);
 			player.setFoodLevel(20);
 			player.getActivePotionEffects().clear();
-//			player.setBedSpawnLocation(lobbySpawn, true);
 			if (playersInGame.size() >= minPlayers) lobbyCountdown();
 		}
 		else {
@@ -165,6 +162,7 @@ public class Arena {
 
 		if (playersInGame.size() < minPlayers && wallsCountdown != null) wallsCountdown.cancel();
 		if (playersInGame.size() == 0) stopGame();
+		if (inProgress) checkForRemainingTeams();
 	}
 	
 	public void updateScoreboard() {
@@ -178,6 +176,7 @@ public class Arena {
 		
 		if (inProgress) {
 			wallsSB.clearSB();
+			wallsSB.showHealth();
 			wallsSB.setReds(teamRed.size());
 			wallsSB.setGreens(teamGreen.size());
 			wallsSB.setBlues(teamBlue.size());
@@ -185,14 +184,18 @@ public class Arena {
 			wallsSB.putPrepTime();
 			wallsSB.putPlayersAlive();
 		}
-		
+		if (ending) {
+			wallsSB.clearSB();
+			wallsSB.putPlayersAlive();
+			wallsSB.putEndingTimer();
+		}
 		for (UUID id : playersInGame) {
 			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}
 	}
 	
 	public void lobbyCountdown() {
-		wallsCountdown = new WallsLobbyCountdown(waitingTime / 60, waitingTime % 60, wallsSB, playersInGame, this);
+		wallsCountdown = new WallsLobbyCountdown(waitingTime / 60, waitingTime % 60, wallsSB, this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
@@ -225,30 +228,75 @@ public class Arena {
 		if (teamRed.size() > 0) remainingTeams++;
 		if (teamGreen.size() > 0) remainingTeams++;
 		if (teamYellow.size() > 0) remainingTeams++;
+		this.redEliminated = (teamRed.size() == 0) ? true : false;
+		this.greenEliminated = (teamGreen.size() == 0) ? true : false;
+		this.blueEliminated = (teamBlue.size() == 0) ? true : false;
+		this.yellowEliminated = (teamYellow.size() == 0) ? true : false;
 		waiting = false;
 		inProgress = true;
 		updateScoreboard();
-		wallsCountdown = new WallsFallCountdown(prepTime / 60, prepTime % 60, wallsSB, playersInGame, this);
+		wallsCountdown = new WallsFallCountdown(prepTime / 60, prepTime % 60, wallsSB, this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
 	public void startPvp() {
 		wallsFall = true;
+		for (UUID id : playersInGame) {
+			Bukkit.getPlayer(id).playSound(Bukkit.getPlayer(id).getLocation(), Sound.ENDERDRAGON_GROWL, 10, 1);
+			Bukkit.getPlayer(id).sendTitle(ChatColor.AQUA + "The Walls Have Fallen!", ChatColor.GOLD+"Go go go!");
+		}
 		for (Location block : wallBlocks) {
 			block.getBlock().setType(Material.AIR);
 		}
 	}
 	
 	public void winner() {
-		
+		String winner = ChatColor.GOLD +""+ ChatColor.BOLD + "\nWINNER>> ";
+		if (teamRed.size() != 0) winner += ChatColor.RED + "Red Wins!\n";
+		if (teamGreen.size() != 0) winner += ChatColor.GREEN + "Green Wins!\n";
+		if (teamBlue.size() != 0) winner += ChatColor.BLUE + "Blue Wins!\n";
+		if (teamYellow.size() != 0) winner += ChatColor.YELLOW + "Yellow Wins!\n";
+		for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage(winner);}
+		ending = true;
+		updateScoreboard();
+		wallsCountdown = new WallsGameEndCountdown(0, 10, wallsSB, this);
+		wallsCountdown.runTaskTimer(plugin, 0, 20);
+	}
+	
+	public void checkForRemainingTeams() {
+		if (teamRed.size() == 0 && !redEliminated) {
+			redEliminated = true;
+			remainingTeams -= 1;
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.RED+"Red Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+		}
+		if (teamGreen.size() == 0 && !greenEliminated) {
+			greenEliminated = true;
+			remainingTeams -= 1;
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+		}
+		if (teamBlue.size() == 0 && !blueEliminated) {;
+			blueEliminated = true;
+			remainingTeams -= 1;
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+		}
+		if (teamYellow.size() == 0 && !yellowEliminated) {
+			yellowEliminated = true;
+			remainingTeams -= 1;
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.YELLOW+"Yellow Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+		}
+		if (remainingTeams == 1) {
+			winner();
+		}
 	}
 	
 	public void stopGame() {
 		inProgress = false;
 		waiting = false;
 		wallsFall = false;
+		ending = false;
 		for (UUID uuid : playersInGame) {
-			playerLeave(Bukkit.getPlayer(uuid));
+			Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
+			playerOriginalState.get(uuid).restoreState();
 		}
 		playersInGame.clear();
 		playerOriginalState.clear();

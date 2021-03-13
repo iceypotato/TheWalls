@@ -1,56 +1,36 @@
 package com.icey.walls.framework;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 
-public class WallsLobbyCountdown extends BukkitRunnable {
+public class WallsLobbyCountdown extends WallsCountdown {
 	
-	private int minutes;
-	private int seconds;
-	private WallsScoreboard wallsSB;
-	private ArrayList<UUID> player;
-	private Arena arena;
+	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, Arena arena) {
+		super(minutes, seconds, wallsSB, arena);
+	}
 	
-	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, ArrayList<UUID> player, Arena arena) {
-		this.minutes = minutes;
-		this.seconds = seconds;
-		this.wallsSB = wallsSB;
-		this.player = player;
-		this.arena = arena;
+	@Override
+	public void runNextStage() {
+		getArena().startPrep();
 	}
 
 	@Override
-	public void run() {
-		seconds--;
-		if (minutes <= 0 && seconds < 0) {
-			arena.startPrep();
-			this.cancel();
-		}
-		else {
-			if (seconds == -1) {
-				seconds = 59; 
-				if(minutes != 0) minutes--; 
+	public void runEverySecond() {
+		if (getSeconds() == 10 && getMinutes()==0) {
+			for (UUID id : getArena().getPlayersInGame()) {
+				Bukkit.getPlayer(id).playSound(Bukkit.getPlayer(id).getLocation(), Sound.WOOD_CLICK, 10, 1);
+				Bukkit.getPlayer(id).sendMessage(ChatColor.GOLD +"Game starting in " + ChatColor.GREEN +""+getSeconds()+""+ChatColor.GOLD+" seconds!");
 			}
 		}
-		wallsSB.setMinutes(minutes);
-		wallsSB.setSeconds(seconds);
-		arena.updateScoreboard();
-	}
-	
-	public int getMinutes() {
-		return minutes;
-	}
-	public void setMinutes(int minutes) {
-		this.minutes = minutes;
-	}
-	public int getSeconds() {
-		return seconds;
-	}
-	public void setSeconds(int seconds) {
-		this.seconds = seconds;
+		else if (getSeconds() >= 0 && getSeconds() <= 5 && getMinutes()==0) {
+			for (UUID id : getArena().getPlayersInGame()) {
+				Bukkit.getPlayer(id).playSound(Bukkit.getPlayer(id).getLocation(), Sound.WOOD_CLICK, 10, 1);
+				Bukkit.getPlayer(id).sendMessage(ChatColor.GOLD +"Game starting in " + ChatColor.GREEN +""+getSeconds()+""+ChatColor.GOLD+" seconds!");
+			}
+		}
 	}
 }

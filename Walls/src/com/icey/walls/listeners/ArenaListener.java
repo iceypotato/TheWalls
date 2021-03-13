@@ -23,13 +23,14 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.icey.walls.framework.Arena;
 
+import net.minecraft.server.v1_8_R3.ChatMessage;
+
 	
 public class ArenaListener implements Listener {
 	
 	private Arena arena;
 	private ArrayList<Location> wallBlocks;
 	private ArrayList<Location> buildRegionBlocks;
-	
 	private Location oldLocation;
 	
 	public ArenaListener(Arena arena, ArrayList<Location> wallBlocks, ArrayList<Location> buildRegionBlocks) {
@@ -52,7 +53,7 @@ public class ArenaListener implements Listener {
 	
 	@EventHandler
 	public void waitingForplayers(EntityDamageEvent event) {
-		if(arena.isWaiting()&& event.getEntity() instanceof Player) {
+		if(arena.isWaiting() && event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			if (arena.getPlayersInGame().contains(player.getUniqueId())) {
 				event.setCancelled(true);
@@ -119,19 +120,22 @@ public class ArenaListener implements Listener {
 			//Run this if a player was killed by a player.
 			Random rand = new Random();
 			int msgID = rand.nextInt(11);
-			String deathMsg = "", killer = deathEvent.getEntity().getKiller().getDisplayName(), killee = deathEvent.getEntity().getPlayer().getDisplayName();
+			String deathMsg = "", killee = deathEvent.getEntity().getPlayer().getDisplayName();
+			String[] deathMsgs = new String[11];
+			deathMsgs[0] = " was slain by ";
+			deathMsgs[1] = " was 69ed by ";
+			deathMsgs[2] = " was memed by ";
+			deathMsgs[3] = " got epic gamer moved by ";
+			deathMsgs[4] = " was isekaied to another world by ";
+			deathMsgs[5] = " got rekt by ";
+			deathMsgs[6] = " got w-tapped by ";
+			deathMsgs[7] = " got destroyed by ";
+			deathMsgs[8] = " got creeper aw maned by ";
+			deathMsgs[9] = " got squashed by anime thighs by ";
+			deathMsgs[10] = " lost all hp and fainted to ";
 			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
-				if (msgID == 0) deathMsg = killee + ChatColor.GRAY+" was slain by " + ChatColor.RESET + killer;
-				if (msgID == 1) deathMsg = killee + ChatColor.GRAY+" was 69ed by " + ChatColor.RESET + killer;
-				if (msgID == 2) deathMsg = killee + ChatColor.GRAY+" was memed by " + ChatColor.RESET + killer;
-				if (msgID == 3) deathMsg = killee + ChatColor.GRAY+" got epic gamer moved by " + ChatColor.RESET + killer;
-				if (msgID == 4) deathMsg = killee + ChatColor.GRAY+" was isekaied to another world by " + ChatColor.RESET + killer;
-				if (msgID == 5) deathMsg = killee + ChatColor.GRAY+" got rekt by " + ChatColor.RESET + killer;
-				if (msgID == 6) deathMsg = killee + ChatColor.GRAY+" got w-tapped by " + ChatColor.RESET + killer;
-				if (msgID == 7) deathMsg = killee + ChatColor.GRAY+" got destroyed by " + ChatColor.RESET + killer;
-				if (msgID == 8) deathMsg = killee + ChatColor.GRAY+" got creeper aw maned by " + ChatColor.RESET + killer;
-				if (msgID == 9) deathMsg = killee + ChatColor.GRAY+" got squashed by anime thighs by " + ChatColor.RESET + killer;
-				if (msgID == 10) deathMsg = killee + ChatColor.GRAY+" lost all hp and fainted to " + ChatColor.RESET + killer;
+				String killer = deathEvent.getEntity().getKiller().getDisplayName();
+				deathMsg = killee + ChatColor.GRAY+ deathMsgs[msgID] + ChatColor.RESET + killer;
 			}
 			//run this if player died of natural causes.
 			else {
@@ -141,25 +145,11 @@ public class ArenaListener implements Listener {
 				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = killee + ChatColor.GRAY + " burnt to a crisp.";
 				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = killee + ChatColor.GRAY + " played with fire.";
 				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = killee + ChatColor.GRAY + " fell to a clumsy death.";
+				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killee + ChatColor.GRAY + " said goodbye, cruel world!";
 			}
 			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(deathMsg);}
 		}
-		if (arena.getTeamRed().size() == 0) {
-			arena.setRemainingTeams(arena.getRemainingTeams()-1);
-			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.RED+"Red Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
-		}
-		if (arena.getTeamGreen().size() == 0) {
-			arena.setRemainingTeams(arena.getRemainingTeams()-1);
-			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
-		}
-		if (arena.getTeamBlue().size() == 0) {;
-		arena.setRemainingTeams(arena.getRemainingTeams()-1);
-			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
-		}
-		if (arena.getTeamYellow().size() == 0) {
-			arena.setRemainingTeams(arena.getRemainingTeams()-1);	
-			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.YELLOW+"Yellow Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
-		}
+		arena.checkForRemainingTeams();
 	}
 	
 	@EventHandler
@@ -167,6 +157,7 @@ public class ArenaListener implements Listener {
 		if (arena.getPlayersInGame().contains(pRespawnEvent.getPlayer().getUniqueId())) {
 			pRespawnEvent.getPlayer().setGameMode(GameMode.SPECTATOR);
 			pRespawnEvent.setRespawnLocation(arena.getLobbySpawn());
+			pRespawnEvent.getPlayer().sendTitle(ChatColor.RED + "You Died!", ChatColor.YELLOW+"Get gud.");
 		}
 	}
 	
