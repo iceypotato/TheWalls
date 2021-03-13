@@ -13,6 +13,8 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
+import com.sk89q.worldedit.extension.platform.Platform;
+
 public class WallsScoreboard {
 	
 	private int minutes;
@@ -89,9 +91,9 @@ public class WallsScoreboard {
 			if (seconds.length() == 1) seconds = "0" + seconds;
 			time = objective.getScore("Walls Fall in " + ChatColor.GREEN + minutes + ":" + seconds);
 			time.setScore(6);
+			Score space1 = objective.getScore("");
+			space1.setScore(5);
 		}
-		Score space1 = objective.getScore("");
-		space1.setScore(0);
 	}
 	
 	//Put the waiting scorboard
@@ -103,12 +105,12 @@ public class WallsScoreboard {
 			time = objective.getScore("Waiting For Players: " + ChatColor.GREEN + minutes + ":" + seconds);
 			time.setScore(2);
 		}
+		else {
+			Score required = objective.getScore(ChatColor.GREEN+""+ (minPlayers - players) +""+ChatColor.WHITE +" required to start.");
+			required.setScore(0);
+		}
 		Score players = objective.getScore("Players: " + ChatColor.GREEN + this.players + "/" + maxPlayers);
 		players.setScore(1);
-	}
-	public void putRequiredToStart() {
-		Score required = objective.getScore(ChatColor.GREEN+""+ minPlayers +""+ChatColor.WHITE +" required to start.");
-		required.setScore(0);
 	}
 	
 	//Displays the scoreboard to the player.

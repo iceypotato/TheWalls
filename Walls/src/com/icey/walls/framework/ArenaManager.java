@@ -11,7 +11,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.icey.walls.MainClass;
-import com.icey.walls.listeners.Arena;
 import com.icey.walls.listeners.WallsTool;
 
 public class ArenaManager {
@@ -203,6 +202,7 @@ public class ArenaManager {
 	}
 
 	public void reloadArenas() {
+		stopAllArenas();
 		arenas.clear();
 		arenaFolder = new File(plugin.getDataFolder(), "arenas");
 		if (arenaFolder.exists()) {

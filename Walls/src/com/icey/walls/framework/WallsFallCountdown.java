@@ -6,8 +6,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.icey.walls.listeners.Arena;
-
 public class WallsFallCountdown extends BukkitRunnable {
 	
 	private int minutes;
@@ -39,12 +37,7 @@ public class WallsFallCountdown extends BukkitRunnable {
 		}
 		wallsSB.setMinutes(minutes);
 		wallsSB.setSeconds(seconds);
-		wallsSB.clearSB();
-		wallsSB.putPrepTime();
-		wallsSB.putPlayersAlive();
-		for (UUID id : player) {
-			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
-		}
+		arena.updateScoreboard();
 	}
 	
 	public int getMinutes() {

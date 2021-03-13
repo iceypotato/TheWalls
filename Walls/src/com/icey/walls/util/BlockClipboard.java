@@ -1,4 +1,4 @@
-package com.icey.walls.framework;
+package com.icey.walls.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

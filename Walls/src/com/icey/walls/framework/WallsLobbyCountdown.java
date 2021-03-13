@@ -7,8 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.icey.walls.listeners.Arena;
-
 public class WallsLobbyCountdown extends BukkitRunnable {
 	
 	private int minutes;
@@ -40,11 +38,7 @@ public class WallsLobbyCountdown extends BukkitRunnable {
 		}
 		wallsSB.setMinutes(minutes);
 		wallsSB.setSeconds(seconds);
-		wallsSB.clearSB();
-		wallsSB.putWaiting();
-		for (UUID id : player) {
-			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
-		}
+		arena.updateScoreboard();
 	}
 	
 	public int getMinutes() {

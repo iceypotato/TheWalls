@@ -15,9 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import com.icey.walls.MainClass;
-import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.framework.WallsScoreboard;
 import com.icey.walls.listeners.WallsTool;
+import com.icey.walls.util.BlockClipboard;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;

@@ -5,8 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.icey.walls.commands.Test;
 import com.icey.walls.commands.Walls;
+import com.icey.walls.framework.Arena;
 import com.icey.walls.framework.ArenaManager;
-import com.icey.walls.listeners.Arena;
 import com.icey.walls.listeners.TestListener;
 import com.icey.walls.listeners.WallsTool;
 
@@ -36,7 +36,6 @@ public class MainClass extends JavaPlugin {
 		arenaManager.stopAllArenas();
 		getLogger().info("Walls 1.0 has been disabled.");
 	}
-	
 	public void loadConfig() {
 		getConfig().options().copyDefaults(true);
 		saveConfig();

@@ -12,8 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.ArenaManager;
-import com.icey.walls.framework.BlockClipboard;
 import com.icey.walls.listeners.WallsTool;
+import com.icey.walls.util.BlockClipboard;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	

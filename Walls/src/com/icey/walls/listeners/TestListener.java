@@ -1,15 +1,23 @@
 package com.icey.walls.listeners;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import com.icey.walls.MainClass;
@@ -24,24 +32,40 @@ public class TestListener implements Listener  {
 		this.wt = wt;
 		this.plugin = plugin;
 	}
+//	@EventHandler
+//	public void playerDies(PlayerDeathEvent deathEvent) {
+//			deathEvent.setDeathMessage("");
+//			//Run this if a player was killed by a player.
+//			Random rand = new Random();
+//			int msgID = rand.nextInt(11);
+//			String deathMsg = "";
+//			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
+//				if (msgID == 0) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " was slain by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 1) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " was 69ed by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 2) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " was memed by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 3) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got epic gamer moved by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 4) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " was isekaied to another world by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 5) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got rekt by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 6) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got w-tapped by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 7) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got destroyed by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 8) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got creeper aw maned by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 9) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " got squashed by anime thighs by " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//				if (msgID == 10) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " lost all hp and fainted to " + ChatColor.RESET + deathEvent.getEntity().getKiller().getDisplayName();
+//
+//
+//			}
+//			//run this if player died of natural causes.
+//			else {
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.VOID) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " fell in the void.";
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.LAVA) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " thought he had the high ground and melted in lava.";
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.DROWNING) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " forgot how to breathe.";
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " burnt to a crisp.";
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " played with fire.";
+//				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = deathEvent.getEntity().getPlayer().getDisplayName() + ChatColor.GRAY + " fell to a clumsy death.";
+//			}
+//			for (Player id : Bukkit.getOnlinePlayers()) {
+//				id.sendMessage(deathMsg);
+//			}
+//		}
 	
-	@EventHandler
-	public void walkingEvent(PlayerMoveEvent pMoveEvent) {
-		if(wt.getPos1() != null) {
-			if (pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX() == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX() == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wt.getPos1().getBlockZ() ||
-				pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wt.getPos1().getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wt.getPos1().getBlockZ()) {
-				oldloc = pMoveEvent.getPlayer().getLocation();
-				plugin.getLogger().info("Recording");
-			}
-			else if (wt.getPos1().getBlockZ() == pMoveEvent.getPlayer().getLocation().getBlockZ() && wt.getPos1().getBlockX() == pMoveEvent.getPlayer().getLocation().getBlockX()) {
-				pMoveEvent.getPlayer().teleport(oldloc);
-			}
-		}
-	}
 }

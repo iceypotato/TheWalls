@@ -1,4 +1,4 @@
-package com.icey.walls.framework;
+package com.icey.walls.util;
 
 import java.util.Collection;
 
@@ -11,6 +11,7 @@ import org.bukkit.potion.PotionEffect;
 public class PlayerOriginalState {
 	
 	private Player player;
+	private String name;
 	private Location location;
 	private ItemStack[] inv;
 	private ItemStack[]	armor;
@@ -19,9 +20,11 @@ public class PlayerOriginalState {
 	private double hp;
 	private float saturation;
 	private int foodlvl;
+	private Location spawnpoint;
 	
 	public PlayerOriginalState(Player player) {
 		this.player = player;
+		name = player.getDisplayName();
 		location = player.getLocation();
 		inv = player.getInventory().getContents();
 		armor = player.getInventory().getArmorContents();
@@ -30,17 +33,20 @@ public class PlayerOriginalState {
 		hp = player.getHealth();
 		saturation = player.getSaturation();
 		foodlvl = player.getFoodLevel();
+		spawnpoint = player.getBedSpawnLocation();
 	}
 
 	public void restoreState() {
 		player.teleport(location);
 		player.getInventory().setContents(inv);
-		player.getEquipment().setArmorContents(armor);
+		player.getInventory().setArmorContents(armor);
 		player.setGameMode(gamemode);
 		player.getActivePotionEffects().addAll(effects);
 		player.setHealth(hp);
 		player.setSaturation(saturation);
 		player.setFoodLevel(foodlvl);
+		player.setDisplayName(name);
+		player.setBedSpawnLocation(spawnpoint, true);
 	}
 	
 	public Location getLocation() {
@@ -105,5 +111,21 @@ public class PlayerOriginalState {
 
 	public void setArmor(ItemStack[] armor) {
 		this.armor = armor;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Location getSpawnpoint() {
+		return spawnpoint;
+	}
+
+	public void setSpawnpoint(Location spawnpoint) {
+		this.spawnpoint = spawnpoint;
 	}
 }
