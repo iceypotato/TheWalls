@@ -13,15 +13,15 @@ import org.bukkit.entity.Player;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.WallsTool;
 
-public class ArenaManager {
+public class WallsArenaManager {
 
 	private MainClass plugin;
 	private FileConfiguration dataConfig;
 	private File arenaFolder;
 	private File configFile;
-	private ArrayList<ArenaConfig> arenaConfigs;
+	private ArrayList<WallsArenaConfig> arenaConfigs;
 
-	public ArenaManager(MainClass plugin) {
+	public WallsArenaManager(MainClass plugin) {
 		arenaConfigs = new ArrayList<>();
 		this.plugin = plugin;
 	}
@@ -55,7 +55,7 @@ public class ArenaManager {
 			if (configFile.exists() == false) {
 				arenaFolder.mkdirs();
 				configFile.createNewFile();
-				addArenaConfig(new ArenaConfig(name, configFile, plugin));
+				addArenaConfig(new WallsArenaConfig(name, configFile, plugin));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
 				dataConfig.set("Settings.enabled", false);
 				dataConfig.set("Settings.waiting-time", 120);
@@ -181,7 +181,7 @@ public class ArenaManager {
 		return names;
 	}
 
-	public ArenaConfig getArenaConfig(String name) {
+	public WallsArenaConfig getArenaConfig(String name) {
 		for (int i = 0; i < arenaConfigs.size(); i++) {
 			if (arenaConfigs.get(i).getName().equals(name))
 				return arenaConfigs.get(i);
@@ -189,7 +189,7 @@ public class ArenaManager {
 		return null;
 	}
 
-	public void addArenaConfig(ArenaConfig arena) {
+	public void addArenaConfig(WallsArenaConfig arena) {
 		arenaConfigs.add(arena);
 	}
 
@@ -210,7 +210,7 @@ public class ArenaManager {
 				configFile = new File(arenaFolder, arenaFolder.list()[i]);
 				String name = configFile.getName().substring(0, configFile.getName().indexOf(".yml"));
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
-				addArenaConfig(new ArenaConfig(name, configFile, plugin));
+				addArenaConfig(new WallsArenaConfig(name, configFile, plugin));
 				if (checkConfig(name) == false) {
 					dataConfig.set("Settings.enabled", false);
 				}
@@ -220,8 +220,8 @@ public class ArenaManager {
 		}
 		else plugin.getLogger().info("No arenas exist.");
 	}
-	public Arena getArenaFromPlayer(Player player) {
-		for (ArenaConfig arenaConfig : arenaConfigs) {
+	public WallsArena getArenaFromPlayer(Player player) {
+		for (WallsArenaConfig arenaConfig : arenaConfigs) {
 			for (UUID uuid : arenaConfig.getArena().getPlayersInGame()) {
 				if (player.getUniqueId().equals(uuid)) return arenaConfig.getArena();
 			}
@@ -231,7 +231,7 @@ public class ArenaManager {
 	
 	/* Getters and Setters */
 	
-	public ArrayList<ArenaConfig> getArenaConfigs() {
+	public ArrayList<WallsArenaConfig> getArenaConfigs() {
 		return arenaConfigs;
 	}
 }

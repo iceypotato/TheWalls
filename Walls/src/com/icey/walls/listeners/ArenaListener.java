@@ -21,17 +21,17 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsArena;
 
 	
 public class ArenaListener implements Listener {
 	
-	private Arena arena;
+	private WallsArena arena;
 	private ArrayList<Location> wallBlocks;
 	private ArrayList<Location> buildRegionBlocks;
 	private Location oldLocation;
 	
-	public ArenaListener(Arena arena, ArrayList<Location> wallBlocks, ArrayList<Location> buildRegionBlocks) {
+	public ArenaListener(WallsArena arena, ArrayList<Location> wallBlocks, ArrayList<Location> buildRegionBlocks) {
 		this.arena = arena;
 		this.wallBlocks = wallBlocks;
 		this.buildRegionBlocks = buildRegionBlocks;

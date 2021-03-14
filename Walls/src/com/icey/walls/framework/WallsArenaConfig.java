@@ -13,10 +13,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
 
-public class ArenaConfig {
+public class WallsArenaConfig {
 	
 	private String name;
-	private Arena arena;
+	private WallsArena arena;
 	private MainClass plugin;
 	private boolean enabled;
 	private int maxPlayers;
@@ -34,14 +34,14 @@ public class ArenaConfig {
 	private File arenaFile;
 	private	FileConfiguration arenaConfig;
 	
-	public ArenaConfig(String name, File arenaFile, MainClass plugin) {
+	public WallsArenaConfig(String name, File arenaFile, MainClass plugin) {
 		this.name = name;
 		this.enabled = false;
 		this.arenaFile = arenaFile;
 		this.arenaRegions = new ArrayList<>();
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
-		arena = new Arena(this, plugin);
+		arena = new WallsArena(this, plugin);
 		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 	}
 	
@@ -181,7 +181,7 @@ public class ArenaConfig {
 	public void setWallRegions(ArrayList<Location[]> wallRegions) {this.wallRegions = wallRegions;}
 	public int getWaitingTime() {return waitingTime;}
 	public void setWaitingTime(int waitingTime) {this.waitingTime = waitingTime;}
-	public Arena getArena() {return arena;}
-	public void setArena(Arena arena) {this.arena = arena;}
+	public WallsArena getArena() {return arena;}
+	public void setArena(WallsArena arena) {this.arena = arena;}
 	
 }

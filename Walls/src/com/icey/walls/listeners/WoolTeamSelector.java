@@ -14,19 +14,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.icey.walls.MainClass;
-import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsArena;
 
 
 public class WoolTeamSelector implements Listener {
 	
 	ItemStack itemStack;
 	ItemMeta meta;
-	Arena arena;
+	WallsArena arena;
 	ArrayList<UUID> teamToJoin;
 	String message;
 	World world;
 	
-	public WoolTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, Arena arena, ArrayList<UUID> teamToJoin) {
+	public WoolTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, ArrayList<UUID> teamToJoin) {
 		this.itemStack = itemStack;
 		this.arena = arena;
 		this.teamToJoin = teamToJoin;

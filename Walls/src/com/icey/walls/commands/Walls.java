@@ -14,18 +14,18 @@ import org.bukkit.entity.Player;
 import com.icey.walls.MainClass;
 import com.icey.walls.commands.walls.Admin;
 import com.icey.walls.commands.walls.Arena;
-import com.icey.walls.framework.ArenaManager;
+import com.icey.walls.framework.WallsArenaManager;
 import com.icey.walls.listeners.WallsTool;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	
 	private MainClass myplugin;
-	private ArenaManager arenaManager;
+	private WallsArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
 	private List<SubCommand> subcmds;
 	private WallsTool wallsTool;
 	
-	public Walls(MainClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
+	public Walls(MainClass mainClass, WallsArenaManager arenaManager, WallsTool wallsTool) {
 		myplugin = mainClass;
 		this.arenaManager = arenaManager;
 		this.wallsTool = wallsTool;
@@ -115,11 +115,11 @@ public class Walls implements CommandExecutor, TabCompleter {
 		return tabList;
 	}
 
-	public ArenaManager getArenaManager() {
+	public WallsArenaManager getArenaManager() {
 		return arenaManager;
 	}
 
-	public void setArenaManager(ArenaManager arenaManager) {
+	public void setArenaManager(WallsArenaManager arenaManager) {
 		this.arenaManager = arenaManager;
 	}
 

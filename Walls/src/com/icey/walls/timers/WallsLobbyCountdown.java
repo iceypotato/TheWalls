@@ -7,12 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 
-import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsArena;
 import com.icey.walls.framework.WallsScoreboard;
 
 public class WallsLobbyCountdown extends WallsCountdown {
 	
-	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, Arena arena) {
+	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, WallsArena arena) {
 		super(minutes, seconds, wallsSB, arena);
 	}
 	

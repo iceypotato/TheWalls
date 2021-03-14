@@ -26,9 +26,9 @@ import com.icey.walls.timers.WallsLobbyCountdown;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
 
-public class Arena {
+public class WallsArena {
 	
-	private ArenaConfig config;
+	private WallsArenaConfig config;
 	private MainClass plugin;
 	private boolean waiting;
 	private boolean inProgress;
@@ -53,7 +53,7 @@ public class Arena {
 	private ArrayList<Location> wallBlocks;
 	private ArrayList<Location> buildRegionBlocks;
 	
-	public Arena(ArenaConfig config, MainClass plugin) {
+	public WallsArena(WallsArenaConfig config, MainClass plugin) {
 		this.config = config;
 		this.inProgress = false;
 		this.waiting = false;
@@ -364,6 +364,6 @@ public class Arena {
 	public void setWallsFall(boolean wallsFall) {this.wallsFall = wallsFall;}
 	public int getRemainingTeams() {return remainingTeams;}
 	public void setRemainingTeams(int remainingTeams) {this.remainingTeams = remainingTeams;}
-	public ArenaConfig getConfig() {return config;}
-	public void setConfig(ArenaConfig config) {this.config = config;}
+	public WallsArenaConfig getConfig() {return config;}
+	public void setConfig(WallsArenaConfig config) {this.config = config;}
 }

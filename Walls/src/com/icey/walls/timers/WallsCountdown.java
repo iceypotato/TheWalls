@@ -2,7 +2,7 @@ package com.icey.walls.timers;
 
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsArena;
 import com.icey.walls.framework.WallsScoreboard;
 
 public abstract class WallsCountdown extends BukkitRunnable {
@@ -10,9 +10,9 @@ public abstract class WallsCountdown extends BukkitRunnable {
 	private int minutes;
 	private int seconds;
 	private WallsScoreboard wallsSB;
-	private Arena arena;
+	private WallsArena arena;
 	
-	public WallsCountdown(int minutes, int seconds, WallsScoreboard wallsSB, Arena arena) {
+	public WallsCountdown(int minutes, int seconds, WallsScoreboard wallsSB, WallsArena arena) {
 		this.minutes = minutes;
 		this.seconds = seconds;
 		this.wallsSB = wallsSB;
@@ -57,11 +57,11 @@ public abstract class WallsCountdown extends BukkitRunnable {
 		this.seconds = seconds;
 	}
 
-	public Arena getArena() {
+	public WallsArena getArena() {
 		return arena;
 	}
 
-	public void setArena(Arena arena) {
+	public void setArena(WallsArena arena) {
 		this.arena = arena;
 	}
 }
