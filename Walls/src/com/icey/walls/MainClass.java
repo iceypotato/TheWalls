@@ -23,7 +23,6 @@ public class MainClass extends JavaPlugin {
 		getLogger().info(arenaManager.numArenas() + " arenas loaded.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
 		this.getCommand("test").setExecutor((CommandExecutor) new Test(this, wallsTool));
-		
 		getServer().getPluginManager().registerEvents(wallsTool, this);
 		getServer().getPluginManager().registerEvents(testL, this);
 		

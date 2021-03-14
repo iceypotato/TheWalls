@@ -56,14 +56,13 @@ public class WallsTool implements Listener {
 					world = block.getWorld();
 					pos1 = loc;
 					player.sendMessage(ChatColor.LIGHT_PURPLE + "Position #1: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
-					event.setCancelled(true);
 				}
 				else if (action == Action.RIGHT_CLICK_BLOCK) {
 					world = block.getWorld();
 					pos2 = loc;
 					player.sendMessage(ChatColor.LIGHT_PURPLE + "Position #2: " + ChatColor.WHITE + "X: " + ChatColor.GREEN + loc.getBlockX() + ChatColor.WHITE + " Y: " + ChatColor.GREEN + loc.getBlockY() + ChatColor.WHITE + " Z: " + ChatColor.GREEN + loc.getBlockZ());
-					event.setCancelled(true);
 				}
+				event.setCancelled(true);
 			}
 		}
 	}

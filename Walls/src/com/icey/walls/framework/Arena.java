@@ -19,10 +19,12 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftSound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
+import com.icey.walls.listeners.WoolTeamSelector;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
 
@@ -48,6 +50,7 @@ public class Arena {
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
+	private WoolTeamSelector[] woolTeamSelectors;
 	private File arenaFile;
 	private WallsScoreboard wallsSB;
 	private ArenaListener arenaListener;
@@ -69,7 +72,6 @@ public class Arena {
 	private BlockClipboard originalArena;
 	private ArrayList<Location> wallBlocks;
 	private ArrayList<Location> buildRegionBlocks;
-
 	
 	public Arena(String name, File arenaFile, MainClass plugin) {
 		this.name = name;
@@ -89,7 +91,7 @@ public class Arena {
 		this.teamGreen = new ArrayList<>();
 		this.teamBlue = new ArrayList<>();
 		this.teamYellow = new ArrayList<>();
-		
+		this.woolTeamSelectors = new WoolTeamSelector[4];
 		this.originalArena = new BlockClipboard();
 		this.buildRegionBlocks = new ArrayList<>();
 		this.wallBlocks = new ArrayList<>();
@@ -109,9 +111,46 @@ public class Arena {
 		readSettings();
 	}
 	
+	//run this only when one person joins
+	public void initializeArena() {
+		for (Location[] region : arenaRegions) {
+			originalArena.addRegion(region[0], region[1]);
+		}
+		for (Location[] region : wallRegions) {
+			for (int x = Math.min(region[0].getBlockX(), region[1].getBlockX()); x <= Math.max(region[0].getBlockX(), region[1].getBlockX()); x++) {
+				for (int y = Math.min(region[0].getBlockY(), region[1].getBlockY()); y <= Math.max(region[0].getBlockY(), region[1].getBlockY()); y++) {
+					for (int z = Math.min(region[0].getBlockZ(), region[1].getBlockZ()); z <= Math.max(region[0].getBlockZ(), region[1].getBlockZ()); z++) {
+						Location loc = new Location(region[0].getWorld(), x, y, z);
+						wallBlocks.add(loc);
+					}
+				}
+			}
+		}
+		for (Location[] region : buildRegions) {
+			for (int x = Math.min(region[0].getBlockX(), region[1].getBlockX()); x <= Math.max(region[0].getBlockX(), region[1].getBlockX()); x++) {
+				for (int y = Math.min(region[0].getBlockY(), region[1].getBlockY()); y <= Math.max(region[0].getBlockY(), region[1].getBlockY()); y++) {
+					for (int z = Math.min(region[0].getBlockZ(), region[1].getBlockZ()); z <= Math.max(region[0].getBlockZ(), region[1].getBlockZ()); z++) {
+						Location loc = new Location(region[0].getWorld(), x, y, z);
+						buildRegionBlocks.add(loc);
+					}
+				}
+			}
+		}
+		woolTeamSelectors[0] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.RED+"Join Team Red", ChatColor.RED+"RED", this, teamRed);
+		woolTeamSelectors[1] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.GREEN+"Join Team Green", ChatColor.GREEN+"GREEN", this, teamGreen);
+		woolTeamSelectors[2] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.BLUE+"Join Team Blue", ChatColor.BLUE+"BLUE", this, teamBlue);
+		woolTeamSelectors[3] = new WoolTeamSelector(plugin ,new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.YELLOW+"Join Team Yellow", ChatColor.YELLOW+"YELLOW", this, teamYellow);
+		for (WoolTeamSelector wool : woolTeamSelectors) {
+			plugin.getServer().getPluginManager().registerEvents(wool, plugin);
+		}
+		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
+		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
+		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
+	}
+	
 	/*
 	 * 
-	 * Arena Events
+	 * Arena Game Phases/Events
 	 * 
 	 */
 	
@@ -125,10 +164,10 @@ public class Arena {
 			}
 			Random random = new Random();
 			int randNum = random.nextInt(4);
-			if (randNum == 0) teamRed.add(player.getUniqueId());
-			if (randNum == 1) teamGreen.add(player.getUniqueId());
-			if (randNum == 2) teamBlue.add(player.getUniqueId());
-			if (randNum == 3) teamYellow.add(player.getUniqueId());
+			if (randNum == 0) joinTeam(player, teamRed);
+			if (randNum == 1) joinTeam(player, teamGreen);
+			if (randNum == 2) joinTeam(player, teamBlue);
+			if (randNum == 3) joinTeam(player, teamYellow);
 			playersInGame.add(player.getUniqueId());
 			playerOriginalState.put(player.getUniqueId(), new PlayerOriginalState(player));
 			updateScoreboard();
@@ -140,6 +179,9 @@ public class Arena {
 			player.setSaturation(100);
 			player.setFoodLevel(20);
 			player.getActivePotionEffects().clear();
+			for (int i = 0; i < woolTeamSelectors.length; i++) {
+				woolTeamSelectors[i].giveItemToPlayer(player);
+			}
 			if (playersInGame.size() >= minPlayers) lobbyCountdown();
 		}
 		else {
@@ -163,6 +205,14 @@ public class Arena {
 		if (playersInGame.size() < minPlayers && wallsCountdown != null) wallsCountdown.cancel();
 		if (playersInGame.size() == 0) stopGame();
 		if (inProgress) checkForRemainingTeams();
+	}
+	
+	public void joinTeam(Player player, ArrayList<UUID> teamToJoin) {
+		teamRed.remove(player.getUniqueId());
+		teamGreen.remove(player.getUniqueId());
+		teamBlue.remove(player.getUniqueId());
+		teamYellow.remove(player.getUniqueId());
+		teamToJoin.add(player.getUniqueId());
 	}
 	
 	public void updateScoreboard() {
@@ -223,6 +273,9 @@ public class Arena {
 			Bukkit.getPlayer(id).teleport(yellowSpawn);
 			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
 			Bukkit.getPlayer(id).setDisplayName(ChatColor.YELLOW + Bukkit.getPlayer(id).getDisplayName());
+		}
+		for (UUID id: playersInGame) {
+			Bukkit.getPlayer(id).getInventory().clear();
 		}
 		if (teamBlue.size() > 0) remainingTeams++;
 		if (teamRed.size() > 0) remainingTeams++;
@@ -302,6 +355,7 @@ public class Arena {
 		playerOriginalState.clear();
 		originalArena.pasteBlocksInClipboard();
 		HandlerList.unregisterAll(arenaListener);
+		for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
 		for (int j = 0; j < arenaRegions.size(); j++) {
 			for (int i = 0; i < arenaRegions.get(j)[0].getWorld().getEntities().size(); i++) {
 				Location locofEnt = arenaRegions.get(j)[0].getWorld().getEntities().get(i).getLocation();
@@ -317,34 +371,6 @@ public class Arena {
 		}
 	}
 	
-	//run this only when one person joins
-	public void initializeArena() {
-		for (Location[] region : arenaRegions) {
-			originalArena.addRegion(region[0], region[1]);
-		}
-		for (Location[] region : wallRegions) {
-			for (int x = Math.min(region[0].getBlockX(), region[1].getBlockX()); x <= Math.max(region[0].getBlockX(), region[1].getBlockX()); x++) {
-				for (int y = Math.min(region[0].getBlockY(), region[1].getBlockY()); y <= Math.max(region[0].getBlockY(), region[1].getBlockY()); y++) {
-					for (int z = Math.min(region[0].getBlockZ(), region[1].getBlockZ()); z <= Math.max(region[0].getBlockZ(), region[1].getBlockZ()); z++) {
-						Location loc = new Location(region[0].getWorld(), x, y, z);
-						wallBlocks.add(loc);
-					}
-				}
-			}
-		}
-		for (Location[] region : buildRegions) {
-			for (int x = Math.min(region[0].getBlockX(), region[1].getBlockX()); x <= Math.max(region[0].getBlockX(), region[1].getBlockX()); x++) {
-				for (int y = Math.min(region[0].getBlockY(), region[1].getBlockY()); y <= Math.max(region[0].getBlockY(), region[1].getBlockY()); y++) {
-					for (int z = Math.min(region[0].getBlockZ(), region[1].getBlockZ()); z <= Math.max(region[0].getBlockZ(), region[1].getBlockZ()); z++) {
-						Location loc = new Location(region[0].getWorld(), x, y, z);
-						buildRegionBlocks.add(loc);
-					}
-				}
-			}
-		}
-		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
-		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
-	}
 	public void brodcastMsgToArena(String msg, String killer, String killee) {
 		for (UUID id : playersInGame) {
 			Bukkit.getPlayer(id).sendMessage(killee + ChatColor.GRAY + msg + ChatColor.RESET + killer);

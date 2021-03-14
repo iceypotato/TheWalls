@@ -14,16 +14,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.icey.walls.framework.Arena;
-
-import net.minecraft.server.v1_8_R3.ChatMessage;
 
 	
 public class ArenaListener implements Listener {
@@ -40,8 +38,8 @@ public class ArenaListener implements Listener {
 	}
 	
 	@EventHandler
-	public void playerLeave(PlayerQuitEvent quitEvent) {
-		if (arena.isInProgress() || arena.isWaiting()) arena.playerLeave(quitEvent.getPlayer());
+	public void playerDisconnect(PlayerQuitEvent quitEvent) {
+		if ((arena.isInProgress() || arena.isWaiting()) && quitEvent.getPlayer() != null) arena.playerLeave(quitEvent.getPlayer());
 	}
 	
 	@EventHandler
