@@ -6,15 +6,30 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public interface SubCommand {
+public abstract class SubCommand {
 	
-	public boolean onSubCommand(CommandSender sender, Command command, String label, String[] args);
+	CommandExecutor commandExecutor;
+	List<String> aliases;
 	
-	public CommandExecutor getSuperCommand();
+	public SubCommand(CommandExecutor commandExecutor) {
+		this.commandExecutor = commandExecutor;
+	}
 	
-	public void setSuperCommand(CommandExecutor executor);
+	public abstract boolean onSubCommand(CommandSender sender, Command command, String label, String[] args);
 	
-	public List<String> getAliases();
+	public CommandExecutor getSuperCommand() {
+		return commandExecutor;
+	}
 	
-	public void setAliases(List<String> aliases);
+	public void setSuperCommand(CommandExecutor executor) {
+		
+	}
+	
+	public List<String> getAliases() {
+		return aliases;
+	}
+	
+	public void setAliases(List<String> aliases) {
+		
+	}
 }

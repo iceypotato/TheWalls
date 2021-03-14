@@ -9,15 +9,12 @@ import org.bukkit.command.CommandSender;
 
 import com.icey.walls.commands.SubCommand;
 
-public class Admin implements SubCommand {
-	
-	public CommandExecutor superCommand;
-	public List<String> aliases;
+public class Admin extends SubCommand {
 	
 	public Admin(CommandExecutor superCommand) {
-		this.superCommand = superCommand;
-		aliases = new ArrayList<>();
-		aliases.add("admin");
+		super(superCommand);
+		setAliases( new ArrayList<>());
+		getAliases().add("admin");
 	}
 
 	@Override
@@ -30,30 +27,5 @@ public class Admin implements SubCommand {
 			sender.sendMessage("/walls forcestop <arena>");
 		}
 		return true;
-	}
-
-
-	@Override
-	public void setSuperCommand(CommandExecutor executor) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public List<String> getAliases() {
-		// TODO Auto-generated method stub
-		return this.aliases;
-	}
-
-	@Override
-	public void setAliases(List<String> aliases) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public CommandExecutor getSuperCommand() {
-		// TODO Auto-generated method stub
-		return this.superCommand;
 	}
 }

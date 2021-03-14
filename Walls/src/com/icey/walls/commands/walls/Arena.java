@@ -13,24 +13,22 @@ import com.icey.walls.commands.SubCommand;
 import com.icey.walls.commands.Walls;
 import com.icey.walls.listeners.WallsTool;
 
-public class Arena implements SubCommand {
+public class Arena extends SubCommand {
 
-	public CommandExecutor superCommand;
-	public List<String> aliases;
 	public String name;
 	
 	public Arena(CommandExecutor superCommand) {
-		this.superCommand = superCommand;
+		super(superCommand);
 		this.name = "arena";
-		aliases = new ArrayList<>();
-		aliases.add(name);
+		setAliases(new ArrayList<>());
+		getAliases().add(name);
 	}
 
 	// arena arg[0] arg[1]...
 	@Override
 	public boolean onSubCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
-			Walls wallsSupercommand = (Walls) superCommand;
+			Walls wallsSupercommand = (Walls) getSuperCommand();
 			//Create arena
 			if (args[0].equalsIgnoreCase("create")) {
 				if (args.length != 2) {
@@ -149,24 +147,4 @@ public class Arena implements SubCommand {
 		}
 		return false;
 	}
-	@Override
-	public CommandExecutor getSuperCommand() {
-		return this.superCommand;
-	}
-
-	@Override
-	public void setSuperCommand(CommandExecutor executor) {
-		this.superCommand = executor;
-	}
-
-	@Override
-	public List<String> getAliases() {
-		return this.aliases;
-	}
-
-	@Override
-	public void setAliases(List<String> aliases) {
-		this.aliases = aliases;
-	}
-	
 }
