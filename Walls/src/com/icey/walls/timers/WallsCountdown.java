@@ -1,6 +1,9 @@
-package com.icey.walls.framework;
+package com.icey.walls.timers;
 
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsScoreboard;
 
 public abstract class WallsCountdown extends BukkitRunnable {
 	

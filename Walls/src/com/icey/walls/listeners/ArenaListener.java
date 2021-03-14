@@ -154,7 +154,7 @@ public class ArenaListener implements Listener {
 	public void respawn(PlayerRespawnEvent pRespawnEvent) {
 		if (arena.getPlayersInGame().contains(pRespawnEvent.getPlayer().getUniqueId())) {
 			pRespawnEvent.getPlayer().setGameMode(GameMode.SPECTATOR);
-			pRespawnEvent.setRespawnLocation(arena.getLobbySpawn());
+			pRespawnEvent.setRespawnLocation(arena.getConfig().getLobbySpawn());
 			pRespawnEvent.getPlayer().sendTitle(ChatColor.RED + "You Died!", ChatColor.YELLOW+"Get gud.");
 		}
 	}

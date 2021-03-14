@@ -1,6 +1,7 @@
 package com.icey.walls.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -11,28 +12,34 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.icey.walls.MainClass;
+import com.icey.walls.commands.walls.Admin;
+import com.icey.walls.commands.walls.Arena;
 import com.icey.walls.framework.ArenaManager;
 import com.icey.walls.listeners.WallsTool;
-import com.icey.walls.util.BlockClipboard;
 
 public class Walls implements CommandExecutor, TabCompleter {
 	
 	private MainClass myplugin;
 	private ArenaManager arenaManager;
 	private FileConfiguration arenaConfig;
+	private List<SubCommand> subcmds;
 	private WallsTool wallsTool;
-	private BlockClipboard protectedBlocks;
-
+	
 	public Walls(MainClass mainClass, ArenaManager arenaManager, WallsTool wallsTool) {
 		myplugin = mainClass;
 		this.arenaManager = arenaManager;
 		this.wallsTool = wallsTool;
+		subcmds = new ArrayList<>();
+		subcmds.add(new Arena(this));
+		subcmds.add(new Admin(this));
 	}
 
+	
+	
+	//Walls args[0] args[1] args[2]...
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (args.length > 0) {
-			
+		if (args.length > 0 ) {
 			// help \\
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
@@ -50,17 +57,16 @@ public class Walls implements CommandExecutor, TabCompleter {
 				if (args.length == 1) sender.sendMessage("You must specify an arena");
 				else if (args.length >= 2 && sender instanceof Player) {
 					Player player = (Player) sender;
-					if (arenaManager.getArena(args[1]) == null) sender.sendMessage(ChatColor.RED + "That arena does not exist!");
+					if (arenaManager.getArenaConfig(args[1]) == null) sender.sendMessage(ChatColor.RED + "That arena does not exist!");
 					else if (arenaManager.getArenaFromPlayer(player) != null) sender.sendMessage(ChatColor.RED+"You must leave your current arena before joining another.");
-					else if (arenaManager.getArena(args[1]).isEnabled()) {
+					else if (arenaManager.getArenaConfig(args[1]).isEnabled()) {
 						sender.sendMessage(ChatColor.GREEN + "You have joined " + args[1] + ".");
-						arenaManager.getArena(args[1]).playerJoin(player);
+						arenaManager.getArenaConfig(args[1]).getArena().playerJoin(player);
 					}
 					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
 				}
 				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 			}
-			
 			// leave \\
 			else if (args[0].equalsIgnoreCase("leave")) {
 				if (args.length >= 1 && sender instanceof Player) {
@@ -73,147 +79,31 @@ public class Walls implements CommandExecutor, TabCompleter {
 				}
 				else sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
 			}
-			
-			// arena \\
-			else if (args[0].equalsIgnoreCase("arena")) {
-				if (args.length >= 2) {
-					//Create arena
-					if (args[1].equalsIgnoreCase("create")) {
-						if (args.length != 3) {
-							sender.sendMessage(ChatColor.RED + "No arena name specified! /walls arena create <name>");
-						}
-						else {
-							String name = args[2];
-							int result = arenaManager.createArenaConfig(name);
-							if (result == 1) sender.sendMessage(ChatColor.RED + "Arena " + name + " already exists!");
-							if (result == 0) sender.sendMessage(ChatColor.GREEN + "Arena " + ChatColor.WHITE + name + ChatColor.GREEN + " Created!");
-							if (result == -1) sender.sendMessage(ChatColor.RED + "An error has occured. Check the console.");
-						}
-					}
-					//walls tool
-					else if (args[1].equalsIgnoreCase("tool")) {
-						if (sender instanceof Player) {
-							wallsTool = new WallsTool();
-							Player p = (Player) sender;
-							wallsTool.giveTool(p);
-						}
-						else {
-							sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
-						}
-					}
-					//Specifying an arena
-					else {
-						String name = args[1];
-						arenaConfig = arenaManager.getConfigFile(name);
-						if (arenaConfig != null) {
-							if (args.length >= 3) {
-								if (args[2].equalsIgnoreCase("info")) {
-									sender.sendMessage(arenaManager.getArena(name).listSpawns());
-									sender.sendMessage(arenaManager.getArena(name).listRegions());
-								}
-								else if (args[2].equalsIgnoreCase("stop")){
-									arenaManager.getArena(name).stopGame();
-								}
-								else if (args[2].equalsIgnoreCase("enable")) {
-									sender.sendMessage(args[1]);
-									if (arenaManager.checkConfig(args[1])) {
-										arenaManager.getArena(args[1]).setEnabled(true);
-										arenaManager.writeSettings(args[1], "enabled", true);
-										sender.sendMessage("Arena " + args[1] + " enabled.");
-									}
-									else sender.sendMessage("Error: cannot enable arena. Check the config.");
-								}
-								else if (sender instanceof Player) {
-									Player player = (Player) sender;
-									if (args[2].equalsIgnoreCase("setlobby")) {
-										arenaManager.writeSpawns(name, "Lobby", player);
-										sender.sendMessage(ChatColor.GOLD + "Lobby spawnpoint set for arena " + ChatColor.AQUA+ name);
-									}
-									else if (args[2].equalsIgnoreCase("setblue")) {
-										arenaManager.writeSpawns(name, "Blue", player);
-										sender.sendMessage(ChatColor.BLUE + "Blue Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-									}
-									else if (args[2].equalsIgnoreCase("setgreen")) {
-										arenaManager.writeSpawns(name, "Green", player);
-										sender.sendMessage(ChatColor.GREEN + "Green Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-									}
-									else if (args[2].equalsIgnoreCase("setred")) {
-										arenaManager.writeSpawns(name, "Red", player);
-										sender.sendMessage(ChatColor.RED + "Red Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-									}
-									else if (args[2].equalsIgnoreCase("setyellow")) {
-										arenaManager.writeSpawns(name, "Yellow", player);
-										sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-									}
-									else if (args[2].equalsIgnoreCase("addarenaregion")) {
-										if (wallsTool.getPos1() == null || wallsTool.getPos1() == null) { sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!"); }
-										else {
-											arenaManager.writeRegions(name, "Arena", player, wallsTool);
-											sender.sendMessage("Arena region added for " + name);
-										}
-									}
-									else if (args[2].equalsIgnoreCase("addwall")) {
-										if (wallsTool.getPos1() == null || wallsTool.getPos1() == null) {
-											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
-										}
-										else {
-											arenaManager.writeRegions(name, "Walls", player, wallsTool);
-											sender.sendMessage("Wall region added for " + name);
-										}
-									}
-									else if (args[2].equalsIgnoreCase("addbuild")) {
-										if (wallsTool.getPos2() == null || wallsTool.getPos2() == null) {
-											sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
-										}
-										else {
-											arenaManager.writeRegions(name, "Build", player, wallsTool);
-											sender.sendMessage("Build region added for " + name);
-										}
-									}
-								}
-								else {
-									sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");
-								}
-							}
-							else {
-								sender.sendMessage("no arena command specified!");
-							}
-						}
-						else {
-							sender.sendMessage(ChatColor.RED + "Arena " + name + " does not exist! Do /walls arena create <arenaname>");
-						}
-					}
-				}
-				
-				//Display cmds
-				else {
-					sender.sendMessage("Walls Setup Commands");
-				}
-			}
-			
-			
-			
-			
-			//Admin
-			else if (args[0].equalsIgnoreCase("admin")) {
-				sender.sendMessage("Walls Admin Commands");
-			}
-			
-			
-			//Reload
+			// reload \\
 			else if (args[0].equalsIgnoreCase("reload")) {
 				sender.sendMessage(ChatColor.GREEN + "Reloading Config...");
 				myplugin.loadConfig();
 				myplugin.arenaManager.reloadArenas();
 				sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Walls Config Reloaded!");
 			}
-
+			//Other subcommands
 			else {
-				sender.sendMessage(ChatColor.RED + "Incorrect Argument! " + ChatColor.GREEN
-						+ "do /walls help for the list of commands.");
+				String[] subargs = (args.length > 1) ? Arrays.copyOfRange(args, 1, args.length) : new String[0];
+				boolean foundCommand = false;
+				for (int i=0; i < subcmds.size() && !foundCommand; i++) {
+					for (int j=0; j < subcmds.get(i).getAliases().size() && !foundCommand; j++) {
+						if (subcmds.get(i).getAliases().get(j).contains(args[0])) {
+							subcmds.get(i).onSubCommand(sender, command, label, subargs);
+							foundCommand = true;
+						}
+					}
+				}
+				if (!foundCommand) {
+					sender.sendMessage(ChatColor.RED + "Incorrect Argument! " + ChatColor.GREEN + "do /walls help for the list of commands.");
+				}
 			}
-
-		} else {
+		} 
+		else {
 			sender.sendMessage(ChatColor.GOLD + "Running Walls Minigame Plugin 1.0. Type /walls help for more.");
 		}
 		return true;
@@ -224,4 +114,30 @@ public class Walls implements CommandExecutor, TabCompleter {
 		ArrayList<String> tabList = new ArrayList<String>();
 		return tabList;
 	}
+
+	public ArenaManager getArenaManager() {
+		return arenaManager;
+	}
+
+	public void setArenaManager(ArenaManager arenaManager) {
+		this.arenaManager = arenaManager;
+	}
+
+	public FileConfiguration getArenaConfig() {
+		return arenaConfig;
+	}
+
+	public void setArenaConfig(FileConfiguration arenaConfig) {
+		this.arenaConfig = arenaConfig;
+	}
+
+	public WallsTool getWallsTool() {
+		return wallsTool;
+	}
+
+	public void setWallsTool(WallsTool wallsTool) {
+		this.wallsTool = wallsTool;
+	}
+	
+	
 }

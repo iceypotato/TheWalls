@@ -1,10 +1,13 @@
-package com.icey.walls.framework;
+package com.icey.walls.timers;
 
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+
+import com.icey.walls.framework.Arena;
+import com.icey.walls.framework.WallsScoreboard;
 
 public class WallsFallCountdown extends WallsCountdown {
 	
