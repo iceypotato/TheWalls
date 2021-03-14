@@ -59,7 +59,7 @@ public class WallsArenaManager {
 				dataConfig = YamlConfiguration.loadConfiguration(configFile);
 				dataConfig.set("Settings.enabled", false);
 				dataConfig.set("Settings.waiting-time", 120);
-				dataConfig.set("Settings.preparation-time", 10);
+				dataConfig.set("Settings.preparation-time", 900);
 				dataConfig.set("Settings.start-min-players", 2);
 				dataConfig.set("Settings.max-players", 24);
 				dataConfig.set("Spawns.Lobby", "");
@@ -127,6 +127,7 @@ public class WallsArenaManager {
 		arenaConfig.set("Spawns." + spawnName + ".yaw", player.getLocation().getYaw());
 		arenaConfig.set("Spawns." + spawnName + ".pitch", player.getLocation().getPitch());
 		saveFile(name, arenaConfig);
+		getArenaConfig(name).loadConfig();
 	}
 	public void writeRegions(String name, String regionName, Player player,  WallsTool wallsTool) {
 		FileConfiguration arenaConfig = getConfigFile(name);
@@ -150,6 +151,7 @@ public class WallsArenaManager {
 		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.y", wallsTool.getPos2().getBlockY());
 		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.z", wallsTool.getPos2().getBlockZ());
 		saveFile(name, arenaConfig);
+		getArenaConfig(name).loadConfig();
 	}
 	public void writeSettings(String arena, String name, Object value) {
 		FileConfiguration arenaConfig = getConfigFile(arena);

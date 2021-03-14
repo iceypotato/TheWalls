@@ -315,9 +315,10 @@ public class WallsArena {
 		}
 		playersInGame.clear();
 		playerOriginalState.clear();
-		originalArena.pasteBlocksInClipboard();
 		HandlerList.unregisterAll(arenaListener);
 		for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
+		plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
+		originalArena.pasteBlocksInClipboard();
 		plugin.getLogger().info(config.getArenaRegions()+"");
 		if (config.getArenaRegions().size() != 0) {
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {
