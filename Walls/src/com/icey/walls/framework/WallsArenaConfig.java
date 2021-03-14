@@ -38,6 +38,7 @@ public class WallsArenaConfig {
 		this.name = name;
 		this.enabled = false;
 		this.arenaFile = arenaFile;
+		this.plugin = plugin;
 		this.arenaRegions = new ArrayList<>();
 		this.buildRegions = new ArrayList<>();
 		this.wallRegions = new ArrayList<>();
@@ -68,6 +69,7 @@ public class WallsArenaConfig {
 	public void addArenaRegion() { arenaRegions = readRegions("Arena"); }
 	public void addWallRegion() { wallRegions = readRegions("Walls"); }
 	public void addBuildRegion() { buildRegions = readRegions("Build"); }
+	
 	public ArrayList<Location[]> readRegions(String name) {
 		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
 		int i = 1;

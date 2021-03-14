@@ -107,7 +107,6 @@ public class WallsArena {
 		}
 		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
-		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
 	}
 	
 	/*
@@ -278,6 +277,7 @@ public class WallsArena {
 	}
 	
 	public void checkForRemainingTeams() {
+		plugin.getLogger().info(remainingTeams+"");
 		if (teamRed.size() == 0 && !redEliminated) {
 			redEliminated = true;
 			remainingTeams -= 1;
@@ -288,7 +288,7 @@ public class WallsArena {
 			remainingTeams -= 1;
 			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
 		}
-		if (teamBlue.size() == 0 && !blueEliminated) {;
+		if (teamBlue.size() == 0 && !blueEliminated) {
 			blueEliminated = true;
 			remainingTeams -= 1;
 			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
@@ -308,6 +308,7 @@ public class WallsArena {
 		waiting = false;
 		wallsFall = false;
 		ending = false;
+		remainingTeams = 0;
 		for (UUID uuid : playersInGame) {
 			Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
 			playerOriginalState.get(uuid).restoreState();
@@ -317,16 +318,19 @@ public class WallsArena {
 		originalArena.pasteBlocksInClipboard();
 		HandlerList.unregisterAll(arenaListener);
 		for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
-		for (int j = 0; j < config.getArenaRegions().size(); j++) {
-			for (int i = 0; i < config.getArenaRegions().get(j)[0].getWorld().getEntities().size(); i++) {
-				Location locofEnt = config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i).getLocation();
-				if (Math.min(config.getArenaRegions().get(j)[0].getBlockX(), config.getArenaRegions().get(j)[1].getBlockX()) <= locofEnt.getBlockX() &&
-				locofEnt.getBlockX() <= Math.max(config.getArenaRegions().get(j)[0].getBlockX(), config.getArenaRegions().get(j)[1].getBlockX()) &&
-				Math.min(config.getArenaRegions().get(j)[0].getBlockY(), config.getArenaRegions().get(j)[1].getBlockY()) <= locofEnt.getBlockY() &&
-				locofEnt.getBlockY() <= Math.max(config.getArenaRegions().get(j)[0].getBlockY(), config.getArenaRegions().get(j)[1].getBlockY()) &&
-				Math.min(config.getArenaRegions().get(j)[0].getBlockZ(), config.getArenaRegions().get(j)[1].getBlockZ()) <= locofEnt.getBlockZ() &&
-				locofEnt.getBlockZ() <= Math.max(config.getArenaRegions().get(j)[0].getBlockZ(), config.getArenaRegions().get(j)[1].getBlockZ())) {
-					if (config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i) instanceof Item) config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i).remove();
+		plugin.getLogger().info(config.getArenaRegions()+"");
+		if (config.getArenaRegions().size() != 0) {
+			for (int j = 0; j < config.getArenaRegions().size(); j++) {
+				for (int i = 0; i < config.getArenaRegions().get(j)[0].getWorld().getEntities().size(); i++) {
+					Location locofEnt = config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i).getLocation();
+					if (Math.min(config.getArenaRegions().get(j)[0].getBlockX(), config.getArenaRegions().get(j)[1].getBlockX()) <= locofEnt.getBlockX() &&
+					locofEnt.getBlockX() <= Math.max(config.getArenaRegions().get(j)[0].getBlockX(), config.getArenaRegions().get(j)[1].getBlockX()) &&
+					Math.min(config.getArenaRegions().get(j)[0].getBlockY(), config.getArenaRegions().get(j)[1].getBlockY()) <= locofEnt.getBlockY() &&
+					locofEnt.getBlockY() <= Math.max(config.getArenaRegions().get(j)[0].getBlockY(), config.getArenaRegions().get(j)[1].getBlockY()) &&
+					Math.min(config.getArenaRegions().get(j)[0].getBlockZ(), config.getArenaRegions().get(j)[1].getBlockZ()) <= locofEnt.getBlockZ() &&
+					locofEnt.getBlockZ() <= Math.max(config.getArenaRegions().get(j)[0].getBlockZ(), config.getArenaRegions().get(j)[1].getBlockZ())) {
+						if (config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i) instanceof Item) config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i).remove();
+					}
 				}
 			}
 		}

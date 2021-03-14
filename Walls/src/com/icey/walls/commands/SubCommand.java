@@ -22,7 +22,7 @@ public abstract class SubCommand {
 	}
 	
 	public void setSuperCommand(CommandExecutor executor) {
-		
+		this.commandExecutor = executor;
 	}
 	
 	public List<String> getAliases() {
@@ -30,6 +30,6 @@ public abstract class SubCommand {
 	}
 	
 	public void setAliases(List<String> aliases) {
-		
+		this.aliases = aliases;
 	}
 }

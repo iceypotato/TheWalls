@@ -145,6 +145,6 @@ public class Arena extends SubCommand {
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> info: " + ChatColor.RESET + "gives information about an arena.");
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> enable: " + ChatColor.RESET + "will attempt to enable an arena.");
 		}
-		return false;
+		return true;
 	}
 }

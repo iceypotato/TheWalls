@@ -102,7 +102,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 					sender.sendMessage(ChatColor.RED + "Incorrect Argument! " + ChatColor.GREEN + "do /walls help for the list of commands.");
 				}
 			}
-		} 
+		}
 		else {
 			sender.sendMessage(ChatColor.GOLD + "Running Walls Minigame Plugin 1.0. Type /walls help for more.");
 		}
