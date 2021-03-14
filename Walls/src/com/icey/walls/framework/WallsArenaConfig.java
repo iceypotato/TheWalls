@@ -7,11 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.icey.walls.MainClass;
-import com.icey.walls.listeners.ArenaListener;
 
 public class WallsArenaConfig {
 	
@@ -75,25 +71,28 @@ public class WallsArenaConfig {
 		int i = 1;
 		if (arenaConfig.get("Regions." + name + "." + i) != null) {
 			while (i <= arenaConfig.getConfigurationSection("Regions." + name + "").getKeys(false).toArray().length) {
-				if (arenaConfig.get("Regions." + name + "." + i).equals("") || arenaConfig.get("Regions." + name + "." + i) == null) {
-					plugin.getLogger().info(this.name + " arena has an invalid config! Check the " + name + " regions");
-					return null;
-				}
-				Location[] region = new Location[2];
-				region[0] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
+				if (!(arenaConfig.get("Regions." + name + "." + i).equals("")) && arenaConfig.get("Regions." + name + "." + i) != null) {
+					Location[] region = new Location[2];
+					region[0] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.x"),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.y"),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.z"));
-				region[1] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
+					region[1] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.x"),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.y"),
 						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.z"));
-				inRegion.add(region);
-				i++;
+					inRegion.add(region);
+					i++;
+				}
+				else {
+					plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
+					return null;
+				}
 			}
+			return inRegion;
 		}
-		else plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
-		return inRegion;
+		plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
+		return null;
 	}
 	
 	public void readLobbySpawn() {lobbySpawn = readSpawns("Lobby");}
