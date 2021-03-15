@@ -319,11 +319,11 @@ public class WallsArena {
 		for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
 		plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
 		originalArena.pasteBlocksInClipboard();
-		plugin.getLogger().info(config.getArenaRegions()+"");
+		plugin.getLogger().info(config.getArenaRegions().toString()+"");
 		if (config.getArenaRegions().size() != 0) {
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {
 				if (config.getArenaRegions().get(j)[0].getWorld() == null) {
-					plugin.getLogger().warning("An arena could not be loaded due to it being in an unloaded world! If using multiverse, please load the world and reload the server.");
+					plugin.getLogger().warning("An arena could not be loaded due to it being in an unloaded world! If using multiverse, please load the world and make sure to join the world. Then run /walls reload.");
 					break;
 				}
 				for (int i = 0; i < config.getArenaRegions().get(j)[0].getWorld().getEntities().size(); i++) {
