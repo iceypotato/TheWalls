@@ -322,6 +322,10 @@ public class WallsArena {
 		plugin.getLogger().info(config.getArenaRegions()+"");
 		if (config.getArenaRegions().size() != 0) {
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {
+				if (config.getArenaRegions().get(j)[0].getWorld() == null) {
+					plugin.getLogger().warning("An arena could not be loaded due to it being in an unloaded world! If using multiverse, please load the world and reload the server.");
+					break;
+				}
 				for (int i = 0; i < config.getArenaRegions().get(j)[0].getWorld().getEntities().size(); i++) {
 					Location locofEnt = config.getArenaRegions().get(j)[0].getWorld().getEntities().get(i).getLocation();
 					if (Math.min(config.getArenaRegions().get(j)[0].getBlockX(), config.getArenaRegions().get(j)[1].getBlockX()) <= locofEnt.getBlockX() &&
