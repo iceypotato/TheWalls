@@ -28,21 +28,21 @@ public class WallsArenaConfig {
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
 	private File arenaFile;
-	private	FileConfiguration arenaConfig;
+	private	FileConfiguration arenaFileConfiguration;
 	
 	public WallsArenaConfig(String name, File arenaFile, MainClass plugin) {
 		this.name = name;
 		this.enabled = false;
 		this.arenaFile = arenaFile;
 		this.plugin = plugin;
-		this.arenaRegions = new ArrayList<>();
-		this.buildRegions = new ArrayList<>();
-		this.wallRegions = new ArrayList<>();
 		arena = new WallsArena(this, plugin);
-		this.arenaConfig = YamlConfiguration.loadConfiguration(this.arenaFile);
 	}
 	
+	/**
+	 * Loads all settings in the file.
+	 */
 	public void loadConfig() {
+		this.arenaFileConfiguration = YamlConfiguration.loadConfiguration(this.arenaFile);
 		readLobbySpawn();
 		readBlueSpawn();
 		readRedSpawn();
@@ -52,14 +52,18 @@ public class WallsArenaConfig {
 		addWallRegion();
 		addBuildRegion();
 		readSettings();
+		if (lobbySpawn == null || blueSpawn == null || redSpawn==null||greenSpawn==null||yellowSpawn==null||
+		arenaRegions==null||buildRegions==null||wallRegions==null) {
+			enabled = false;
+		}
 	}
 	
 	public void readSettings() {
-		if (arenaConfig.get("Settings.enabled") != null) enabled = arenaConfig.getBoolean("Settings.enabled");
-		if (arenaConfig.get("Settings.waiting-time") != null) waitingTime = arenaConfig.getInt("Settings.waiting-time");
-		if (arenaConfig.get("Settings.preparation-time") != null) prepTime = arenaConfig.getInt("Settings.preparation-time");
-		if (arenaConfig.get("Settings.max-players") != null) maxPlayers = arenaConfig.getInt("Settings.max-players");
-		if (arenaConfig.get("Settings.start-min-players") != null) minPlayers = arenaConfig.getInt("Settings.start-min-players");
+		if (arenaFileConfiguration.get("Settings.enabled") != null) enabled = arenaFileConfiguration.getBoolean("Settings.enabled");
+		if (arenaFileConfiguration.get("Settings.waiting-time") != null) waitingTime = arenaFileConfiguration.getInt("Settings.waiting-time");
+		if (arenaFileConfiguration.get("Settings.preparation-time") != null) prepTime = arenaFileConfiguration.getInt("Settings.preparation-time");
+		if (arenaFileConfiguration.get("Settings.max-players") != null) maxPlayers = arenaFileConfiguration.getInt("Settings.max-players");
+		if (arenaFileConfiguration.get("Settings.start-min-players") != null) minPlayers = arenaFileConfiguration.getInt("Settings.start-min-players");
 	}
 	
 	public void addArenaRegion() { arenaRegions = readRegions("Arena"); }
@@ -69,29 +73,29 @@ public class WallsArenaConfig {
 	public ArrayList<Location[]> readRegions(String name) {
 		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
 		int i = 1;
-		if (arenaConfig.get("Regions." + name + "." + i) != null) {
-			while (i <= arenaConfig.getConfigurationSection("Regions." + name + "").getKeys(false).toArray().length) {
-				if (!(arenaConfig.get("Regions." + name + "." + i).equals("")) && arenaConfig.get("Regions." + name + "." + i) != null) {
+		if (arenaFileConfiguration.get("Regions." + name + "." + i) != null) {
+			while (i <= arenaFileConfiguration.getConfigurationSection("Regions." + name + "").getKeys(false).toArray().length) {
+				if (!(arenaFileConfiguration.get("Regions." + name + "." + i).equals("")) && arenaFileConfiguration.get("Regions." + name + "." + i) != null) {
 					Location[] region = new Location[2];
-					region[0] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.x"),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.y"),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos1.z"));
-					region[1] = new Location(Bukkit.getWorld(arenaConfig.getString("Regions." + name + "." + i + ".world")),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.x"),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.y"),
-						arenaConfig.getDouble("Regions." + name + "." + i + ".pos2.z"));
+					region[0] = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Regions." + name + "." + i + ".world")),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.x"),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.y"),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.z"));
+					region[1] = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Regions." + name + "." + i + ".world")),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.x"),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.y"),
+						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.z"));
 					inRegion.add(region);
 					i++;
 				}
 				else {
-					plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
+					//plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
 					return null;
 				}
 			}
 			return inRegion;
 		}
-		plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
+		//plugin.getLogger().info(this.name + " arena has an invalid config! Check the "+ name +" regions");
 		return null;
 	}
 	
@@ -101,10 +105,10 @@ public class WallsArenaConfig {
 	public void readGreenSpawn() {greenSpawn = readSpawns("Green");}
 	public void readYellowSpawn() {yellowSpawn = readSpawns("Yellow");}
 	public Location readSpawns(String name) {
-		if (arenaConfig.contains("Spawns." + name + ".world") && arenaConfig.contains("Spawns." + name + ".x") && arenaConfig.contains("Spawns." + name + ".y") && arenaConfig.contains("Spawns." + name + ".z")) {
-			Location spawn = new Location(Bukkit.getWorld(arenaConfig.getString("Spawns." + name + ".world")), arenaConfig.getDouble("Spawns." + name + ".x"), arenaConfig.getDouble("Spawns." + name + ".y"), arenaConfig.getDouble("Spawns." + name + ".z"));
-			spawn.setPitch((float) arenaConfig.getDouble("Spawns." + name + ".pitch"));
-			spawn.setYaw((float) arenaConfig.getDouble("Spawns." + name + ".yaw"));
+		if (arenaFileConfiguration.contains("Spawns." + name + ".world") && arenaFileConfiguration.contains("Spawns." + name + ".x") && arenaFileConfiguration.contains("Spawns." + name + ".y") && arenaFileConfiguration.contains("Spawns." + name + ".z")) {
+			Location spawn = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Spawns." + name + ".world")), arenaFileConfiguration.getDouble("Spawns." + name + ".x"), arenaFileConfiguration.getDouble("Spawns." + name + ".y"), arenaFileConfiguration.getDouble("Spawns." + name + ".z"));
+			spawn.setPitch((float) arenaFileConfiguration.getDouble("Spawns." + name + ".pitch"));
+			spawn.setYaw((float) arenaFileConfiguration.getDouble("Spawns." + name + ".yaw"));
 			return spawn;
 		}
 		return null;
@@ -159,13 +163,6 @@ public class WallsArenaConfig {
 		return info;
 	}
 	
-	public String getName() { return name; }
-	public void setName(String name) { this.name = name; }
-	public Location getLobbySpawn() { return lobbySpawn; }
-	public Location getBlueSpawn() { return blueSpawn; }
-	public Location getRedSpawn() { return redSpawn; }
-	public Location getGreenSpawn() { return greenSpawn; }
-	public Location getYellowSpawn() { return yellowSpawn; }
 	public boolean isEnabled() { return enabled; }
 	public void setEnabled(boolean enabled) { this.enabled = enabled; }
 	public int getMaxPlayers() { return maxPlayers; }
@@ -174,14 +171,23 @@ public class WallsArenaConfig {
 	public void setMinPlayers(int minPlayers) { this.minPlayers = minPlayers; }
 	public int getPrepTime() { return prepTime; }
 	public void setPrepTime(int prepTime) { this.prepTime = prepTime; }
+	public int getWaitingTime() {return waitingTime;}
+	public void setWaitingTime(int waitingTime) {this.waitingTime = waitingTime;}
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+	public Location getLobbySpawn() { return lobbySpawn; }
+	public Location getBlueSpawn() { return blueSpawn; }
+	public Location getRedSpawn() { return redSpawn; }
+	public Location getGreenSpawn() { return greenSpawn; }
+	public Location getYellowSpawn() { return yellowSpawn; }
 	public ArrayList<Location[]> getArenaRegions() {return arenaRegions;}
 	public void setArenaRegions(ArrayList<Location[]> arenaRegions) {this.arenaRegions = arenaRegions;}
 	public ArrayList<Location[]> getBuildRegions() {return buildRegions;}
 	public void setBuildRegions(ArrayList<Location[]> buildRegions) {this.buildRegions = buildRegions;}
 	public ArrayList<Location[]> getWallRegions() {return wallRegions;}
 	public void setWallRegions(ArrayList<Location[]> wallRegions) {this.wallRegions = wallRegions;}
-	public int getWaitingTime() {return waitingTime;}
-	public void setWaitingTime(int waitingTime) {this.waitingTime = waitingTime;}
+	public File getArenaFile() {return arenaFile;}
+	public void setArenaFile(File arenaFile) {this.arenaFile = arenaFile;}
 	public WallsArena getArena() {return arena;}
 	public void setArena(WallsArena arena) {this.arena = arena;}
 	

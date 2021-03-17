@@ -5,7 +5,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.icey.walls.commands.Test;
 import com.icey.walls.commands.Walls;
-import com.icey.walls.framework.WallsArena;
 import com.icey.walls.framework.WallsArenaManager;
 import com.icey.walls.listeners.TestListener;
 import com.icey.walls.listeners.WallsTool;

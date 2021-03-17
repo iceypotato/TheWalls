@@ -1,8 +1,6 @@
 package com.icey.walls.commands.walls;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -56,7 +54,7 @@ public class Arena extends SubCommand {
 			//Specifying an arena
 			else {
 				String name = args[0];
-				wallsSupercommand.setArenaConfig(wallsSupercommand.getArenaManager().getConfigFile(name));
+				wallsSupercommand.setArenaConfig(wallsSupercommand.getArenaManager().getFileConfigFromFile(name));
 				if (wallsSupercommand.getArenaConfig() != null) {
 					if (args.length > 1) {
 						if (args[1].equalsIgnoreCase("info")) {
@@ -67,13 +65,12 @@ public class Arena extends SubCommand {
 							wallsSupercommand.getArenaManager().getArenaConfig(name).getArena().stopGame();
 						}
 						else if (args[1].equalsIgnoreCase("enable")) {
-							sender.sendMessage(args[0]);
-							if (wallsSupercommand.getArenaManager().checkConfig(args[0])) {
+							if (wallsSupercommand.getArenaManager().checkConfig(args[0], sender)) {
 								wallsSupercommand.getArenaManager().getArenaConfig(args[0]).setEnabled(true);
 								wallsSupercommand.getArenaManager().writeSettings(args[0], "enabled", true);
 								sender.sendMessage("Arena " + args[0] + " enabled.");
 							}
-							else sender.sendMessage("Error: cannot enable arena. Check the config.");
+							else sender.sendMessage("Error: cannot enable arena. Errors must be fixed in the config in order to enable arena. Do /walls reload when finished.");
 						}
 						else if (sender instanceof Player) {
 							Player player = (Player) sender;
