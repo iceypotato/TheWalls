@@ -155,7 +155,6 @@ public class WallsArenaManager {
 	}
 	public void writeSettings(String arena, String name, Object value) {
 		FileConfiguration arenaConfig = getConfigFile(arena);
-		plugin.getLogger().warning(arena + name + value);
 		arenaConfig.set("Settings." + name, value);
 		saveFile(arena, arenaConfig);
 	}

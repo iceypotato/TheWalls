@@ -30,6 +30,7 @@ public class WallsArena {
 	
 	private WallsArenaConfig config;
 	private MainClass plugin;
+	private boolean running;
 	private boolean waiting;
 	private boolean inProgress;
 	private boolean ending;
@@ -116,9 +117,11 @@ public class WallsArena {
 	 */
 	
 	public void playerJoin(Player player) {
+		running = true;
 		if (!inProgress) {
 			waiting = true;
 			if (playersInGame.size() == 0) {
+				player.sendMessage(ChatColor.GREEN + "Loading... This will take some time depending on the size of the arena.");
 				initializeArena();
 				wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
 			}
@@ -304,23 +307,24 @@ public class WallsArena {
 	}
 	
 	public void stopGame() {
-		inProgress = false;
-		waiting = false;
-		wallsFall = false;
-		ending = false;
-		remainingTeams = 0;
-		for (UUID uuid : playersInGame) {
-			Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
-			playerOriginalState.get(uuid).restoreState();
-		}
-		playersInGame.clear();
-		playerOriginalState.clear();
-		HandlerList.unregisterAll(arenaListener);
-		for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
-		plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
-		originalArena.pasteBlocksInClipboard();
-		plugin.getLogger().info(config.getArenaRegions().toString()+"");
-		if (config.getArenaRegions().size() != 0) {
+		if (running) {
+			running = false;
+			inProgress = false;
+			waiting = false;
+			wallsFall = false;
+			ending = false;
+			remainingTeams = 0;
+			for (UUID uuid : playersInGame) {
+				Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
+				playerOriginalState.get(uuid).restoreState();
+			}
+			playersInGame.clear();
+			playerOriginalState.clear();
+			HandlerList.unregisterAll(arenaListener);
+			for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
+			plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
+			originalArena.pasteBlocksInClipboard();
+			plugin.getLogger().info(config.getArenaRegions().toString()+"");
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {
 				if (config.getArenaRegions().get(j)[0].getWorld() == null) {
 					plugin.getLogger().warning("An arena could not be loaded due to it being in an unloaded world! If using multiverse, please load the world and make sure to join the world. Then run /walls reload.");
