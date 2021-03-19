@@ -170,8 +170,7 @@ public class WallsArena {
 		teamYellow.remove(player.getUniqueId());
 		updateScoreboard();
 
-		if (playersInGame.size() < config.getMinPlayers() && wallsCountdown != null) {
-
+		if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
 			wallsCountdown.cancel();
 		}
 		if (playersInGame.size() == 0) stopGame();

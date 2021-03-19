@@ -49,7 +49,7 @@ public class WoolTeamSelector implements Listener {
 		ItemStack itemInHand = player.getItemInHand();
 		if (itemInHand.equals(this.itemStack)) {
 			arena.joinTeam(player, teamToJoin);
-			player.sendMessage("Joined team " + message);
+			player.sendMessage(ChatColor.GREEN + "You have joined team " + message);
 			event.setCancelled(true);
 		}
 	}
