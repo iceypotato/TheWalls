@@ -62,28 +62,26 @@ public class ArenaListener implements Listener {
 	@EventHandler
 	public void preventBlockBreaking(BlockBreakEvent interact) {
 		Player player = interact.getPlayer();
-		if (interact.getBlock() != null) {
-			boolean isBlockNotInRegion = true;
-			boolean isBlockAWallBlock = false;
-			if (arena.isInProgress()) {
-				for (int i = 0; i < buildRegionBlocks.size(); i++) {
-					if ((buildRegionBlocks.get(i).equals(interact.getBlock().getLocation()))) {
-						isBlockNotInRegion = false;
+		boolean isBlockNotInRegion = true;
+		boolean isBlockAWallBlock = false;
+		if (arena.isInProgress()) {
+			for (int i = 0; i < buildRegionBlocks.size(); i++) {
+				if ((buildRegionBlocks.get(i).equals(interact.getBlock().getLocation()))) {
+					isBlockNotInRegion = false;
+					break;
+				}
+			}
+			if (!arena.isWallsFall()) {
+				for (int i = 0; i < wallBlocks.size(); i++) {
+					if (interact.getBlock().getLocation().equals(wallBlocks.get(i))) {
+						isBlockAWallBlock = true;
 						break;
 					}
 				}
-				if (!arena.isWallsFall()) {
-					for (int i = 0; i < wallBlocks.size(); i++) {
-						if (interact.getBlock().getLocation().equals(wallBlocks.get(i))) {
-							isBlockAWallBlock = true;
-							break;
-						}
-					}
-				}
-				if (isBlockNotInRegion || isBlockAWallBlock) {
-					player.sendMessage(ChatColor.RED + "You cannot break those blocks!");
-					interact.setCancelled(true);
-				}
+			}
+			if (isBlockNotInRegion || isBlockAWallBlock) {
+				player.sendMessage(ChatColor.RED + "You cannot break those blocks!");
+				interact.setCancelled(true);
 			}
 		}
 	}
@@ -91,18 +89,27 @@ public class ArenaListener implements Listener {
 	@EventHandler
 	public void preventBlockPlacing(BlockPlaceEvent event) {
 		Player player = event.getPlayer();
+		boolean isBlockNotInRegion = true;
+		boolean blockPlacedonWall = false;
+		if (arena.isInProgress()) {
+			for (int i = 0; i < buildRegionBlocks.size(); i++) {
+				if ((buildRegionBlocks.get(i).equals(event.getBlock().getLocation()))) {
+					isBlockNotInRegion = false;
+					break;
+				}
+			}
+		}
 		if (!arena.isWallsFall() && arena.isInProgress()) {
-			boolean blockPlacedonWall = false;
 			for (int i = 0; i < wallBlocks.size(); i++) {
 				if (event.getBlock().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && event.getBlock().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) {
 					blockPlacedonWall = true;
 					break;
 				}
 			}
-			if (blockPlacedonWall) {
-				player.sendMessage(ChatColor.RED + "You cannot place those blocks there!");
-				event.setCancelled(true);
-			}
+		}
+		if (blockPlacedonWall || isBlockNotInRegion) {
+			player.sendMessage(ChatColor.RED + "You cannot place those blocks there!");
+			event.setCancelled(true);
 		}
 	}
 	

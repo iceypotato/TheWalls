@@ -9,6 +9,7 @@ public abstract class WallsCountdown extends BukkitRunnable {
 	
 	private int minutes;
 	private int seconds;
+	private boolean running;
 	private WallsScoreboard wallsSB;
 	private WallsArena arena;
 	
@@ -17,10 +18,12 @@ public abstract class WallsCountdown extends BukkitRunnable {
 		this.seconds = seconds;
 		this.wallsSB = wallsSB;
 		this.arena = arena;
+		this.running = false;
 	}
 
 	@Override
 	public void run() {
+		running = true;
 		seconds--;
 		if (minutes <= 0 && seconds < 0) {
 			runNextStage();
@@ -36,6 +39,12 @@ public abstract class WallsCountdown extends BukkitRunnable {
 		wallsSB.setMinutes(minutes);
 		wallsSB.setSeconds(seconds);
 		arena.updateScoreboard();
+	}
+	
+	@Override
+	public void cancel() {
+		super.cancel();
+		running = false;
 	}
 	
 	/**
@@ -63,5 +72,13 @@ public abstract class WallsCountdown extends BukkitRunnable {
 
 	public void setArena(WallsArena arena) {
 		this.arena = arena;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public void setRunning(boolean running) {
+		this.running = running;
 	}
 }

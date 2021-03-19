@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
 import com.icey.walls.listeners.WoolTeamSelector;
+import com.icey.walls.timers.WallsCountdown;
 import com.icey.walls.timers.WallsFallCountdown;
 import com.icey.walls.timers.WallsGameEndCountdown;
 import com.icey.walls.timers.WallsLobbyCountdown;
@@ -108,6 +109,8 @@ public class WallsArena {
 		}
 		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
+		wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+		wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, wallsSB, this);
 	}
 	
 	/*
@@ -123,7 +126,6 @@ public class WallsArena {
 			if (playersInGame.size() == 0) {
 				player.sendMessage(ChatColor.GREEN + "Loading... This will take some time depending on the size of the arena.");
 				initializeArena();
-				wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
 			}
 			Random random = new Random();
 			int randNum = random.nextInt(4);
@@ -145,7 +147,10 @@ public class WallsArena {
 			for (int i = 0; i < woolTeamSelectors.length; i++) {
 				woolTeamSelectors[i].giveItemToPlayer(player);
 			}
-			if (playersInGame.size() >= config.getMinPlayers()) lobbyCountdown();
+			if (playersInGame.size() >= config.getMinPlayers() && !(((WallsCountdown) wallsCountdown).isRunning())) {
+				wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, wallsSB, this);
+				wallsCountdown.runTaskTimer(plugin, 0, 20);
+			}
 		}
 		else {
 			player.sendMessage(ChatColor.YELLOW + "This arena has already started!");
@@ -165,7 +170,10 @@ public class WallsArena {
 		teamYellow.remove(player.getUniqueId());
 		updateScoreboard();
 
-		if (playersInGame.size() < config.getMinPlayers() && wallsCountdown != null) wallsCountdown.cancel();
+		if (playersInGame.size() < config.getMinPlayers() && wallsCountdown != null) {
+
+			wallsCountdown.cancel();
+		}
 		if (playersInGame.size() == 0) stopGame();
 		if (inProgress) checkForRemainingTeams();
 	}
@@ -205,11 +213,6 @@ public class WallsArena {
 		for (UUID id : playersInGame) {
 			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}
-	}
-	
-	public void lobbyCountdown() {
-		wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, wallsSB, this);
-		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
 	public void startPrep() {
