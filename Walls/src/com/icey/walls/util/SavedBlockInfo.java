@@ -39,7 +39,6 @@ public class SavedBlockInfo {
 	public SavedBlockInfo(Block block, BlockState blockState, String[] lines) {
 		this.block = block;
 		this.blockState = blockState;
-		this.blockInventory = blockInventory;
 		this.lines = cloneText(lines);
 		this.isSign = true;
 	}
