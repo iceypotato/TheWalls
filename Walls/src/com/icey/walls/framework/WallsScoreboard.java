@@ -1,8 +1,5 @@
 package com.icey.walls.framework;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -12,8 +9,6 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
-
-import com.sk89q.worldedit.extension.platform.Platform;
 
 public class WallsScoreboard {
 	
@@ -89,6 +84,19 @@ public class WallsScoreboard {
 			String seconds = this.seconds+"";
 			if (seconds.length() == 1) seconds = "0" + seconds;
 			time = objective.getScore("Walls Fall in " + ChatColor.GREEN + minutes + ":" + seconds);
+			time.setScore(6);
+			Score space1 = objective.getScore("");
+			space1.setScore(5);
+		}
+	}
+
+	//put the sudden death time on the scoreboard
+	public void putSuddenDeathTime() {
+		Score time;
+		if (seconds != -1) {
+			String seconds = this.seconds+"";
+			if (seconds.length() == 1) seconds = "0" + seconds;
+			time = objective.getScore("Sudden Death in " + ChatColor.GREEN + minutes + ":" + seconds);
 			time.setScore(6);
 			Score space1 = objective.getScore("");
 			space1.setScore(5);

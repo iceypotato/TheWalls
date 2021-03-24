@@ -77,28 +77,33 @@ public class Arena extends SubCommand {
 							if (args[1].equalsIgnoreCase("setlobby")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Lobby", player);
 								sender.sendMessage(ChatColor.GOLD + "Lobby spawnpoint set for arena " + ChatColor.AQUA+ name);
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
 							}
 							else if (args[1].equalsIgnoreCase("setblue")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Blue", player);
 								sender.sendMessage(ChatColor.BLUE + "Blue Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
 							}
 							else if (args[1].equalsIgnoreCase("setgreen")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Green", player);
 								sender.sendMessage(ChatColor.GREEN + "Green Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
 							}
 							else if (args[1].equalsIgnoreCase("setred")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Red", player);
 								sender.sendMessage(ChatColor.RED + "Red Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
 							}
 							else if (args[1].equalsIgnoreCase("setyellow")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Yellow", player);
 								sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
 							}
 							else if (args[1].equalsIgnoreCase("addarenaregion")) {
 								if (wallsSupercommand.getWallsTool().getPos1() == null || wallsSupercommand.getWallsTool().getPos1() == null) { sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!"); }
 								else {
 									wallsSupercommand.getArenaManager().writeRegions(name, "Arena", player, wallsSupercommand.getWallsTool());
-									sender.sendMessage("Arena region added for " + name);
+									sender.sendMessage(ChatColor.GREEN + "Arena region added for " + name);
 								}
 							}
 							else if (args[1].equalsIgnoreCase("addwall")) {
@@ -107,7 +112,7 @@ public class Arena extends SubCommand {
 								}
 								else {
 									wallsSupercommand.getArenaManager().writeRegions(name, "Walls", player, wallsSupercommand.getWallsTool());
-									sender.sendMessage("Wall region added for " + name);
+									sender.sendMessage(ChatColor.GREEN + "Wall region added for " + name);
 								}
 							}
 							else if (args[1].equalsIgnoreCase("addbuild")) {
@@ -116,7 +121,16 @@ public class Arena extends SubCommand {
 								}
 								else {
 									wallsSupercommand.getArenaManager().writeRegions(name, "Build", player, wallsSupercommand.getWallsTool());
-									sender.sendMessage("Build region added for " + name);
+									sender.sendMessage(ChatColor.GREEN + "Build region added for " + name);
+								}
+							}
+							else if (args[1].equalsIgnoreCase("addsafezone")) {
+								if (wallsSupercommand.getWallsTool().getPos2() == null || wallsSupercommand.getWallsTool().getPos2() == null) {
+									sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
+								}
+								else {
+									wallsSupercommand.getArenaManager().writeRegions(name, "SafeZones", player, wallsSupercommand.getWallsTool());
+									sender.sendMessage(ChatColor.GREEN + "Build region added for " + name);
 								}
 							}
 							else sender.sendMessage("Invalid action specified!");

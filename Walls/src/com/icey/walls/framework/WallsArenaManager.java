@@ -12,7 +12,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.icey.walls.MainClass;
-import com.icey.walls.commands.walls.Arena;
 import com.icey.walls.listeners.WallsTool;
 
 public class WallsArenaManager {
@@ -66,6 +65,7 @@ public class WallsArenaManager {
 				dataConfig.set("Settings.enabled", false);
 				dataConfig.set("Settings.waiting-time", 120);
 				dataConfig.set("Settings.preparation-time", 900);
+				dataConfig.set("Settings.time-until-sudden-death", 600);
 				dataConfig.set("Settings.start-min-players", 2);
 				dataConfig.set("Settings.max-players", 24);
 				dataConfig.set("Spawns.Lobby", "");
@@ -76,6 +76,7 @@ public class WallsArenaManager {
 				dataConfig.set("Regions.Arena.1", "");
 				dataConfig.set("Regions.Walls.1", "");
 				dataConfig.set("Regions.Build.1", "");
+				dataConfig.set("Regions.SafeZones.1", "");
 				dataConfig.save(configFile);
 				return 0;
 			} else {
@@ -123,17 +124,16 @@ public class WallsArenaManager {
 			sender.sendMessage(ChatColor.YELLOW + "No Wall Regions for arena: " + name);
 			configGood = false;
 		}
+		if (wallsArenaConfig.getSafeZoneRegions() == null) {
+			sender.sendMessage(ChatColor.YELLOW + "No SafeZone Regions for arena: " + name);
+			configGood = false;
+		}
 		return configGood;
 	}
 	
 	public void writeSpawns(String name, String spawnName, Player player) {
 		FileConfiguration arenaConfig = getFileConfigFromFile(name);
-		arenaConfig.set("Spawns." + spawnName + ".world", player.getWorld().getName());
-		arenaConfig.set("Spawns." + spawnName + ".x", player.getLocation().getBlockX());
-		arenaConfig.set("Spawns." + spawnName + ".y", player.getLocation().getBlockY());
-		arenaConfig.set("Spawns." + spawnName + ".z", player.getLocation().getBlockZ());
-		arenaConfig.set("Spawns." + spawnName + ".yaw", player.getLocation().getYaw());
-		arenaConfig.set("Spawns." + spawnName + ".pitch", player.getLocation().getPitch());
+		arenaConfig.set("Spawns." + spawnName, player.getWorld().getName()+","+player.getLocation().getBlockX()+","+player.getLocation().getBlockY()+","+player.getLocation().getBlockZ()+","+player.getLocation().getYaw()+","+player.getLocation().getPitch());
 		saveFile(name, arenaConfig);
 		getArenaConfig(name).setArenaFile(configFile);
 		getArenaConfig(name).loadConfig();
@@ -152,14 +152,9 @@ public class WallsArenaManager {
 			}
 			i++;
 		}
-		player.sendMessage(i + "");
-		arenaConfig.set("Regions." + regionName + "." + i + ".world", wallsTool.getWorld().getName());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.x", wallsTool.getPos1().getBlockX());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.y", wallsTool.getPos1().getBlockY());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos1.z", wallsTool.getPos1().getBlockZ());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.x", wallsTool.getPos2().getBlockX());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.y", wallsTool.getPos2().getBlockY());
-		arenaConfig.set("Regions." + regionName + "." + i + ".pos2.z", wallsTool.getPos2().getBlockZ());
+		player.sendMessage(ChatColor.AQUA + regionName + " Region " + i);
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos1", wallsTool.getWorld().getName()+","+ wallsTool.getPos1().getBlockX()+","+wallsTool.getPos1().getBlockY()+","+wallsTool.getPos1().getBlockZ());
+		arenaConfig.set("Regions." + regionName + "." + i + ".pos2", wallsTool.getWorld().getName()+","+ wallsTool.getPos2().getBlockX()+","+wallsTool.getPos2().getBlockY()+","+wallsTool.getPos2().getBlockZ());
 		saveFile(name, arenaConfig);
 		getArenaConfig(name).setArenaFile(configFile);
 		getArenaConfig(name).loadConfig();

@@ -2,12 +2,19 @@ package com.icey.walls.framework;
 
 import java.io.File;
 import java.util.ArrayList;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import com.icey.walls.MainClass;
+
+
+/**
+ * 
+ * @author iceypotatoguy
+ * This holds the necessary information for use by the WallsArena Class.
+ *
+ */
 
 public class WallsArenaConfig {
 	
@@ -19,6 +26,7 @@ public class WallsArenaConfig {
 	private int minPlayers;
 	private int waitingTime;
 	private int prepTime;
+	private int battleTime;
 	private Location lobbySpawn;
 	private Location blueSpawn;
 	private Location redSpawn;
@@ -27,6 +35,7 @@ public class WallsArenaConfig {
 	private ArrayList<Location[]> arenaRegions;
 	private ArrayList<Location[]> buildRegions;
 	private ArrayList<Location[]> wallRegions;
+	private ArrayList<Location[]> safeZoneRegions;
 	private File arenaFile;
 	private	FileConfiguration arenaFileConfiguration;
 	
@@ -53,15 +62,14 @@ public class WallsArenaConfig {
 		addBuildRegion();
 		readSettings();
 		if (lobbySpawn == null || blueSpawn == null || redSpawn==null||greenSpawn==null||yellowSpawn==null||
-		arenaRegions==null||buildRegions==null||wallRegions==null) {
-			enabled = false;
-		}
+		arenaRegions==null||buildRegions==null||wallRegions==null) enabled = false;
 	}
 	
 	public void readSettings() {
 		if (arenaFileConfiguration.get("Settings.enabled") != null) enabled = arenaFileConfiguration.getBoolean("Settings.enabled");
 		if (arenaFileConfiguration.get("Settings.waiting-time") != null) waitingTime = arenaFileConfiguration.getInt("Settings.waiting-time");
 		if (arenaFileConfiguration.get("Settings.preparation-time") != null) prepTime = arenaFileConfiguration.getInt("Settings.preparation-time");
+		if (arenaFileConfiguration.get("Settings.time-until-sudden-death") != null) battleTime = arenaFileConfiguration.getInt("Settings.time-until-sudden-death");
 		if (arenaFileConfiguration.get("Settings.max-players") != null) maxPlayers = arenaFileConfiguration.getInt("Settings.max-players");
 		if (arenaFileConfiguration.get("Settings.start-min-players") != null) minPlayers = arenaFileConfiguration.getInt("Settings.start-min-players");
 	}
@@ -69,6 +77,7 @@ public class WallsArenaConfig {
 	public void addArenaRegion() { arenaRegions = readRegions("Arena"); }
 	public void addWallRegion() { wallRegions = readRegions("Walls"); }
 	public void addBuildRegion() { buildRegions = readRegions("Build"); }
+	public void addSafeZoneRegion() { safeZoneRegions = readRegions("SafeZones"); }
 	
 	public ArrayList<Location[]> readRegions(String name) {
 		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
@@ -77,14 +86,10 @@ public class WallsArenaConfig {
 			while (i <= arenaFileConfiguration.getConfigurationSection("Regions." + name + "").getKeys(false).toArray().length) {
 				if (!(arenaFileConfiguration.get("Regions." + name + "." + i).equals("")) && arenaFileConfiguration.get("Regions." + name + "." + i) != null) {
 					Location[] region = new Location[2];
-					region[0] = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Regions." + name + "." + i + ".world")),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.x"),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.y"),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos1.z"));
-					region[1] = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Regions." + name + "." + i + ".world")),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.x"),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.y"),
-						arenaFileConfiguration.getDouble("Regions." + name + "." + i + ".pos2.z"));
+					String[] regionString = arenaFileConfiguration.getString("Regions." + name + "." + i + ".pos1").split(",");
+					region[0] = new Location(Bukkit.getWorld(regionString[0]), Double.valueOf(regionString[1]), Double.valueOf(regionString[2]), Double.valueOf(regionString[3]));
+					regionString = arenaFileConfiguration.getString("Regions." + name + "." + i + ".pos2").split(",");
+					region[1] = new Location(Bukkit.getWorld(regionString[0]), Double.valueOf(regionString[1]), Double.valueOf(regionString[2]), Double.valueOf(regionString[3]));
 					inRegion.add(region);
 					i++;
 				}
@@ -105,10 +110,9 @@ public class WallsArenaConfig {
 	public void readGreenSpawn() {greenSpawn = readSpawns("Green");}
 	public void readYellowSpawn() {yellowSpawn = readSpawns("Yellow");}
 	public Location readSpawns(String name) {
-		if (arenaFileConfiguration.contains("Spawns." + name + ".world") && arenaFileConfiguration.contains("Spawns." + name + ".x") && arenaFileConfiguration.contains("Spawns." + name + ".y") && arenaFileConfiguration.contains("Spawns." + name + ".z")) {
-			Location spawn = new Location(Bukkit.getWorld(arenaFileConfiguration.getString("Spawns." + name + ".world")), arenaFileConfiguration.getDouble("Spawns." + name + ".x"), arenaFileConfiguration.getDouble("Spawns." + name + ".y"), arenaFileConfiguration.getDouble("Spawns." + name + ".z"));
-			spawn.setPitch((float) arenaFileConfiguration.getDouble("Spawns." + name + ".pitch"));
-			spawn.setYaw((float) arenaFileConfiguration.getDouble("Spawns." + name + ".yaw"));
+		if (arenaFileConfiguration.contains("Spawns." + name) && arenaFileConfiguration.getString("Spawns." + name) != null && !arenaFileConfiguration.getString("Spawns." + name).equals("")) {
+			String[] locationString = arenaFileConfiguration.getString("Spawns." + name).split(",");
+			Location spawn = new Location(Bukkit.getWorld(locationString[0]), Double.valueOf(locationString[1]), Double.valueOf(locationString[2]), Double.valueOf(locationString[3]), Float.valueOf(locationString[4]), Float.valueOf(locationString[5]));
 			return spawn;
 		}
 		return null;
@@ -190,5 +194,33 @@ public class WallsArenaConfig {
 	public void setArenaFile(File arenaFile) {this.arenaFile = arenaFile;}
 	public WallsArena getArena() {return arena;}
 	public void setArena(WallsArena arena) {this.arena = arena;}
+
+	/**
+	 * @return the safeZoneRegions
+	 */
+	public ArrayList<Location[]> getSafeZoneRegions() {
+		return safeZoneRegions;
+	}
+
+	/**
+	 * @param safeZoneRegions the safeZoneRegions to set
+	 */
+	public void setSafeZoneRegions(ArrayList<Location[]> safeZoneRegions) {
+		this.safeZoneRegions = safeZoneRegions;
+	}
+
+	/**
+	 * @return the battleTime
+	 */
+	public int getBattleTime() {
+		return battleTime;
+	}
+
+	/**
+	 * @param battleTime the battleTime to set
+	 */
+	public void setBattleTime(int battleTime) {
+		this.battleTime = battleTime;
+	}
 	
 }

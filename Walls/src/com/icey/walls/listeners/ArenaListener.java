@@ -145,12 +145,13 @@ public class ArenaListener implements Listener {
 			//run this if player died of natural causes.
 			else {
 				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.VOID) deathMsg = killee + ChatColor.GRAY + " fell in the void.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.LAVA) deathMsg = killee + ChatColor.GRAY + " thought he had the high ground and melted in lava.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.DROWNING) deathMsg = killee + ChatColor.GRAY + " forgot how to breathe.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = killee + ChatColor.GRAY + " burnt to a crisp.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = killee + ChatColor.GRAY + " played with fire.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = killee + ChatColor.GRAY + " fell to a clumsy death.";
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killee + ChatColor.GRAY + " said goodbye, cruel world!";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.LAVA) deathMsg = killee + ChatColor.GRAY + " thought he had the high ground and melted in lava.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.DROWNING) deathMsg = killee + ChatColor.GRAY + " forgot how to breathe.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = killee + ChatColor.GRAY + " burnt to a crisp.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = killee + ChatColor.GRAY + " played with fire.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = killee + ChatColor.GRAY + " fell to a clumsy death.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killee + ChatColor.GRAY + " said goodbye, cruel world!";
+				else deathMsg = killee + ChatColor.GRAY + " has been eliminated!";
 			}
 			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(deathMsg);}
 		}

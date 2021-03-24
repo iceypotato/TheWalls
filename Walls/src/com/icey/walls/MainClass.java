@@ -19,7 +19,7 @@ public class MainClass extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		arenaManager.reloadArenas();
-		getLogger().info(arenaManager.numArenas() + " arenas loaded.");
+		getLogger().info(arenaManager.numArenas() + " arenas found.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
 		this.getCommand("test").setExecutor((CommandExecutor) new Test(this, wallsTool));
 		getServer().getPluginManager().registerEvents(wallsTool, this);

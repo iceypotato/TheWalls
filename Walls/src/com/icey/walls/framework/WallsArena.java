@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
 import com.icey.walls.listeners.WoolTeamSelector;
+import com.icey.walls.timers.WallsBattleCountdown;
 import com.icey.walls.timers.WallsCountdown;
 import com.icey.walls.timers.WallsFallCountdown;
 import com.icey.walls.timers.WallsGameEndCountdown;
@@ -36,6 +37,7 @@ public class WallsArena {
 	private boolean inProgress;
 	private boolean ending;
 	private boolean wallsFall;
+	private boolean suddenDeath;
 	private WoolTeamSelector[] woolTeamSelectors;
 	private WallsScoreboard wallsSB;
 	private ArenaListener arenaListener;
@@ -193,7 +195,6 @@ public class WallsArena {
 			wallsSB.setMinPlayers(config.getMinPlayers());
 			wallsSB.putWaiting();
 		}
-		
 		if (inProgress) {
 			wallsSB.clearSB();
 			wallsSB.showHealth();
@@ -201,7 +202,12 @@ public class WallsArena {
 			wallsSB.setGreens(teamGreen.size());
 			wallsSB.setBlues(teamBlue.size());
 			wallsSB.setYellows(teamYellow.size());
-			wallsSB.putPrepTime();
+			if (wallsFall) {
+				wallsSB.putSuddenDeathTime();
+			}
+			else {
+				wallsSB.putPrepTime();
+			}
 			wallsSB.putPlayersAlive();
 		}
 		if (ending) {
@@ -266,6 +272,16 @@ public class WallsArena {
 		for (Location block : wallBlocks) {
 			block.getBlock().setType(Material.AIR);
 		}
+		wallsCountdown = new WallsBattleCountdown(config.getBattleTime() / 60, config.getPrepTime() % 60, wallsSB, this);
+		wallsCountdown.runTaskTimer(plugin, 0, 20);
+	}
+	
+	public void suddenDeath() {
+		suddenDeath = true;
+		for (UUID id : playersInGame) {
+			Bukkit.getPlayer(id).playSound(Bukkit.getPlayer(id).getLocation(), Sound.WITHER_SPAWN, 10, 1);
+			Bukkit.getPlayer(id).sendTitle(ChatColor.AQUA + "Sudden Death!", ChatColor.GOLD+"Head to the middle to stop recieving wither!");
+		}
 	}
 	
 	public void winner() {
@@ -277,6 +293,7 @@ public class WallsArena {
 		for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage(winner);}
 		ending = true;
 		updateScoreboard();
+		wallsCountdown.cancel();
 		wallsCountdown = new WallsGameEndCountdown(0, 10, wallsSB, this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
@@ -315,6 +332,7 @@ public class WallsArena {
 			waiting = false;
 			wallsFall = false;
 			ending = false;
+			suddenDeath = false;
 			remainingTeams = 0;
 			for (UUID uuid : playersInGame) {
 				Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
@@ -381,4 +399,18 @@ public class WallsArena {
 	public void setRemainingTeams(int remainingTeams) {this.remainingTeams = remainingTeams;}
 	public WallsArenaConfig getConfig() {return config;}
 	public void setConfig(WallsArenaConfig config) {this.config = config;}
+
+	/**
+	 * @return the suddenDeath
+	 */
+	public boolean isSuddenDeath() {
+		return suddenDeath;
+	}
+
+	/**
+	 * @param suddenDeath the suddenDeath to set
+	 */
+	public void setSuddenDeath(boolean suddenDeath) {
+		this.suddenDeath = suddenDeath;
+	}
 }
