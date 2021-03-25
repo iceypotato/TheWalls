@@ -147,7 +147,9 @@ public class WallsArena {
 			player.setHealth(20);
 			player.setSaturation(100);
 			player.setFoodLevel(20);
-			player.getActivePotionEffects().clear();
+			for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+				player.removePotionEffect(potionEffect.getType());
+			}
 			for (int i = 0; i < woolTeamSelectors.length; i++) {
 				woolTeamSelectors[i].giveItemToPlayer(player);
 			}
