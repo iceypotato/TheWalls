@@ -1,10 +1,8 @@
 # Hypixel Walls plugin 
-Finally finished.
+Finished Main functions.
 todo:
   * clean up code
-  * add custom teams
-  * sort everything
+  * Add command documentation.
+  * Add custom teams (Maybe)
   * add winning sound effects
-  * add sudden death
   * ability to add custom death msgs
-  * etc...
