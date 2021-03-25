@@ -171,10 +171,12 @@ public class WallsArena {
 		teamGreen.remove(player.getUniqueId());
 		teamBlue.remove(player.getUniqueId());
 		teamYellow.remove(player.getUniqueId());
+		wallsSB.leaveTeams(player);
 		updateScoreboard();
-
-		if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
-			wallsCountdown.cancel();
+		if (wallsCountdown instanceof WallsCountdown) {
+			if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
+				wallsCountdown.cancel();
+			}
 		}
 		if (playersInGame.size() == 0) stopGame();
 		if (inProgress) checkForRemainingTeams();
@@ -340,6 +342,7 @@ public class WallsArena {
 			ending = false;
 			suddenDeath = false;
 			remainingTeams = 0;
+			wallsCountdown.cancel();
 			for (UUID uuid : playersInGame) {
 				Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
 				playerOriginalState.get(uuid).restoreState();

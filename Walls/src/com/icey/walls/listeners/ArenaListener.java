@@ -1,6 +1,8 @@
 package com.icey.walls.listeners;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -22,6 +24,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.icey.walls.framework.WallsArena;
+
+import net.minecraft.server.v1_8_R3.ChatMessage;
 
 	
 public class ArenaListener implements Listener {
@@ -167,8 +171,17 @@ public class ArenaListener implements Listener {
 	@EventHandler
 	public void preventCrossingWalls(PlayerMoveEvent pMoveEvent) {
 		if (!arena.isWallsFall() && arena.isInProgress() && arena.getPlayersInGame().contains(pMoveEvent.getPlayer().getUniqueId())) {
+			boolean isInWall = false;
 			for (int i = 0; i < wallBlocks.size(); i++) {
-				if ((pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
+				if (pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) {
+					pMoveEvent.getPlayer().teleport(oldLocation);
+					pMoveEvent.getPlayer().sendMessage(ChatColor.YELLOW + "What do you think you're doing?");
+					isInWall = true;
+				}
+			}
+			for (int i = 0; i < wallBlocks.size() && !isInWall; i++) {
+				if (
+				(pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
 				(pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
 				(pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
 				(pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) ||
@@ -177,10 +190,6 @@ public class ArenaListener implements Listener {
 				(pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ()) ||
 				(pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ())) {
 					oldLocation = pMoveEvent.getPlayer().getLocation();
-				}
-				else if (wallBlocks.get(i).getBlockZ() == pMoveEvent.getPlayer().getLocation().getBlockZ() && wallBlocks.get(i).getBlockX() == pMoveEvent.getPlayer().getLocation().getBlockX()) {
-					pMoveEvent.getPlayer().teleport(oldLocation);
-					pMoveEvent.getPlayer().sendMessage(ChatColor.YELLOW + "What do you think you're doin");
 				}
 			}
 		}

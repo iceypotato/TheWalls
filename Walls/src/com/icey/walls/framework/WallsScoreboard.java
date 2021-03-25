@@ -158,7 +158,12 @@ public class WallsScoreboard {
 	public void joinYellowTeam(Player player) {
 		yellowTeam.addEntry(player.getName());
 	}
-	
+	public void leaveTeams(Player player) {
+		redTeam.removeEntry(player.getName());
+		greenTeam.removeEntry(player.getName());
+		blueTeam.removeEntry(player.getName());
+		yellowTeam.removeEntry(player.getName());
+	}
 	
 	// Getters and Setters \\
 	
