@@ -306,7 +306,6 @@ public class WallsArena {
 	}
 	
 	public void checkForRemainingTeams() {
-		plugin.getLogger().info(remainingTeams+"");
 		if (teamRed.size() == 0 && !redEliminated) {
 			redEliminated = true;
 			remainingTeams -= 1;
@@ -351,7 +350,6 @@ public class WallsArena {
 			for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
 			plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
 			originalArena.pasteBlocksInClipboard();
-			plugin.getLogger().info(config.getArenaRegions().toString()+"");
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {
 				if (config.getArenaRegions().get(j)[0].getWorld() == null) {
 					plugin.getLogger().warning("An arena could not be loaded due to it being in an unloaded world! If using multiverse, please load the world and make sure to join the world. Then run /walls reload.");
