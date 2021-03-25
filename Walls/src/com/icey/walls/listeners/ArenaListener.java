@@ -68,14 +68,12 @@ public class ArenaListener implements Listener {
 			for (int i = 0; i < buildRegionBlocks.size(); i++) {
 				if ((buildRegionBlocks.get(i).equals(interact.getBlock().getLocation()))) {
 					isBlockNotInRegion = false;
-					break;
 				}
 			}
 			if (!arena.isWallsFall()) {
 				for (int i = 0; i < wallBlocks.size(); i++) {
 					if (interact.getBlock().getLocation().equals(wallBlocks.get(i))) {
 						isBlockAWallBlock = true;
-						break;
 					}
 				}
 			}
@@ -95,7 +93,6 @@ public class ArenaListener implements Listener {
 			for (int i = 0; i < buildRegionBlocks.size(); i++) {
 				if ((buildRegionBlocks.get(i).equals(event.getBlock().getLocation()))) {
 					isBlockNotInRegion = false;
-					break;
 				}
 			}
 		}
@@ -103,7 +100,6 @@ public class ArenaListener implements Listener {
 			for (int i = 0; i < wallBlocks.size(); i++) {
 				if (event.getBlock().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && event.getBlock().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) {
 					blockPlacedonWall = true;
-					break;
 				}
 			}
 		}

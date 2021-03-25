@@ -27,6 +27,7 @@ import com.icey.walls.timers.WallsGameEndCountdown;
 import com.icey.walls.timers.WallsLobbyCountdown;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
+import com.icey.walls.util.WallsGiveEffect;
 
 public class WallsArena {
 	
@@ -220,6 +221,10 @@ public class WallsArena {
 		}
 	}
 	
+	/*
+	 * Stages of the game
+	 */
+	
 	public void startPrep() {
 		for (UUID id : teamRed) {
 			wallsSB.joinRedTeam(Bukkit.getPlayer(id));
@@ -272,7 +277,7 @@ public class WallsArena {
 		for (Location block : wallBlocks) {
 			block.getBlock().setType(Material.AIR);
 		}
-		wallsCountdown = new WallsBattleCountdown(config.getBattleTime() / 60, config.getPrepTime() % 60, wallsSB, this);
+		wallsCountdown = new WallsBattleCountdown(config.getBattleTime() / 60, config.getBattleTime() % 60, wallsSB, this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
@@ -282,6 +287,8 @@ public class WallsArena {
 			Bukkit.getPlayer(id).playSound(Bukkit.getPlayer(id).getLocation(), Sound.WITHER_SPAWN, 10, 1);
 			Bukkit.getPlayer(id).sendTitle(ChatColor.AQUA + "Sudden Death!", ChatColor.GOLD+"Head to the middle to stop recieving wither!");
 		}
+		wallsCountdown = new WallsGiveEffect(this);
+		wallsCountdown.runTaskTimer(plugin, 0, 1);
 	}
 	
 	public void winner() {

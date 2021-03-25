@@ -60,9 +60,10 @@ public class WallsArenaConfig {
 		addArenaRegion();
 		addWallRegion();
 		addBuildRegion();
+		addSafeZoneRegion();
 		readSettings();
 		if (lobbySpawn == null || blueSpawn == null || redSpawn==null||greenSpawn==null||yellowSpawn==null||
-		arenaRegions==null||buildRegions==null||wallRegions==null) enabled = false;
+		arenaRegions==null||buildRegions==null||wallRegions==null||safeZoneRegions==null) enabled = false;
 	}
 	
 	public void readSettings() {

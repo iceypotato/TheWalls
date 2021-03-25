@@ -130,7 +130,7 @@ public class Arena extends SubCommand {
 								}
 								else {
 									wallsSupercommand.getArenaManager().writeRegions(name, "SafeZones", player, wallsSupercommand.getWallsTool());
-									sender.sendMessage(ChatColor.GREEN + "Build region added for " + name);
+									sender.sendMessage(ChatColor.GREEN + "SafeZone region added for " + name);
 								}
 							}
 							else sender.sendMessage("Invalid action specified!");
@@ -154,7 +154,11 @@ public class Arena extends SubCommand {
 			sender.sendMessage(ChatColor.AQUA + "/walls arena create <arenaname>: " + ChatColor.RESET + "used to create an arena.");
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> stop: " + ChatColor.RESET + "used to stop an arena.");
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> info: " + ChatColor.RESET + "gives information about an arena.");
-			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> enable: " + ChatColor.RESET + "will attempt to enable an arena.");
+			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setlobby: " + ChatColor.RESET + "Sets lobby spawn for specified arena.");
+			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setred: " + ChatColor.RESET + "Sets red spawn for specified arena.");
+			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setgreen: " + ChatColor.RESET + "Sets green spawn for specified arena.");
+			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setblue: " + ChatColor.RESET + "Sets blue spawn for specified arena.");
+			
 		}
 		return true;
 	}
