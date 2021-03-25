@@ -39,7 +39,7 @@ public class WallsGiveEffect extends BukkitRunnable {
 				}
 			}
 			if (playerInSafeZone) Bukkit.getPlayer(id).removePotionEffect(PotionEffectType.WITHER);
-			else Bukkit.getPlayer(id).addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 20, 0));
+			else Bukkit.getPlayer(id).addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
 		}
 	}
 }
