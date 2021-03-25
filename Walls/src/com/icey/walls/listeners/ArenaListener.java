@@ -166,7 +166,7 @@ public class ArenaListener implements Listener {
 	
 	@EventHandler
 	public void preventCrossingWalls(PlayerMoveEvent pMoveEvent) {
-		if (!arena.isWallsFall() && arena.isInProgress()) {
+		if (!arena.isWallsFall() && arena.isInProgress() && arena.getPlayersInGame().contains(pMoveEvent.getPlayer().getUniqueId())) {
 			for (int i = 0; i < wallBlocks.size(); i++) {
 				if ((pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
 				(pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
