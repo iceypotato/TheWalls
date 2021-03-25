@@ -1,19 +1,12 @@
 package com.icey.walls.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-
-import com.icey.walls.MainClass;
 
 public class BlockClipboard {
 	

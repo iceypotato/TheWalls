@@ -2,11 +2,18 @@ package com.icey.walls.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.WallsScoreboard;
 import com.icey.walls.listeners.WallsTool;
@@ -21,7 +28,7 @@ public class Test implements CommandExecutor {
 	private File file;
 	private FileConfiguration fileConfiguration;
 	private String[] positions;
-	
+	private Collection<PotionEffect> potioneffects;
 	
 	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
@@ -35,34 +42,25 @@ public class Test implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
-			if (args[0].equals("makelist")) {
-				String location = wallsTool.getWorld().getName()+","+wallsTool.getPos1().getBlockX()+","+wallsTool.getPos1().getBlockY()+","+wallsTool.getPos1().getBlockZ();
-				positions[0] = location;
-				location = wallsTool.getWorld().getName()+","+wallsTool.getPos2().getBlockX()+","+wallsTool.getPos2().getBlockY()+","+wallsTool.getPos2().getBlockZ();
-				positions[1] = location;
-				fileConfiguration.set("Regions.1", positions);
-				try {
-					fileConfiguration.save(file);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			Player player = (Player) sender;
+			if (args[0].equalsIgnoreCase("saveeffects")) {
+				potioneffects = player.getActivePotionEffects();
+			}
+			if (args[0].equalsIgnoreCase("cleareffects")) {
+				for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+					player.removePotionEffect(potionEffect.getType());
 				}
 			}
-			if (args[0].equals("readlist")) {
-				if (fileConfiguration.getList("Regions.1") == null) {
-					sender.sendMessage("Null");
-				}
-				else {
-					String[] r = fileConfiguration.getStringList("Regions.1").get(0).split(",");
-					sender.sendMessage("R1:\n World: " + r[0] + "\n X: " + r[1] + "\n Y: " + r[2] + "\n Z: " + r[3]);
-					r = fileConfiguration.getStringList("Regions.1").get(1).split(",");
-					sender.sendMessage("R2:\n World: " + r[0] + "\n X: " + r[1] + "\n Y: " + r[2] + "\n Z: " + r[3]);
-				}
+			else if (args[0].equalsIgnoreCase("loadeffects")) {
+				player.addPotionEffects(potioneffects);
+			}
+			else {
+				sender.sendMessage("Invalid subcommand");
 			}
 			return true;
 		}
 		else {
-			sender.sendMessage("Invalid Command.");
+			sender.sendMessage("Invalid subcommand.");
 		}
 		return false;
 	}

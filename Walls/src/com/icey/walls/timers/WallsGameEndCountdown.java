@@ -1,10 +1,5 @@
 package com.icey.walls.timers;
 
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Sound;
-
 import com.icey.walls.framework.WallsArena;
 import com.icey.walls.framework.WallsScoreboard;
 

@@ -16,7 +16,7 @@ public class PlayerOriginalState {
 	private ItemStack[] inv;
 	private ItemStack[]	armor;
 	private GameMode gamemode;
-	private Collection<PotionEffect> effects;
+	private Collection<PotionEffect> potionEffects;
 	private double hp;
 	private float saturation;
 	private int foodlvl;
@@ -29,7 +29,7 @@ public class PlayerOriginalState {
 		inv = player.getInventory().getContents();
 		armor = player.getInventory().getArmorContents();
 		gamemode = player.getGameMode();
-		effects = player.getActivePotionEffects();
+		potionEffects = player.getActivePotionEffects();
 		hp = player.getHealth();
 		saturation = player.getSaturation();
 		foodlvl = player.getFoodLevel();
@@ -41,7 +41,7 @@ public class PlayerOriginalState {
 		player.getInventory().setContents(inv);
 		player.getInventory().setArmorContents(armor);
 		player.setGameMode(gamemode);
-		player.getActivePotionEffects().addAll(effects);
+		player.addPotionEffects(potionEffects);
 		player.setHealth(hp);
 		player.setSaturation(saturation);
 		player.setFoodLevel(foodlvl);
@@ -73,12 +73,12 @@ public class PlayerOriginalState {
 		this.gamemode = gamemode;
 	}
 
-	public Collection<PotionEffect> getEffects() {
-		return effects;
+	public Collection<PotionEffect> getPotionEffects() {
+		return potionEffects;
 	}
 
-	public void setEffects(Collection<PotionEffect> effects) {
-		this.effects = effects;
+	public void setPotionEffects(Collection<PotionEffect> effects) {
+		this.potionEffects = effects;
 	}
 
 	public double getHp() {

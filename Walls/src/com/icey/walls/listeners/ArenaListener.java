@@ -1,8 +1,6 @@
 package com.icey.walls.listeners;
 
-import java.awt.geom.Area;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -24,8 +22,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.icey.walls.framework.WallsArena;
-
-import net.minecraft.server.v1_8_R3.ChatMessage;
 
 	
 public class ArenaListener implements Listener {
@@ -155,6 +151,7 @@ public class ArenaListener implements Listener {
 			}
 			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(deathMsg);}
 		}
+		deathEvent.getEntity().teleport(arena.getConfig().getLobbySpawn());
 		arena.checkForRemainingTeams();
 	}
 	

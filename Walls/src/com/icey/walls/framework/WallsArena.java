@@ -15,6 +15,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
@@ -33,12 +34,12 @@ public class WallsArena {
 	
 	private WallsArenaConfig config;
 	private MainClass plugin;
-	private boolean running;
-	private boolean waiting;
-	private boolean inProgress;
-	private boolean ending;
-	private boolean wallsFall;
-	private boolean suddenDeath;
+	private boolean running; //if someone is using the arena
+	private boolean waiting; //if the arena is waiting for players
+	private boolean inProgress; //if the arena has started.
+	private boolean ending; //when there is a winner.
+	private boolean wallsFall; //when the walls fall
+	private boolean suddenDeath; ///when its time for sudden death.
 	private WoolTeamSelector[] woolTeamSelectors;
 	private WallsScoreboard wallsSB;
 	private ArenaListener arenaListener;
@@ -161,9 +162,17 @@ public class WallsArena {
 	}
 	
 	public void playerLeave(Player player) {
+		if (waiting) {
+			if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
+				wallsCountdown.cancel();
+			}
+		}
 		player.getInventory().clear();
 		player.getInventory().setArmorContents(null);
 		player.setScoreboard(wallsSB.getManager().getMainScoreboard());
+		for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+			player.removePotionEffect(potionEffect.getType());
+		}
 		playerOriginalState.get(player.getUniqueId()).restoreState();
 		playersInGame.remove(player.getUniqueId());
 		playerOriginalState.remove(player.getUniqueId());
@@ -173,13 +182,8 @@ public class WallsArena {
 		teamYellow.remove(player.getUniqueId());
 		wallsSB.leaveTeams(player);
 		updateScoreboard();
-		if (wallsCountdown instanceof WallsCountdown) {
-			if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
-				wallsCountdown.cancel();
-			}
-		}
-		if (playersInGame.size() == 0) stopGame();
 		if (inProgress) checkForRemainingTeams();
+		if (playersInGame.size() == 0) stopGame();
 	}
 	
 	public void joinTeam(Player player, ArrayList<UUID> teamToJoin) {
@@ -344,6 +348,9 @@ public class WallsArena {
 			remainingTeams = 0;
 			wallsCountdown.cancel();
 			for (UUID uuid : playersInGame) {
+				for (PotionEffect potionEffect : Bukkit.getPlayer(uuid).getActivePotionEffects()) {
+					Bukkit.getPlayer(uuid).removePotionEffect(potionEffect.getType());
+				}
 				Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
 				playerOriginalState.get(uuid).restoreState();
 			}

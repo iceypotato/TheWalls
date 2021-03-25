@@ -1,6 +1,5 @@
 package com.icey.walls.timers;
 
-import java.util.Iterator;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
