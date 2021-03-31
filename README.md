@@ -1,4 +1,6 @@
-# Hypixel Walls plugin 
+# Icey's Bukkit Plugins
+
+## Hypixel Walls plugin 
 Finished Main functions.
 todo:
   * clean up code
@@ -6,3 +8,4 @@ todo:
   * Add custom teams (Maybe)
   * add winning sound effects
   * ability to add custom death msgs
+  * make the scoreboard show kills
