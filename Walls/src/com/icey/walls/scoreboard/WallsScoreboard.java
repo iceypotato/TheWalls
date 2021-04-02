@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 /**
- * A walls scoreboard. Each player has an individual scoreboard. Teams only affect the color.
+ * A walls scoreboard. Each player has an individual scoreboard.
  * @author nickyjedi
  *
  */
@@ -32,10 +32,6 @@ public class WallsScoreboard {
 	private Scoreboard mainboard;
 	private Objective objective;
 	private Objective health;
-	private Team redTeam;
-	private Team greenTeam;
-	private Team blueTeam;
-	private Team yellowTeam;
 	private String name;
 	private String displayName;
 	private String criteria;
@@ -55,18 +51,6 @@ public class WallsScoreboard {
 		mainboard = manager.getNewScoreboard();
 		health = mainboard.registerNewObjective("health", "health");
 		this.player = player;
-		redTeam = mainboard.registerNewTeam("red");
-		greenTeam = mainboard.registerNewTeam("green");
-		blueTeam = mainboard.registerNewTeam("blue");
-		yellowTeam = mainboard.registerNewTeam("yellow");
-		redTeam.setAllowFriendlyFire(false);
-		greenTeam.setAllowFriendlyFire(false);
-		blueTeam.setAllowFriendlyFire(false);
-		yellowTeam.setAllowFriendlyFire(false);
-		redTeam.setPrefix(ChatColor.RED+"");
-		greenTeam.setPrefix(ChatColor.GREEN+"");
-		blueTeam.setPrefix(ChatColor.BLUE+"");
-		yellowTeam.setPrefix(ChatColor.YELLOW+"");
 	}
 	
 	// Put the players alive on the scoreboard
@@ -165,24 +149,6 @@ public class WallsScoreboard {
 		objective.setDisplaySlot(slot);
 	}
 	
-	public void joinRedTeam() {
-		redTeam.addEntry(player.getName());
-	}
-	public void joinGreenTeam() {
-		greenTeam.addEntry(player.getName());
-	}
-	public void joinBlueTeam() {
-		blueTeam.addEntry(player.getName());
-	}
-	public void joinYellowTeam() {
-		yellowTeam.addEntry(player.getName());
-	}
-	public void leaveTeams() {
-		redTeam.removeEntry(player.getName());
-		greenTeam.removeEntry(player.getName());
-		blueTeam.removeEntry(player.getName());
-		yellowTeam.removeEntry(player.getName());
-	}
 	
 	// Getters and Setters \\
 	

@@ -190,7 +190,6 @@ public class WallsArena {
 		teamGreen.remove(playerUUID);
 		teamBlue.remove(playerUUID);
 		teamYellow.remove(playerUUID);
-		playerScoreboards.get(playerUUID).leaveTeams();
 		updateScoreboard();
 		if (inProgress) checkForRemainingTeams();
 		if (playersInGame.size() == 0) stopGame();
@@ -241,14 +240,12 @@ public class WallsArena {
 	public void startPrep() {
 		for (UUID id : teamRed) {
 			Player player = Bukkit.getPlayer(id);
-			playerScoreboards.get(id).joinRedTeam();
 			player.teleport(config.getRedSpawn());
 			player.setGameMode(GameMode.SURVIVAL);
 			player.setDisplayName(ChatColor.RED + player.getName());
 			player.setPlayerListName(ChatColor.RED + player.getName());
 		}
 		for (UUID id : teamGreen) {
-			playerScoreboards.get(id).joinGreenTeam();
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getGreenSpawn());
 			player.setGameMode(GameMode.SURVIVAL);
@@ -256,7 +253,6 @@ public class WallsArena {
 			player.setPlayerListName(ChatColor.GREEN + player.getName());
 		}
 		for (UUID id : teamBlue) {
-			playerScoreboards.get(id).joinBlueTeam();
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getBlueSpawn());
 			player.setGameMode(GameMode.SURVIVAL);
@@ -264,7 +260,6 @@ public class WallsArena {
 			player.setPlayerListName(ChatColor.BLUE + player.getName());
 		}
 		for (UUID id : teamYellow) {
-			playerScoreboards.get(id).joinYellowTeam();
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getYellowSpawn());
 			player.setGameMode(GameMode.SURVIVAL);
