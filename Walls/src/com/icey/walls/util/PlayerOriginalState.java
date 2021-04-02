@@ -49,6 +49,8 @@ public class PlayerOriginalState {
 		player.setFoodLevel(foodlvl);
 		player.setDisplayName(displayName);
 		player.setPlayerListName(tabName);
+		player.sendMessage("tabname: "+tabName);
+		player.sendMessage("displayname: " + displayName);
 		player.setBedSpawnLocation(spawnpoint, true);
 	}
 	
