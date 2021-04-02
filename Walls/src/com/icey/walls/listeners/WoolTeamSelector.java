@@ -1,6 +1,7 @@
 package com.icey.walls.listeners;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -22,11 +23,11 @@ public class WoolTeamSelector implements Listener {
 	ItemStack itemStack;
 	ItemMeta meta;
 	WallsArena arena;
-	ArrayList<UUID> teamToJoin;
+	List<UUID> teamToJoin;
 	String message;
 	World world;
 	
-	public WoolTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, ArrayList<UUID> teamToJoin) {
+	public WoolTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, List<UUID> teamToJoin) {
 		this.itemStack = itemStack;
 		this.arena = arena;
 		this.teamToJoin = teamToJoin;
@@ -48,7 +49,7 @@ public class WoolTeamSelector implements Listener {
 		Player player = event.getPlayer();
 		ItemStack itemInHand = player.getItemInHand();
 		if (itemInHand.equals(this.itemStack)) {
-			arena.joinTeam(player, teamToJoin);
+			arena.joinTeam(player.getUniqueId(), teamToJoin);
 			player.sendMessage(ChatColor.GOLD + "You have joined team " + message);
 			event.setCancelled(true);
 		}

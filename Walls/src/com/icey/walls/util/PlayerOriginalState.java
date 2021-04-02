@@ -11,7 +11,8 @@ import org.bukkit.potion.PotionEffect;
 public class PlayerOriginalState {
 	
 	private Player player;
-	private String name;
+	private String displayName;
+	private String tabName;
 	private Location location;
 	private ItemStack[] inv;
 	private ItemStack[]	armor;
@@ -24,7 +25,8 @@ public class PlayerOriginalState {
 	
 	public PlayerOriginalState(Player player) {
 		this.player = player;
-		name = player.getDisplayName();
+		displayName = player.getDisplayName();
+		tabName = player.getPlayerListName();
 		location = player.getLocation();
 		inv = player.getInventory().getContents();
 		armor = player.getInventory().getArmorContents();
@@ -45,7 +47,8 @@ public class PlayerOriginalState {
 		player.setHealth(hp);
 		player.setSaturation(saturation);
 		player.setFoodLevel(foodlvl);
-		player.setDisplayName(name);
+		player.setDisplayName(displayName);
+		player.setPlayerListName(tabName);
 		player.setBedSpawnLocation(spawnpoint, true);
 	}
 	
@@ -114,11 +117,11 @@ public class PlayerOriginalState {
 	}
 
 	public String getName() {
-		return name;
+		return displayName;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.displayName = name;
 	}
 
 	public Location getSpawnpoint() {

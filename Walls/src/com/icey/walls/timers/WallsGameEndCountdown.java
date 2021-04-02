@@ -1,11 +1,13 @@
 package com.icey.walls.timers;
 
+import java.util.Collection;
+
 import com.icey.walls.framework.WallsArena;
-import com.icey.walls.framework.WallsScoreboard;
+import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsGameEndCountdown extends WallsCountdown {
 
-	public WallsGameEndCountdown(int minutes, int seconds, WallsScoreboard wallsSB, WallsArena arena) {
+	public WallsGameEndCountdown(int minutes, int seconds, Collection<WallsScoreboard> wallsSB, WallsArena arena) {
 		super(minutes, seconds, wallsSB, arena);
 	}
 	

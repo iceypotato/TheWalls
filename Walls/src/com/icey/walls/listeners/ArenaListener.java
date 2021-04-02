@@ -1,6 +1,6 @@
 package com.icey.walls.listeners;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -27,11 +28,11 @@ import com.icey.walls.framework.WallsArena;
 public class ArenaListener implements Listener {
 	
 	private WallsArena arena;
-	private ArrayList<Location> wallBlocks;
-	private ArrayList<Location> buildRegionBlocks;
+	private List<Location> wallBlocks;
+	private List<Location> buildRegionBlocks;
 	private Location oldLocation;
 	
-	public ArenaListener(WallsArena arena, ArrayList<Location> wallBlocks, ArrayList<Location> buildRegionBlocks) {
+	public ArenaListener(WallsArena arena, List<Location> wallBlocks, List<Location> buildRegionBlocks) {
 		this.arena = arena;
 		this.wallBlocks = wallBlocks;
 		this.buildRegionBlocks = buildRegionBlocks;
@@ -39,7 +40,7 @@ public class ArenaListener implements Listener {
 	
 	@EventHandler
 	public void playerDisconnect(PlayerQuitEvent quitEvent) {
-		if ((arena.isInProgress() || arena.isWaiting()) && quitEvent.getPlayer() != null) arena.playerLeave(quitEvent.getPlayer());
+		if ((arena.isInProgress() || arena.isWaiting()) && quitEvent.getPlayer() != null) arena.playerLeave(quitEvent.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler
@@ -50,12 +51,24 @@ public class ArenaListener implements Listener {
 	}
 	
 	@EventHandler
-	public void waitingForplayers(EntityDamageEvent event) {
-		if(arena.isWaiting() && event.getEntity() instanceof Player) {
+	public void playerTakeNaturalDamage(EntityDamageEvent event) {
+		if (arena.isWaiting() && event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			if (arena.getPlayersInGame().contains(player.getUniqueId())) {
 				event.setCancelled(true);
 			}
+		}
+	}
+	
+	@EventHandler
+	public void playerFriendlyFire(EntityDamageByEntityEvent event) {
+		if (arena.isInProgress() && event.getEntity() instanceof Player) {
+			Player defender = (Player) event.getEntity();
+			Player attacker = (Player) event.getDamager();
+			if (arena.getTeamRed().contains(defender.getUniqueId()) && arena.getTeamRed().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamGreen().contains(defender.getUniqueId()) && arena.getTeamGreen().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamBlue().contains(defender.getUniqueId()) && arena.getTeamBlue().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamYellow().contains(defender.getUniqueId()) && arena.getTeamYellow().contains(attacker.getUniqueId())) event.setCancelled(true);
 		}
 	}
 	
@@ -111,17 +124,17 @@ public class ArenaListener implements Listener {
 	
 	@EventHandler
 	public void playerDies(PlayerDeathEvent deathEvent) {
-		arena.getTeamRed().remove(deathEvent.getEntity().getPlayer().getUniqueId());
-		arena.getTeamGreen().remove(deathEvent.getEntity().getPlayer().getUniqueId());
-		arena.getTeamBlue().remove(deathEvent.getEntity().getPlayer().getUniqueId());
-		arena.getTeamYellow().remove(deathEvent.getEntity().getPlayer().getUniqueId());
-		arena.updateScoreboard();
-		if (arena.getPlayersInGame().contains(deathEvent.getEntity().getPlayer().getUniqueId())) {
+		Player deadPlayer = deathEvent.getEntity().getPlayer();
+		arena.getTeamRed().remove(deadPlayer.getUniqueId());
+		arena.getTeamGreen().remove(deadPlayer.getUniqueId());
+		arena.getTeamBlue().remove(deadPlayer.getUniqueId());
+		arena.getTeamYellow().remove(deadPlayer.getUniqueId());
+
+		if (arena.getPlayersInGame().contains(deadPlayer.getUniqueId())) {
 			deathEvent.setDeathMessage("");
-			//Run this if a player was killed by a player.
 			Random rand = new Random();
 			int msgID = rand.nextInt(11);
-			String deathMsg = "", killee = deathEvent.getEntity().getPlayer().getDisplayName();
+			String deathMsg = "", killeeName = deadPlayer.getDisplayName();
 			String[] deathMsgs = new String[11];
 			deathMsgs[0] = " was slain by ";
 			deathMsgs[1] = " was 69ed by ";
@@ -134,23 +147,27 @@ public class ArenaListener implements Listener {
 			deathMsgs[8] = " got creeper aw maned by ";
 			deathMsgs[9] = " got squashed by anime thighs by ";
 			deathMsgs[10] = " lost all hp and fainted to ";
+			//Run this if a player was killed by a player.
 			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
-				String killer = deathEvent.getEntity().getKiller().getDisplayName();
-				deathMsg = killee + ChatColor.GRAY+ deathMsgs[msgID] + ChatColor.RESET + killer;
+				Player killer = deathEvent.getEntity().getPlayer().getKiller();
+				String killerString = killer.getDisplayName();
+				deathMsg = killeeName + ChatColor.GRAY+ deathMsgs[msgID] + ChatColor.RESET + killerString;
+				arena.getPlayerScoreboards().get(killer.getUniqueId()).setKills(arena.getPlayerScoreboards().get(killer.getUniqueId()).getKills()+1);
 			}
 			//run this if player died of natural causes.
 			else {
-				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.VOID) deathMsg = killee + ChatColor.GRAY + " fell in the void.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.LAVA) deathMsg = killee + ChatColor.GRAY + " thought he had the high ground and melted in lava.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.DROWNING) deathMsg = killee + ChatColor.GRAY + " forgot how to breathe.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = killee + ChatColor.GRAY + " burnt to a crisp.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = killee + ChatColor.GRAY + " played with fire.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = killee + ChatColor.GRAY + " fell to a clumsy death.";
-				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killee + ChatColor.GRAY + " said goodbye, cruel world!";
-				else deathMsg = killee + ChatColor.GRAY + " has been eliminated!";
+				if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.VOID) deathMsg = killeeName + ChatColor.GRAY + " fell in the void.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.LAVA) deathMsg = killeeName + ChatColor.GRAY + " thought he had the high ground and melted in lava.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.DROWNING) deathMsg = killeeName + ChatColor.GRAY + " forgot how to breathe.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE_TICK) deathMsg = killeeName + ChatColor.GRAY + " burnt to a crisp.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FIRE) deathMsg = killeeName + ChatColor.GRAY + " played with fire.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.FALL) deathMsg = killeeName + ChatColor.GRAY + " fell to a clumsy death.";
+				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killeeName + ChatColor.GRAY + " said goodbye, cruel world!";
+				else deathMsg = killeeName + ChatColor.GRAY + " has been eliminated!";
 			}
 			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(deathMsg);}
 		}
+		arena.updateScoreboard();
 		deathEvent.getEntity().teleport(arena.getConfig().getLobbySpawn());
 		arena.checkForRemainingTeams();
 	}

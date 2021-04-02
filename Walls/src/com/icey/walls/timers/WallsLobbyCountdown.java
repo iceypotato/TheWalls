@@ -1,5 +1,6 @@
 package com.icey.walls.timers;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -7,11 +8,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 
 import com.icey.walls.framework.WallsArena;
-import com.icey.walls.framework.WallsScoreboard;
+import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsLobbyCountdown extends WallsCountdown {
 	
-	public WallsLobbyCountdown(int minutes, int seconds, WallsScoreboard wallsSB, WallsArena arena) {
+	public WallsLobbyCountdown(int minutes, int seconds, Collection<WallsScoreboard> wallsSB, WallsArena arena) {
 		super(minutes, seconds, wallsSB, arena);
 	}
 	

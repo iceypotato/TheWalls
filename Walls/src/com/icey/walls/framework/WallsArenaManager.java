@@ -133,7 +133,7 @@ public class WallsArenaManager {
 	
 	public void writeSpawns(String name, String spawnName, Player player) {
 		FileConfiguration arenaConfig = getFileConfigFromFile(name);
-		arenaConfig.set("Spawns." + spawnName, player.getWorld().getName()+","+player.getLocation().getBlockX()+","+player.getLocation().getBlockY()+","+player.getLocation().getBlockZ()+","+player.getLocation().getYaw()+","+player.getLocation().getPitch());
+		arenaConfig.set("Spawns." + spawnName, player.getWorld().getName()+","+player.getLocation().getX()+","+player.getLocation().getY()+","+player.getLocation().getZ()+","+player.getLocation().getYaw()+","+player.getLocation().getPitch());
 		saveFile(name, arenaConfig);
 		getArenaConfig(name).setArenaFile(configFile);
 		getArenaConfig(name).loadConfig();

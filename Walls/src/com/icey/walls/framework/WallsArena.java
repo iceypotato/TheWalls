@@ -2,6 +2,7 @@ package com.icey.walls.framework;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -17,7 +18,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
 import com.icey.walls.listeners.WoolTeamSelector;
@@ -29,6 +29,7 @@ import com.icey.walls.timers.WallsLobbyCountdown;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
 import com.icey.walls.util.WallsGiveEffect;
+import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsArena {
 	
@@ -41,23 +42,24 @@ public class WallsArena {
 	private boolean wallsFall; //when the walls fall
 	private boolean suddenDeath; ///when its time for sudden death.
 	private WoolTeamSelector[] woolTeamSelectors;
-	private WallsScoreboard wallsSB;
+	private HashMap<UUID, WallsScoreboard> playerScoreboards;
+	//private WallsScoreboard wallsSB;
 	private ArenaListener arenaListener;
 	private BukkitRunnable wallsCountdown;
-	private HashMap<UUID, PlayerOriginalState> playerOriginalState;
 	private ArrayList<UUID> playersInGame;
 	private int remainingTeams;
-	private ArrayList<UUID> teamRed;
-	private ArrayList<UUID> teamGreen;
-	private ArrayList<UUID> teamBlue;
-	private ArrayList<UUID> teamYellow;
+	private List<UUID> teamRed;
+	private List<UUID> teamGreen;
+	private List<UUID> teamBlue;
+	private List<UUID> teamYellow;
 	private boolean redEliminated;
 	private boolean greenEliminated;
 	private boolean blueEliminated;
 	private boolean yellowEliminated;
+	private HashMap<UUID, PlayerOriginalState> playerOriginalState;
 	private BlockClipboard originalArena;
-	private ArrayList<Location> wallBlocks;
-	private ArrayList<Location> buildRegionBlocks;
+	private List<Location> wallBlocks;
+	private List<Location> buildRegionBlocks;
 	
 	public WallsArena(WallsArenaConfig config, MainClass plugin) {
 		this.config = config;
@@ -113,8 +115,9 @@ public class WallsArena {
 		}
 		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
-		wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
-		wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, wallsSB, this);
+		//wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+		playerScoreboards = new HashMap<UUID, WallsScoreboard>();
+		wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, playerScoreboards.values(), this);
 	}
 	
 	/*
@@ -123,7 +126,8 @@ public class WallsArena {
 	 * 
 	 */
 	
-	public void playerJoin(Player player) {
+	public void playerJoin(UUID playerUUID) {
+		Player player = Bukkit.getPlayer(playerUUID);
 		running = true;
 		if (!inProgress) {
 			waiting = true;
@@ -133,12 +137,14 @@ public class WallsArena {
 			}
 			Random random = new Random();
 			int randNum = random.nextInt(4);
-			if (randNum == 0) joinTeam(player, teamRed);
-			if (randNum == 1) joinTeam(player, teamGreen);
-			if (randNum == 2) joinTeam(player, teamBlue);
-			if (randNum == 3) joinTeam(player, teamYellow);
-			playersInGame.add(player.getUniqueId());
-			playerOriginalState.put(player.getUniqueId(), new PlayerOriginalState(player));
+			if (randNum == 0) joinTeam(playerUUID, teamRed);
+			if (randNum == 1) joinTeam(playerUUID, teamGreen);
+			if (randNum == 2) joinTeam(playerUUID, teamBlue);
+			if (randNum == 3) joinTeam(playerUUID, teamYellow);
+			playersInGame.add(playerUUID);
+			playerOriginalState.put(playerUUID, new PlayerOriginalState(player));
+			playerScoreboards.put(playerUUID, new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", player));
+			playerScoreboards.get(playerUUID).setPlayerScoreboard();
 			updateScoreboard();
 			player.getInventory().clear();
 			player.getInventory().setArmorContents(null);
@@ -154,7 +160,7 @@ public class WallsArena {
 				woolTeamSelectors[i].giveItemToPlayer(player);
 			}
 			if (playersInGame.size() >= config.getMinPlayers() && !(((WallsCountdown) wallsCountdown).isRunning())) {
-				wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, wallsSB, this);
+				wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, playerScoreboards.values(), this);
 				wallsCountdown.runTaskTimer(plugin, 0, 20);
 			}
 		}
@@ -163,7 +169,8 @@ public class WallsArena {
 		}
 	}
 	
-	public void playerLeave(Player player) {
+	public void playerLeave(UUID playerUUID) {
+		Player player = Bukkit.getPlayer(playerUUID);
 		if (waiting) {
 			if (playersInGame.size() < config.getMinPlayers() && ((WallsCountdown)wallsCountdown).isRunning()) {
 				wallsCountdown.cancel();
@@ -171,61 +178,59 @@ public class WallsArena {
 		}
 		player.getInventory().clear();
 		player.getInventory().setArmorContents(null);
-		player.setScoreboard(wallsSB.getManager().getMainScoreboard());
+		player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 		for (PotionEffect potionEffect : player.getActivePotionEffects()) {
 			player.removePotionEffect(potionEffect.getType());
 		}
-		playerOriginalState.get(player.getUniqueId()).restoreState();
-		playersInGame.remove(player.getUniqueId());
-		playerOriginalState.remove(player.getUniqueId());
-		teamRed.remove(player.getUniqueId());
-		teamGreen.remove(player.getUniqueId());
-		teamBlue.remove(player.getUniqueId());
-		teamYellow.remove(player.getUniqueId());
-		wallsSB.leaveTeams(player);
+		playerOriginalState.get(playerUUID).restoreState();
+		playersInGame.remove(playerUUID);
+		playerOriginalState.remove(playerUUID);
+		playerScoreboards.remove(playerUUID);
+		teamRed.remove(playerUUID);
+		teamGreen.remove(playerUUID);
+		teamBlue.remove(playerUUID);
+		teamYellow.remove(playerUUID);
+		playerScoreboards.get(playerUUID).leaveTeams();
 		updateScoreboard();
 		if (inProgress) checkForRemainingTeams();
 		if (playersInGame.size() == 0) stopGame();
 	}
 	
-	public void joinTeam(Player player, ArrayList<UUID> teamToJoin) {
-		teamRed.remove(player.getUniqueId());
-		teamGreen.remove(player.getUniqueId());
-		teamBlue.remove(player.getUniqueId());
-		teamYellow.remove(player.getUniqueId());
-		teamToJoin.add(player.getUniqueId());
+	public void joinTeam(UUID playerUUID, List<UUID> teamToJoin) {
+		teamRed.remove(playerUUID);
+		teamGreen.remove(playerUUID);
+		teamBlue.remove(playerUUID);
+		teamYellow.remove(playerUUID);
+		teamToJoin.add(playerUUID);
 	}
 	
 	public void updateScoreboard() {
-		if (waiting) {
-			wallsSB.clearSB();
-			wallsSB.setPlayers(playersInGame.size());
-			wallsSB.setMaxPlayers(config.getMaxPlayers());
-			wallsSB.setMinPlayers(config.getMinPlayers());
-			wallsSB.putWaiting();
-		}
-		if (inProgress) {
-			wallsSB.clearSB();
-			wallsSB.showHealth();
-			wallsSB.setReds(teamRed.size());
-			wallsSB.setGreens(teamGreen.size());
-			wallsSB.setBlues(teamBlue.size());
-			wallsSB.setYellows(teamYellow.size());
-			if (wallsFall) {
-				wallsSB.putSuddenDeathTime();
+		for (WallsScoreboard wallsScoreboard : playerScoreboards.values()) {
+			wallsScoreboard.clearSB();
+			if (waiting) {
+				wallsScoreboard.setPlayers(playersInGame.size());
+				wallsScoreboard.setMaxPlayers(config.getMaxPlayers());
+				wallsScoreboard.setMinPlayers(config.getMinPlayers());
+				wallsScoreboard.putWaiting();
 			}
-			else {
-				wallsSB.putPrepTime();
+			if (inProgress) {
+				wallsScoreboard.putKills();
+				wallsScoreboard.showHealth();
+				wallsScoreboard.setReds(teamRed.size());
+				wallsScoreboard.setGreens(teamGreen.size());
+				wallsScoreboard.setBlues(teamBlue.size());
+				wallsScoreboard.setYellows(teamYellow.size());
+				if (ending) {
+					wallsScoreboard.putEndingTimer();
+				}
+				else if (wallsFall) {
+					wallsScoreboard.putSuddenDeathTime();
+				}
+				else {
+					wallsScoreboard.putPrepTime();
+				}
+				wallsScoreboard.putPlayersAlive();
 			}
-			wallsSB.putPlayersAlive();
-		}
-		if (ending) {
-			wallsSB.clearSB();
-			wallsSB.putPlayersAlive();
-			wallsSB.putEndingTimer();
-		}
-		for (UUID id : playersInGame) {
-			wallsSB.updatePlayersSB(Bukkit.getPlayer(id));
 		}
 	}
 	
@@ -235,31 +240,41 @@ public class WallsArena {
 	
 	public void startPrep() {
 		for (UUID id : teamRed) {
-			wallsSB.joinRedTeam(Bukkit.getPlayer(id));
-			Bukkit.getPlayer(id).teleport(config.getRedSpawn());
-			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
-			Bukkit.getPlayer(id).setDisplayName(ChatColor.RED + Bukkit.getPlayer(id).getDisplayName());
+			Player player = Bukkit.getPlayer(id);
+			playerScoreboards.get(id).joinRedTeam();
+			player.teleport(config.getRedSpawn());
+			player.setGameMode(GameMode.SURVIVAL);
+			player.setDisplayName(ChatColor.RED + player.getName());
+			player.setPlayerListName(ChatColor.RED + player.getName());
 		}
 		for (UUID id : teamGreen) {
-			wallsSB.joinGreenTeam(Bukkit.getPlayer(id));
-			Bukkit.getPlayer(id).teleport(config.getGreenSpawn());
-			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
-			Bukkit.getPlayer(id).setDisplayName(ChatColor.GREEN + Bukkit.getPlayer(id).getDisplayName());
+			playerScoreboards.get(id).joinGreenTeam();
+			Player player = Bukkit.getPlayer(id);
+			player.teleport(config.getGreenSpawn());
+			player.setGameMode(GameMode.SURVIVAL);
+			player.setDisplayName(ChatColor.GREEN + player.getName());
+			player.setPlayerListName(ChatColor.GREEN + player.getName());
 		}
 		for (UUID id : teamBlue) {
-			wallsSB.joinBlueTeam(Bukkit.getPlayer(id));
-			Bukkit.getPlayer(id).teleport(config.getBlueSpawn());
-			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
-			Bukkit.getPlayer(id).setDisplayName(ChatColor.BLUE + Bukkit.getPlayer(id).getDisplayName());
+			playerScoreboards.get(id).joinBlueTeam();
+			Player player = Bukkit.getPlayer(id);
+			player.teleport(config.getBlueSpawn());
+			player.setGameMode(GameMode.SURVIVAL);
+			player.setDisplayName(ChatColor.BLUE + player.getName());
+			player.setPlayerListName(ChatColor.BLUE + player.getName());
 		}
 		for (UUID id : teamYellow) {
-			wallsSB.joinYellowTeam(Bukkit.getPlayer(id));
-			Bukkit.getPlayer(id).teleport(config.getYellowSpawn());
-			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
-			Bukkit.getPlayer(id).setDisplayName(ChatColor.YELLOW + Bukkit.getPlayer(id).getDisplayName());
+			playerScoreboards.get(id).joinYellowTeam();
+			Player player = Bukkit.getPlayer(id);
+			player.teleport(config.getYellowSpawn());
+			player.setGameMode(GameMode.SURVIVAL);
+			player.setDisplayName(ChatColor.YELLOW + player.getName());
+			player.setPlayerListName(ChatColor.YELLOW + player.getName());
 		}
+		//wallsSB.setKills(new HashMap<Player,Integer>());
 		for (UUID id: playersInGame) {
 			Bukkit.getPlayer(id).getInventory().clear();
+			//wallsSB.getKills().put(Bukkit.getPlayer(id), 0);
 		}
 		if (teamBlue.size() > 0) remainingTeams++;
 		if (teamRed.size() > 0) remainingTeams++;
@@ -272,7 +287,7 @@ public class WallsArena {
 		waiting = false;
 		inProgress = true;
 		updateScoreboard();
-		wallsCountdown = new WallsFallCountdown(config.getPrepTime() / 60, config.getPrepTime() % 60, wallsSB, this);
+		wallsCountdown = new WallsFallCountdown(config.getPrepTime() / 60, config.getPrepTime() % 60, playerScoreboards.values(), this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
@@ -285,7 +300,7 @@ public class WallsArena {
 		for (Location block : wallBlocks) {
 			block.getBlock().setType(Material.AIR);
 		}
-		wallsCountdown = new WallsBattleCountdown(config.getBattleTime() / 60, config.getBattleTime() % 60, wallsSB, this);
+		wallsCountdown = new WallsBattleCountdown(config.getBattleTime() / 60, config.getBattleTime() % 60, playerScoreboards.values(), this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
@@ -309,7 +324,7 @@ public class WallsArena {
 		ending = true;
 		updateScoreboard();
 		wallsCountdown.cancel();
-		wallsCountdown = new WallsGameEndCountdown(0, 10, wallsSB, this);
+		wallsCountdown = new WallsGameEndCountdown(0, 10, playerScoreboards.values(), this);
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
@@ -348,12 +363,16 @@ public class WallsArena {
 			ending = false;
 			suddenDeath = false;
 			remainingTeams = 0;
-			wallsCountdown.cancel();
+			try {
+				wallsCountdown.cancel();
+			} catch (IllegalStateException e) {
+				plugin.getLogger().warning("A timer has been canceled with no scheduled task.");
+			}
 			for (UUID uuid : playersInGame) {
 				for (PotionEffect potionEffect : Bukkit.getPlayer(uuid).getActivePotionEffects()) {
 					Bukkit.getPlayer(uuid).removePotionEffect(potionEffect.getType());
 				}
-				Bukkit.getPlayer(uuid).setScoreboard(wallsSB.getManager().getMainScoreboard());
+				Bukkit.getPlayer(uuid).setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 				playerOriginalState.get(uuid).restoreState();
 			}
 			playersInGame.clear();
@@ -399,14 +418,14 @@ public class WallsArena {
 	public void setInProgress(boolean inProgress) { this.inProgress = inProgress; }
 	public ArrayList<UUID> getPlayersInGame() { return playersInGame; }
 	public void setPlayersInGame(ArrayList<UUID> playersInGame) { this.playersInGame = playersInGame; }
-	public ArrayList<UUID> getTeamRed() {return teamRed;}
-	public void setTeamRed(ArrayList<UUID> teamRed) {this.teamRed = teamRed;}
-	public ArrayList<UUID> getTeamGreen() {return teamGreen;}
-	public void setTeamGreen(ArrayList<UUID> teamGreen) {this.teamGreen = teamGreen;}
-	public ArrayList<UUID> getTeamBlue() {return teamBlue;}
-	public void setTeamBlue(ArrayList<UUID> teamBlue) {this.teamBlue = teamBlue;}
-	public ArrayList<UUID> getTeamYellow() {return teamYellow;}
-	public void setTeamYellow(ArrayList<UUID> teamYellow) {this.teamYellow = teamYellow;}
+	public List<UUID> getTeamRed() {return teamRed;}
+	public void setTeamRed(List<UUID> teamRed) {this.teamRed = teamRed;}
+	public List<UUID> getTeamGreen() {return teamGreen;}
+	public void setTeamGreen(List<UUID> teamGreen) {this.teamGreen = teamGreen;}
+	public List<UUID> getTeamBlue() {return teamBlue;}
+	public void setTeamBlue(List<UUID> teamBlue) {this.teamBlue = teamBlue;}
+	public List<UUID> getTeamYellow() {return teamYellow;}
+	public void setTeamYellow(List<UUID> teamYellow) {this.teamYellow = teamYellow;}
 	public MainClass getPlugin() {return plugin;}
 	public boolean isWaiting() {return waiting;}
 	public void setWaiting(boolean waiting) {this.waiting = waiting;}
@@ -429,5 +448,8 @@ public class WallsArena {
 	 */
 	public void setSuddenDeath(boolean suddenDeath) {
 		this.suddenDeath = suddenDeath;
+	}
+	public HashMap<UUID, WallsScoreboard> getPlayerScoreboards() {
+		return playerScoreboards;
 	}
 }

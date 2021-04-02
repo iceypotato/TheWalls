@@ -77,27 +77,27 @@ public class Arena extends SubCommand {
 							if (args[1].equalsIgnoreCase("setlobby")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Lobby", player);
 								sender.sendMessage(ChatColor.GOLD + "Lobby spawnpoint set for arena " + ChatColor.AQUA+ name);
-								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getX() + ChatColor.RESET + " / " + player.getLocation().getY() + ChatColor.RESET + " / " + player.getLocation().getZ());
 							}
 							else if (args[1].equalsIgnoreCase("setblue")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Blue", player);
 								sender.sendMessage(ChatColor.BLUE + "Blue Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getX() + ChatColor.RESET + " / " + player.getLocation().getY() + ChatColor.RESET + " / " + player.getLocation().getZ());
 							}
 							else if (args[1].equalsIgnoreCase("setgreen")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Green", player);
 								sender.sendMessage(ChatColor.GREEN + "Green Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getX() + ChatColor.RESET + " / " + player.getLocation().getY() + ChatColor.RESET + " / " + player.getLocation().getZ());
 							}
 							else if (args[1].equalsIgnoreCase("setred")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Red", player);
 								sender.sendMessage(ChatColor.RED + "Red Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getX() + ChatColor.RESET + " / " + player.getLocation().getY() + ChatColor.RESET + " / " + player.getLocation().getZ());
 							}
 							else if (args[1].equalsIgnoreCase("setyellow")) {
 								wallsSupercommand.getArenaManager().writeSpawns(name, "Yellow", player);
 								sender.sendMessage(ChatColor.YELLOW + "Yellow Team " + ChatColor.GOLD + "spawnpoint set for arena " + ChatColor.AQUA + name);
-								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getBlockX() + ChatColor.RESET + " / " + player.getLocation().getBlockY() + ChatColor.RESET + " / " + player.getLocation().getBlockZ());
+								sender.sendMessage(ChatColor.LIGHT_PURPLE + "Location: " + ChatColor.GREEN + player.getLocation().getX() + ChatColor.RESET + " / " + player.getLocation().getY() + ChatColor.RESET + " / " + player.getLocation().getZ());
 							}
 							else if (args[1].equalsIgnoreCase("addarenaregion")) {
 								if (wallsSupercommand.getWallsTool().getPos1() == null || wallsSupercommand.getWallsTool().getPos1() == null) { sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!"); }

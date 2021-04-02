@@ -33,8 +33,6 @@ public class Walls implements CommandExecutor, TabCompleter {
 		subcmds.add(new Arena(this));
 		subcmds.add(new Admin(this));
 	}
-
-	
 	
 	//Walls args[0] args[1] args[2]...
 	@Override
@@ -61,7 +59,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 					else if (arenaManager.getArenaFromPlayer(player) != null) sender.sendMessage(ChatColor.RED+"You must leave your current arena before joining another.");
 					else if (arenaManager.getArenaConfig(args[1]).isEnabled()) {
 						sender.sendMessage(ChatColor.GREEN + "Joining arena " + ChatColor.AQUA + args[1]);
-						arenaManager.getArenaConfig(args[1]).getArena().playerJoin(player);
+						arenaManager.getArenaConfig(args[1]).getArena().playerJoin(player.getUniqueId());
 						sender.sendMessage(ChatColor.GREEN + "You have joined " + args[1] + ".");
 					}
 					else sender.sendMessage(ChatColor.RED + "Arena: " + args[1] + " is not enabled!");
@@ -73,7 +71,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				if (args.length >= 1 && sender instanceof Player) {
 					Player player = (Player) sender;
 					if (arenaManager.getArenaFromPlayer(player) != null) {
-						arenaManager.getArenaFromPlayer(player).playerLeave(player);
+						arenaManager.getArenaFromPlayer(player).playerLeave(player.getUniqueId());
 						sender.sendMessage(ChatColor.GOLD + "You have left the arena.");
 					}
 					else sender.sendMessage(ChatColor.YELLOW + "You have to join an arena to leave one.");
@@ -93,7 +91,7 @@ public class Walls implements CommandExecutor, TabCompleter {
 				boolean foundCommand = false;
 				for (int i=0; i < subcmds.size() && !foundCommand; i++) {
 					for (int j=0; j < subcmds.get(i).getAliases().size() && !foundCommand; j++) {
-						if (subcmds.get(i).getAliases().get(j).contains(args[0])) {
+						if (subcmds.get(i).getAliases().get(j).startsWith(args[0])) {
 							subcmds.get(i).onSubCommand(sender, command, label, subargs);
 							foundCommand = true;
 						}

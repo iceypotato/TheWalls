@@ -1,58 +1,58 @@
 package com.icey.walls.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import com.icey.walls.MainClass;
-import com.icey.walls.framework.WallsScoreboard;
 import com.icey.walls.listeners.WallsTool;
-import com.icey.walls.util.BlockClipboard;
+import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class Test implements CommandExecutor {
 	
 	private MainClass myplugin;
 	private WallsTool wallsTool;
-	private BlockClipboard protectedBlocks;
-	private WallsScoreboard wallsSc;
-	private File file;
-	private FileConfiguration fileConfiguration;
-	private String[] positions;
-	private Collection<PotionEffect> potioneffects;
+	private HashMap<Player, WallsScoreboard> playerScoreboards;
 	
 	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
 		this.wallsTool = wallsTool;
-		positions = new String[2];
-		file = new File(myplugin.getDataFolder(), "test.yml");
-		fileConfiguration = YamlConfiguration.loadConfiguration(file);
-		//fileConfiguration.createSection("Regions.1");
+		playerScoreboards = new HashMap<>();
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
 			Player player = (Player) sender;
-			if (args[0].equalsIgnoreCase("saveeffects")) {
-				potioneffects = player.getActivePotionEffects();
+			if (args[0].equalsIgnoreCase("changename")) {
+				player.setDisplayName(ChatColor.BLUE + player.getDisplayName() + ChatColor.RESET);
+				player.setPlayerListName(ChatColor.BLUE + player.getDisplayName());
 			}
-			if (args[0].equalsIgnoreCase("cleareffects")) {
-				for (PotionEffect potionEffect : player.getActivePotionEffects()) {
-					player.removePotionEffect(potionEffect.getType());
-				}
+			else if (args[0].equalsIgnoreCase("resetname")) {
+				player.setDisplayName(player.getName());
+				player.setPlayerListName(player.getName());
 			}
-			else if (args[0].equalsIgnoreCase("loadeffects")) {
-				player.addPotionEffects(potioneffects);
+			else if (args[0].equalsIgnoreCase("rmsb")) {
+				player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+			}
+			else if (args[0].equalsIgnoreCase("addkill")) {
+				playerScoreboards.get(player).setKills(playerScoreboards.get(player).getKills()+1);
+			}
+			else if (args[0].equalsIgnoreCase("updatesb")) {
+				playerScoreboards.get(player).clearSB();
+				playerScoreboards.get(player).putKills();
+			}
+			else if (args[0].equalsIgnoreCase("joinred")) {
+				//playerScoreboards.get(player).joinRedTeam(player);
+			}
+			else if (args[0].equalsIgnoreCase("switchsb")) {
+			}
+			else if (args[0].equalsIgnoreCase("whatteam")) {
 			}
 			else {
 				sender.sendMessage("Invalid subcommand");

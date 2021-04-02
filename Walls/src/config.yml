@@ -1,0 +1,7 @@
+# Custom Death Messages. Here are some to start out with. If none exist,
+# the default will be %killee% was killed by %killer%.
+DeathMsgs:
+  - "%killee% was killed by %killer%."
+  - "%killee% was memed by %killer%."
+  - "%killee% was rekt by %killer%."
+  - "%killee% was slain by %killer%."

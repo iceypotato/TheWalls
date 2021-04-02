@@ -1,19 +1,22 @@
 package com.icey.walls.timers;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.icey.walls.framework.WallsArena;
-import com.icey.walls.framework.WallsScoreboard;
+import com.icey.walls.scoreboard.WallsScoreboard;
 
 public abstract class WallsCountdown extends BukkitRunnable {
 	
 	private int minutes;
 	private int seconds;
 	private boolean running;
-	private WallsScoreboard wallsSB;
+	private Collection<WallsScoreboard> wallsSB;
 	private WallsArena arena;
 	
-	public WallsCountdown(int minutes, int seconds, WallsScoreboard wallsSB, WallsArena arena) {
+	public WallsCountdown(int minutes, int seconds,  Collection<WallsScoreboard> wallsSB, WallsArena arena) {
 		this.minutes = minutes;
 		this.seconds = seconds;
 		this.wallsSB = wallsSB;
@@ -36,8 +39,10 @@ public abstract class WallsCountdown extends BukkitRunnable {
 			}
 		}
 		runEverySecond();
-		wallsSB.setMinutes(minutes);
-		wallsSB.setSeconds(seconds);
+		for (WallsScoreboard wallsScoreboard : wallsSB) {
+			wallsScoreboard.setMinutes(minutes);
+			wallsScoreboard.setSeconds(seconds);
+		}
 		arena.updateScoreboard();
 	}
 	
