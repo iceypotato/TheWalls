@@ -2,6 +2,7 @@ package com.icey.walls.scoreboard;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_8_R3.scoreboard.CraftScoreboard;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -9,6 +10,8 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
+
+import com.icey.walls.framework.ScoreboardSharedTeams;
 
 /**
  * A walls scoreboard. Each player has an individual scoreboard.
@@ -33,6 +36,7 @@ public class WallsScoreboard {
 	private Objective objective;
 	private Objective health;
 	private String name;
+	private ScoreboardSharedTeams sharedTeams;
 	private String displayName;
 	private String criteria;
 	private DisplaySlot slot;
@@ -42,7 +46,7 @@ public class WallsScoreboard {
 	 * multiple scoreboards for each player.
 	 */
 	
-	public WallsScoreboard(String name, String displayName, Player player) {
+	public WallsScoreboard(String name, String displayName, ScoreboardSharedTeams sharedTeams, Player player) {
 		this.name = name;
 		this.displayName = displayName;
 		this.criteria = "dummy";
@@ -51,6 +55,8 @@ public class WallsScoreboard {
 		mainboard = manager.getNewScoreboard();
 		health = mainboard.registerNewObjective("health", "health");
 		this.player = player;
+		this.sharedTeams = sharedTeams;
+		this.sharedTeams.addTeamsToScoreboard(mainboard);
 	}
 	
 	// Put the players alive on the scoreboard

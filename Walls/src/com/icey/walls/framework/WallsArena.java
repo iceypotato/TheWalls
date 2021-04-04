@@ -29,11 +29,13 @@ import com.icey.walls.timers.WallsLobbyCountdown;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
 import com.icey.walls.util.WallsGiveEffect;
+
 import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsArena {
 	
 	private WallsArenaConfig config;
+	private ScoreboardSharedTeams scoreboardSharedTeams;
 	private MainClass plugin;
 	private boolean running; //if someone is using the arena
 	private boolean waiting; //if the arena is waiting for players
@@ -115,7 +117,7 @@ public class WallsArena {
 		}
 		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
-		//wallsSB = new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", "dummy", DisplaySlot.SIDEBAR);
+		this.scoreboardSharedTeams = plugin.getNewScoreboardSharedTeams();
 		playerScoreboards = new HashMap<UUID, WallsScoreboard>();
 		wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, playerScoreboards.values(), this);
 	}
@@ -143,7 +145,7 @@ public class WallsArena {
 			if (randNum == 3) joinTeam(playerUUID, teamYellow);
 			playersInGame.add(playerUUID);
 			playerOriginalState.put(playerUUID, new PlayerOriginalState(player));
-			playerScoreboards.put(playerUUID, new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", player));
+			playerScoreboards.put(playerUUID, new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", scoreboardSharedTeams, player));
 			playerScoreboards.get(playerUUID).setPlayerScoreboard();
 			updateScoreboard();
 			player.getInventory().clear();
@@ -241,35 +243,37 @@ public class WallsArena {
 		for (UUID id : teamRed) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getRedSpawn());
-			player.setGameMode(GameMode.SURVIVAL);
 			player.setDisplayName(ChatColor.RED + player.getName());
 			player.setPlayerListName(ChatColor.RED + player.getName());
+			scoreboardSharedTeams.joinTeam(player, "red");
 		}
 		for (UUID id : teamGreen) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getGreenSpawn());
-			player.setGameMode(GameMode.SURVIVAL);
 			player.setDisplayName(ChatColor.GREEN + player.getName());
 			player.setPlayerListName(ChatColor.GREEN + player.getName());
+			scoreboardSharedTeams.joinTeam(player, "green");
 		}
 		for (UUID id : teamBlue) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getBlueSpawn());
-			player.setGameMode(GameMode.SURVIVAL);
 			player.setDisplayName(ChatColor.BLUE + player.getName());
 			player.setPlayerListName(ChatColor.BLUE + player.getName());
+			scoreboardSharedTeams.joinTeam(player, "blue");
 		}
 		for (UUID id : teamYellow) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getYellowSpawn());
-			player.setGameMode(GameMode.SURVIVAL);
 			player.setDisplayName(ChatColor.YELLOW + player.getName());
 			player.setPlayerListName(ChatColor.YELLOW + player.getName());
+			scoreboardSharedTeams.joinTeam(player, "yellow");
 		}
-		//wallsSB.setKills(new HashMap<Player,Integer>());
 		for (UUID id: playersInGame) {
 			Bukkit.getPlayer(id).getInventory().clear();
-			//wallsSB.getKills().put(Bukkit.getPlayer(id), 0);
+			Bukkit.getPlayer(id).setGameMode(GameMode.SURVIVAL);
+			playerScoreboards.put(id, new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", scoreboardSharedTeams, Bukkit.getPlayer(id)));
+			playerScoreboards.get(id).setPlayerScoreboard();
+			if (Bukkit.getPlayer(id).getHealth() > 0) Bukkit.getPlayer(id).setHealth(Bukkit.getPlayer(id).getHealth() - 0.0001);
 		}
 		if (teamBlue.size() > 0) remainingTeams++;
 		if (teamRed.size() > 0) remainingTeams++;
