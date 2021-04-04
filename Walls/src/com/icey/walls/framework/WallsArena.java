@@ -244,28 +244,28 @@ public class WallsArena {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getRedSpawn());
 			player.setDisplayName(ChatColor.RED + player.getName());
-			player.setPlayerListName(ChatColor.RED + player.getName());
+			//player.setPlayerListName(ChatColor.RED + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "red");
 		}
 		for (UUID id : teamGreen) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getGreenSpawn());
 			player.setDisplayName(ChatColor.GREEN + player.getName());
-			player.setPlayerListName(ChatColor.GREEN + player.getName());
+			//player.setPlayerListName(ChatColor.GREEN + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "green");
 		}
 		for (UUID id : teamBlue) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getBlueSpawn());
 			player.setDisplayName(ChatColor.BLUE + player.getName());
-			player.setPlayerListName(ChatColor.BLUE + player.getName());
+			//player.setPlayerListName(ChatColor.BLUE + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "blue");
 		}
 		for (UUID id : teamYellow) {
 			Player player = Bukkit.getPlayer(id);
 			player.teleport(config.getYellowSpawn());
 			player.setDisplayName(ChatColor.YELLOW + player.getName());
-			player.setPlayerListName(ChatColor.YELLOW + player.getName());
+			//player.setPlayerListName(ChatColor.YELLOW + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "yellow");
 		}
 		for (UUID id: playersInGame) {
