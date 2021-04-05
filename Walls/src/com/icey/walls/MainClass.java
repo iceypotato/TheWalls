@@ -2,8 +2,10 @@ package com.icey.walls;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.icey.walls.commands.WallsTabCompleter;
 import com.icey.walls.commands.Test;
 import com.icey.walls.commands.Walls;
 import com.icey.walls.framework.ActionBarSender;
@@ -29,7 +31,9 @@ public class MainClass extends JavaPlugin {
 		arenaManager.reloadArenas();
 		getLogger().info(arenaManager.numArenas() + " arenas found.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
+		this.getCommand("walls").setTabCompleter((TabCompleter) new WallsTabCompleter(this, arenaManager));
 		this.getCommand("test").setExecutor((CommandExecutor) new Test(this, wallsTool));
+		
 		getServer().getPluginManager().registerEvents(wallsTool, this);
 		getServer().getPluginManager().registerEvents(testL, this);
 		loadConfig();

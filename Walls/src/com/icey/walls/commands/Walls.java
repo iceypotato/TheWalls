@@ -8,16 +8,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+
 import com.icey.walls.MainClass;
 import com.icey.walls.commands.walls.Admin;
 import com.icey.walls.commands.walls.Arena;
 import com.icey.walls.framework.WallsArenaManager;
 import com.icey.walls.listeners.WallsTool;
 
-public class Walls implements CommandExecutor, TabCompleter {
+public class Walls implements CommandExecutor {
 	
 	private MainClass myplugin;
 	private WallsArenaManager arenaManager;
@@ -37,17 +37,17 @@ public class Walls implements CommandExecutor, TabCompleter {
 	//Walls args[0] args[1] args[2]...
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (args.length > 0 ) {
+		if (args.length > 0) {
 			// help \\
 			if (args[0].equalsIgnoreCase("help")) {
 				sender.sendMessage(ChatColor.GOLD + "Walls Help Page: 1/1");
 				sender.sendMessage(ChatColor.AQUA + "/walls arena" + ChatColor.RESET + " Walls Arena Commands");
-				sender.sendMessage(ChatColor.AQUA + "/walls listarenas" + ChatColor.RESET + " List Arenas");
+				sender.sendMessage(ChatColor.AQUA + "/walls list" + ChatColor.RESET + " List Arenas");
 				sender.sendMessage(ChatColor.AQUA + "/walls admin" + ChatColor.RESET + " Walls Admin Commands");
 				sender.sendMessage(ChatColor.AQUA + "/walls reload" + ChatColor.RESET + " Reload The Walls plugin");
 			}
 			// listarenas \\
-			else if (args[0].equalsIgnoreCase("listarenas")) {
+			else if (args[0].equalsIgnoreCase("list")) {
 				sender.sendMessage(arenaManager.listArenas());
 			}
 			// join \\
@@ -106,12 +106,6 @@ public class Walls implements CommandExecutor, TabCompleter {
 			sender.sendMessage(ChatColor.GOLD + "Running Walls Minigame Plugin 1.0. Type /walls help for more.");
 		}
 		return true;
-	}
-
-	@Override
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		ArrayList<String> tabList = new ArrayList<String>();
-		return tabList;
 	}
 
 	public WallsArenaManager getArenaManager() {

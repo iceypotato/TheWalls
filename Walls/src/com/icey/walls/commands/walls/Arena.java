@@ -20,6 +20,7 @@ public class Arena extends SubCommand {
 		this.name = "arena";
 		setAliases(new ArrayList<>());
 		getAliases().add(name);
+		getAliases().add("ar");
 	}
 
 	// arena arg[0] arg[1]...
@@ -60,9 +61,6 @@ public class Arena extends SubCommand {
 						if (args[1].equalsIgnoreCase("info")) {
 							sender.sendMessage(wallsSupercommand.getArenaManager().getArenaConfig(name).listSpawns());
 							sender.sendMessage(wallsSupercommand.getArenaManager().getArenaConfig(name).listRegions());
-						}
-						else if (args[1].equalsIgnoreCase("stop")){
-							wallsSupercommand.getArenaManager().getArenaConfig(name).getArena().stopGame();
 						}
 						else if (args[1].equalsIgnoreCase("enable")) {
 							if (wallsSupercommand.getArenaManager().checkConfig(args[0], sender)) {
@@ -141,7 +139,7 @@ public class Arena extends SubCommand {
 					else {
 						sender.sendMessage("no actions specified!");
 						sender.sendMessage("Possible actions:");
-						sender.sendMessage("info, stop, enable");
+						sender.sendMessage("info, enable");
 					}
 				}
 				else sender.sendMessage(ChatColor.RED + "Arena " + name + " does not exist! Do /walls arena create <arenaname>");
@@ -158,7 +156,6 @@ public class Arena extends SubCommand {
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setred: " + ChatColor.RESET + "Sets red spawn for specified arena.");
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setgreen: " + ChatColor.RESET + "Sets green spawn for specified arena.");
 			sender.sendMessage(ChatColor.AQUA + "/walls arena <arenaname> setblue: " + ChatColor.RESET + "Sets blue spawn for specified arena.");
-			
 		}
 		return true;
 	}

@@ -218,7 +218,7 @@ public class WallsArenaManager {
 	public String listArenas() {
 		String arenaList = ChatColor.GOLD + "Arenas: \n";
 		for (int i = 0; i < arenaConfigs.size(); i++) {
-			arenaList += i+1 + ": " + getArenaNames()[i] + "\n";
+			arenaList += i+1 + ": " + ChatColor.GREEN + getArenaNames()[i] + ChatColor.GOLD + "\n";
 		}
 		return arenaList;
 	}

@@ -413,7 +413,14 @@ public class WallsArena {
 	 * 
 	 */
 
+	public boolean isRunning() { return running; }
 	public boolean isInProgress() { return inProgress; }
+	public boolean isWaiting() {return waiting;}
+	public void setWaiting(boolean waiting) {this.waiting = waiting;}
+	public boolean isWallsFall() {return wallsFall;}
+	public void setWallsFall(boolean wallsFall) {this.wallsFall = wallsFall;}
+	public boolean isEnding() {return ending;}
+	
 	public void setInProgress(boolean inProgress) { this.inProgress = inProgress; }
 	public ArrayList<UUID> getPlayersInGame() { return playersInGame; }
 	public void setPlayersInGame(ArrayList<UUID> playersInGame) { this.playersInGame = playersInGame; }
@@ -426,10 +433,7 @@ public class WallsArena {
 	public List<UUID> getTeamYellow() {return teamYellow;}
 	public void setTeamYellow(List<UUID> teamYellow) {this.teamYellow = teamYellow;}
 	public MainClass getPlugin() {return plugin;}
-	public boolean isWaiting() {return waiting;}
-	public void setWaiting(boolean waiting) {this.waiting = waiting;}
-	public boolean isWallsFall() {return wallsFall;}
-	public void setWallsFall(boolean wallsFall) {this.wallsFall = wallsFall;}
+
 	public int getRemainingTeams() {return remainingTeams;}
 	public void setRemainingTeams(int remainingTeams) {this.remainingTeams = remainingTeams;}
 	public WallsArenaConfig getConfig() {return config;}
