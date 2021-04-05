@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -64,17 +65,17 @@ public class ArenaListener implements Listener {
 		}
 	}
 	
-//	@EventHandler
-//	public void playerFriendlyFire(EntityDamageByEntityEvent event) {
-//		if (arena.isInProgress() && event.getEntity() instanceof Player) {
-//			Player defender = (Player) event.getEntity();
-//			Player attacker = (Player) event.getDamager();
-//			if (arena.getTeamRed().contains(defender.getUniqueId()) && arena.getTeamRed().contains(attacker.getUniqueId())) event.setCancelled(true);
-//			if (arena.getTeamGreen().contains(defender.getUniqueId()) && arena.getTeamGreen().contains(attacker.getUniqueId())) event.setCancelled(true);
-//			if (arena.getTeamBlue().contains(defender.getUniqueId()) && arena.getTeamBlue().contains(attacker.getUniqueId())) event.setCancelled(true);
-//			if (arena.getTeamYellow().contains(defender.getUniqueId()) && arena.getTeamYellow().contains(attacker.getUniqueId())) event.setCancelled(true);
-//		}
-//	}
+	@EventHandler
+	public void playerFriendlyFire(EntityDamageByEntityEvent event) {
+		if (arena.isInProgress() && event.getEntity() instanceof Player) {
+			Player defender = (Player) event.getEntity();
+			Player attacker = (Player) event.getDamager();
+			if (arena.getTeamRed().contains(defender.getUniqueId()) && arena.getTeamRed().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamGreen().contains(defender.getUniqueId()) && arena.getTeamGreen().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamBlue().contains(defender.getUniqueId()) && arena.getTeamBlue().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamYellow().contains(defender.getUniqueId()) && arena.getTeamYellow().contains(attacker.getUniqueId())) event.setCancelled(true);
+		}
+	}
 	
 	@EventHandler
 	public void preventBlockBreaking(BlockBreakEvent interact) {
