@@ -1,4 +1,4 @@
-package com.icey.walls.util;
+package com.icey.walls.runnables;
 
 import java.util.UUID;
 

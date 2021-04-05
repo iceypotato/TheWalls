@@ -21,15 +21,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
 import com.icey.walls.listeners.WoolTeamSelector;
+import com.icey.walls.runnables.WallsCountdown;
+import com.icey.walls.runnables.WallsGiveEffect;
 import com.icey.walls.timers.WallsBattleCountdown;
-import com.icey.walls.timers.WallsCountdown;
 import com.icey.walls.timers.WallsFallCountdown;
 import com.icey.walls.timers.WallsGameEndCountdown;
 import com.icey.walls.timers.WallsLobbyCountdown;
 import com.icey.walls.util.BlockClipboard;
 import com.icey.walls.util.PlayerOriginalState;
-import com.icey.walls.util.WallsGiveEffect;
-
 import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsArena {

@@ -1,4 +1,4 @@
-package com.icey.walls.timers;
+package com.icey.walls.runnables;
 
 import java.util.Collection;
 import org.bukkit.scheduler.BukkitRunnable;

@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 
 import com.icey.walls.framework.WallsArena;
+import com.icey.walls.runnables.WallsCountdown;
 import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsLobbyCountdown extends WallsCountdown {

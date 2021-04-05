@@ -3,6 +3,7 @@ package com.icey.walls.timers;
 import java.util.Collection;
 
 import com.icey.walls.framework.WallsArena;
+import com.icey.walls.runnables.WallsCountdown;
 import com.icey.walls.scoreboard.WallsScoreboard;
 
 public class WallsBattleCountdown extends WallsCountdown {
