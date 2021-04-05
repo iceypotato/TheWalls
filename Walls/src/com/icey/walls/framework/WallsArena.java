@@ -44,7 +44,6 @@ public class WallsArena {
 	private boolean suddenDeath; ///when its time for sudden death.
 	private WoolTeamSelector[] woolTeamSelectors;
 	private HashMap<UUID, WallsScoreboard> playerScoreboards;
-	//private WallsScoreboard wallsSB;
 	private ArenaListener arenaListener;
 	private BukkitRunnable wallsCountdown;
 	private ArrayList<UUID> playersInGame;
@@ -453,5 +452,8 @@ public class WallsArena {
 	}
 	public HashMap<UUID, WallsScoreboard> getPlayerScoreboards() {
 		return playerScoreboards;
+	}
+	public ScoreboardSharedTeams getScoreboardSharedTeams() {
+		return scoreboardSharedTeams;
 	}
 }
