@@ -1,7 +1,5 @@
 package com.icey.walls.commands;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -14,7 +12,6 @@ import org.bukkit.scoreboard.Team;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.WallsTool;
-import com.icey.walls.scoreboard.WallsScoreboard;
 import com.icey.walls.versions.v1_8_R3.WallsScoreboardSharedTeams;
 
 public class Test implements CommandExecutor {

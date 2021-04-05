@@ -1,8 +1,6 @@
 package com.icey.walls.timers;
 
 import java.util.Collection;
-import java.util.Iterator;
-
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.icey.walls.framework.WallsArena;
