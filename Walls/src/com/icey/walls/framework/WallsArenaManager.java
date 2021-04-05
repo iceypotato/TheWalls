@@ -3,6 +3,7 @@ package com.icey.walls.framework;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -20,6 +21,7 @@ public class WallsArenaManager {
 	private File arenaFolder;
 	private File configFile;
 	private ArrayList<WallsArenaConfig> arenaConfigs;
+	private List<String> deathMsgStrings;
 
 	public WallsArenaManager(MainClass plugin) {
 		arenaConfigs = new ArrayList<>();
@@ -166,6 +168,12 @@ public class WallsArenaManager {
 		saveFile(arena, arenaConfig);
 	}
 	
+	public void readDeathMsgs() {
+		File configyml = new File(plugin.getDataFolder(), "config.yml");
+		FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(configyml);
+		deathMsgStrings = fileConfiguration.getStringList("DeathMsgs");
+	}
+	
 	public void reloadArenas() {
 		stopAllArenas();
 		arenaConfigs.clear();
@@ -237,5 +245,13 @@ public class WallsArenaManager {
 	
 	public ArrayList<WallsArenaConfig> getArenaConfigs() {
 		return arenaConfigs;
+	}
+
+	public List<String> getDeathMsgStrings() {
+		return deathMsgStrings;
+	}
+
+	public void setDeathMsgStrings(List<String> deathMsgStrings) {
+		this.deathMsgStrings = deathMsgStrings;
 	}
 }

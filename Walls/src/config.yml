@@ -1,7 +1,15 @@
 # Custom Death Messages. Here are some to start out with. If none exist,
 # the default will be %killee% was killed by %killer%.
 DeathMsgs:
-  - "%killee% was killed by %killer%."
-  - "%killee% was memed by %killer%."
-  - "%killee% was rekt by %killer%."
-  - "%killee% was slain by %killer%."
+- '%killee% &7was killed by %killer%&7.'
+- '%killee% &7was memed by %killer%&7.'
+- '%killee% &7was rekt by %killer%&7.'
+- '%killee% &7was slain by %killer%&7.'
+- '%killee% &7got creeper aw maned by %killer%&7.'
+- '%killee% &7got w-tapped by %killer%&7.'
+- '%killee% &7was destroyed by %killer%&7.'
+- '%killee% &7was clapped by %killer%&7.'
+- '%killee% &7got outplayed by %killer%&7.'
+- '%killee% &7was epic gamer moved by %killer%&7.'
+- '%killee% &7got sent to another world by %killer%&7.'
+- '%killee% &7got squished by %killer%''s &7anime thighs.'

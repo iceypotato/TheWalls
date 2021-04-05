@@ -47,7 +47,11 @@ public class WallsTabCompleter implements TabCompleter {
 				for (String a : arguments) if (a.toLowerCase().startsWith(args[1].toLowerCase())) result.add(a);
 				return result;
 			}
-
+			if (args[0].equalsIgnoreCase("join")) {
+				for (String s : wallsArenaManager.getArenaNames()) if (!arguments.contains(s)) arguments.add(s);
+				for (String a : arguments) if (a.toLowerCase().startsWith(args[1].toLowerCase())) result.add(a);
+				return result;
+			}
 		}
 		return null;
 	}

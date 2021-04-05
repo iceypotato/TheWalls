@@ -83,6 +83,7 @@ public class Walls implements CommandExecutor {
 				sender.sendMessage(ChatColor.GREEN + "Reloading Config...");
 				myplugin.loadConfig();
 				myplugin.arenaManager.reloadArenas();
+				myplugin.arenaManager.readDeathMsgs();
 				sender.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "Walls Config Reloaded!");
 			}
 			//Other subcommands

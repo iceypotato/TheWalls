@@ -113,7 +113,7 @@ public class WallsArena {
 		for (WoolTeamSelector wool : woolTeamSelectors) {
 			plugin.getServer().getPluginManager().registerEvents(wool, plugin);
 		}
-		arenaListener = new ArenaListener(this, wallBlocks, buildRegionBlocks);
+		arenaListener = new ArenaListener(this);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
 		this.scoreboardSharedTeams = plugin.getNewScoreboardSharedTeams();
 		playerScoreboards = new HashMap<UUID, WallsScoreboard>();
@@ -432,6 +432,13 @@ public class WallsArena {
 	public void setTeamYellow(List<UUID> teamYellow) {this.teamYellow = teamYellow;}
 	public MainClass getPlugin() {return plugin;}
 
+	public List<Location> getWallBlocks() {
+		return wallBlocks;
+	}
+	public List<Location> getBuildRegionBlocks() {
+		return buildRegionBlocks;
+	}
+	
 	public int getRemainingTeams() {return remainingTeams;}
 	public void setRemainingTeams(int remainingTeams) {this.remainingTeams = remainingTeams;}
 	public WallsArenaConfig getConfig() {return config;}

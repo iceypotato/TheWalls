@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -21,20 +22,24 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import com.icey.walls.MainClass;
 import com.icey.walls.framework.WallsArena;
+import com.icey.walls.framework.WallsArenaConfig;
 
 	
 public class ArenaListener implements Listener {
 	
+	private MainClass plugin;
 	private WallsArena arena;
 	private List<Location> wallBlocks;
 	private List<Location> buildRegionBlocks;
 	private Location oldLocation;
 	
-	public ArenaListener(WallsArena arena, List<Location> wallBlocks, List<Location> buildRegionBlocks) {
+	public ArenaListener(WallsArena arena) {
 		this.arena = arena;
-		this.wallBlocks = wallBlocks;
-		this.buildRegionBlocks = buildRegionBlocks;
+		this.plugin = arena.getPlugin();
+		this.wallBlocks = arena.getWallBlocks();
+		this.buildRegionBlocks = arena.getBuildRegionBlocks();
 	}
 	
 	@EventHandler
@@ -132,25 +137,27 @@ public class ArenaListener implements Listener {
 		if (arena.getPlayersInGame().contains(deadPlayer.getUniqueId())) {
 			deathEvent.setDeathMessage("");
 			Random rand = new Random();
-			int msgID = rand.nextInt(11);
+			int msgID = rand.nextInt(plugin.arenaManager.getDeathMsgStrings().size());
 			String deathMsg = "", killeeName = deadPlayer.getDisplayName();
-			String[] deathMsgs = new String[11];
-			deathMsgs[0] = " was slain by ";
-			deathMsgs[1] = " was 69ed by ";
-			deathMsgs[2] = " was memed by ";
-			deathMsgs[3] = " got epic gamer moved by ";
-			deathMsgs[4] = " was isekaied to another world by ";
-			deathMsgs[5] = " got rekt by ";
-			deathMsgs[6] = " got w-tapped by ";
-			deathMsgs[7] = " got destroyed by ";
-			deathMsgs[8] = " got creeper aw maned by ";
-			deathMsgs[9] = " got squashed by anime thighs by ";
-			deathMsgs[10] = " lost all hp and fainted to ";
+//			String[] deathMsgs = new String[11];
+//			deathMsgs[0] = " was slain by ";
+//			deathMsgs[1] = " was 69ed by ";
+//			deathMsgs[2] = " was memed by ";
+//			deathMsgs[3] = " got epic gamer moved by ";
+//			deathMsgs[4] = " was isekaied to another world by ";
+//			deathMsgs[5] = " got rekt by ";
+//			deathMsgs[6] = " got w-tapped by ";
+//			deathMsgs[7] = " got destroyed by ";
+//			deathMsgs[8] = " got creeper aw maned by ";
+//			deathMsgs[9] = " got squashed by anime thighs by ";
+//			deathMsgs[10] = " lost all hp and fainted to ";
 			//Run this if a player was killed by a player.
 			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
 				Player killer = deathEvent.getEntity().getPlayer().getKiller();
-				String killerString = killer.getDisplayName();
-				deathMsg = killeeName + ChatColor.GRAY+ deathMsgs[msgID] + ChatColor.RESET + killerString;
+				String killerName = killer.getDisplayName();
+				deathMsg = plugin.arenaManager.getDeathMsgStrings().get(msgID);
+				deathMsg = deathMsg.replace("%killee%", killeeName);
+				deathMsg = deathMsg.replace("%killer%", killerName);
 				arena.getPlayerScoreboards().get(killer.getUniqueId()).setKills(arena.getPlayerScoreboards().get(killer.getUniqueId()).getKills()+1);
 			}
 			//run this if player died of natural causes.
@@ -164,7 +171,7 @@ public class ArenaListener implements Listener {
 				else if (deathEvent.getEntity().getLastDamageCause().getCause() == DamageCause.SUICIDE) deathMsg = killeeName + ChatColor.GRAY + " said goodbye, cruel world!";
 				else deathMsg = killeeName + ChatColor.GRAY + " has been eliminated!";
 			}
-			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(deathMsg);}
+			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(ChatColor.translateAlternateColorCodes('&', deathMsg));}
 		}
 		arena.updateScoreboard();
 		deathEvent.getEntity().teleport(arena.getConfig().getLobbySpawn());

@@ -29,6 +29,7 @@ public class MainClass extends JavaPlugin {
 	public void onEnable() {
 		if (!isCompatible()) Bukkit.getPluginManager().disablePlugin(this);
 		arenaManager.reloadArenas();
+		arenaManager.readDeathMsgs();
 		getLogger().info(arenaManager.numArenas() + " arenas found.");
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
 		this.getCommand("walls").setTabCompleter((TabCompleter) new WallsTabCompleter(this, arenaManager));
