@@ -51,7 +51,7 @@ public class Admin extends SubCommand {
 					else sender.sendMessage("You are not a player. You must specify the arena name.");
 				}
 			}
-			if (args[0].equalsIgnoreCase("nextphase")) {
+			else if (args[0].equalsIgnoreCase("nextphase")) {
 				if (args.length > 1) {
 					WallsArenaConfig arenaConfig = wallsCmd.getArenaManager().getArenaConfig(args[1]);
 					if (arenaConfig != null) {
