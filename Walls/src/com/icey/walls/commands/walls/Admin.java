@@ -28,11 +28,13 @@ public class Admin extends SubCommand {
 			if (args[0].equalsIgnoreCase("forcestop")) {
 				if (args.length > 1) {
 					WallsArenaConfig arenaConfig = wallsCmd.getArenaManager().getArenaConfig(args[1]);
-					if (arenaConfig.getArena().isRunning()) {
-						sender.sendMessage(args[1] + " stopped.");
-						arenaConfig.getArena().stopGame();
+					if (arenaConfig != null) {
+						if (arenaConfig.getArena().isRunning()) {
+							sender.sendMessage(args[1] + " stopped.");
+							arenaConfig.getArena().stopGame();
+						}
+						else sender.sendMessage("Arena not running."); 
 					}
-					if (arenaConfig != null) arenaConfig.getArena().stopGame();
 					else sender.sendMessage(args[1] + " arena does not exist.");
 				}
 				else {
@@ -41,7 +43,7 @@ public class Admin extends SubCommand {
 						WallsArena wallsArena = wallsCmd.getArenaManager().getArenaFromPlayer(player);
 						if (wallsArena != null) {
 							if (wallsArena.isRunning()) {
-								sender.sendMessage(wallsCmd.getArenaManager().getArenaFromPlayer(player).getConfig().getName() + " stopped.");
+								sender.sendMessage(wallsArena.getConfig().getName() + " stopped.");
 								wallsArena.stopGame();
 							}
 							else sender.sendMessage("Arena not running.");
