@@ -79,6 +79,7 @@ public class WallsArenaManager {
 				dataConfig.set("Regions.Walls.1", "");
 				dataConfig.set("Regions.Build.1", "");
 				dataConfig.set("Regions.SafeZones.1", "");
+				dataConfig.set("Regions.Boundary.1", "");
 				dataConfig.save(configFile);
 				return 0;
 			} else {
@@ -128,6 +129,10 @@ public class WallsArenaManager {
 		}
 		if (wallsArenaConfig.getSafeZoneRegions() == null) {
 			sender.sendMessage(ChatColor.YELLOW + "No SafeZone Regions for arena: " + name);
+			configGood = false;
+		}
+		if (wallsArenaConfig.getBoundaryRegions() == null) {
+			sender.sendMessage(ChatColor.YELLOW + "No Boundary Regions for arena: " + name);
 			configGood = false;
 		}
 		return configGood;

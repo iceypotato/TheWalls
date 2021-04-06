@@ -1,5 +1,8 @@
 package com.icey.walls.listeners;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -9,14 +12,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -34,6 +40,7 @@ public class ArenaListener implements Listener {
 	private WallsArena arena;
 	private List<Location> wallBlocks;
 	private List<Location> buildRegionBlocks;
+	private HashMap<UUID, Location> oldLocations;
 	private Location oldLocation;
 	
 	public ArenaListener(WallsArena arena) {
@@ -41,6 +48,7 @@ public class ArenaListener implements Listener {
 		this.plugin = arena.getPlugin();
 		this.wallBlocks = arena.getWallBlocks();
 		this.buildRegionBlocks = arena.getBuildRegionBlocks();
+		oldLocations = new HashMap<>();
 	}
 	
 	@EventHandler
@@ -75,6 +83,7 @@ public class ArenaListener implements Listener {
 			if (arena.getTeamBlue().contains(defender.getUniqueId()) && arena.getTeamBlue().contains(attacker.getUniqueId())) event.setCancelled(true);
 			if (arena.getTeamYellow().contains(defender.getUniqueId()) && arena.getTeamYellow().contains(attacker.getUniqueId())) event.setCancelled(true);
 		}
+		if (!arena.isWallsFall()) event.setCancelled(true);
 	}
 	
 	@EventHandler
@@ -191,28 +200,61 @@ public class ArenaListener implements Listener {
 	
 	@EventHandler
 	public void preventCrossingWalls(PlayerMoveEvent pMoveEvent) {
-		if (!arena.isWallsFall() && arena.isInProgress() && arena.getPlayersInGame().contains(pMoveEvent.getPlayer().getUniqueId())) {
+		Player p = pMoveEvent.getPlayer();
+		if (!arena.isWallsFall() && arena.isInProgress() && arena.getPlayersInGame().contains(p.getUniqueId())) {
 			boolean isInWall = false;
 			for (int i = 0; i < wallBlocks.size(); i++) {
-				if (pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) {
-					pMoveEvent.getPlayer().teleport(oldLocation);
-					pMoveEvent.getPlayer().sendMessage(ChatColor.YELLOW + "What do you think you're doing?");
+				if (p.getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) {
+					p.teleport(oldLocations.get(p.getUniqueId()));
+					p.sendMessage(ChatColor.YELLOW + "What do you think you're doing?");
 					isInWall = true;
 				}
 			}
 			for (int i = 0; i < wallBlocks.size() && !isInWall; i++) {
 				if (
-				(pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ()) ||
-				(pMoveEvent.getPlayer().getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && pMoveEvent.getPlayer().getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ())) {
-					oldLocation = pMoveEvent.getPlayer().getLocation();
+				(p.getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()-1 == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ() == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX()-1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX() == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ()) ||
+				(p.getLocation().getBlockX()+1 == wallBlocks.get(i).getBlockX() && p.getLocation().getBlockZ()+1 == wallBlocks.get(i).getBlockZ())) {
+					oldLocations.put(p.getUniqueId(), pMoveEvent.getPlayer().getLocation());
 				}
 			}
+		}
+	}
+	
+	@EventHandler
+	public void preventGoingOutofBounds(PlayerMoveEvent pMoveEvent) {
+		Player p = pMoveEvent.getPlayer();
+		if (arena.isInProgress() && arena.getPlayersInGame().contains(p.getUniqueId())) {
+			boolean notInsideBoundary = true;
+			for (Location[] region : arena.getConfig().getBoundaryRegions()) {
+				if (
+				Math.min(region[0].getBlockX(), region[1].getBlockX()) <= p.getLocation().getBlockX() && p.getLocation().getBlockX() <= Math.max(region[0].getBlockX(), region[1].getBlockX()) &&
+				Math.min(region[0].getBlockZ(), region[1].getBlockZ()) <= p.getLocation().getBlockZ() && p.getLocation().getBlockZ() <= Math.max(region[0].getBlockZ(), region[1].getBlockZ())){
+					oldLocations.put(p.getUniqueId(), pMoveEvent.getFrom());
+					notInsideBoundary = false;
+				}
+			}
+			if (notInsideBoundary) {
+				p.teleport(oldLocations.get(p.getUniqueId()));
+			}
+		}
+	}
+	
+	@EventHandler
+	public void preventBlockExplosions(EntityExplodeEvent event) {
+		List<Block> blocksNotToExplode = new ArrayList<>();
+		for (Block block : event.blockList()) {
+			if (!(buildRegionBlocks.contains(block.getLocation()))) {
+				blocksNotToExplode.add(block);
+			}
+		}
+		for (Block block : blocksNotToExplode) {
+			event.blockList().remove(block);
 		}
 	}
 }

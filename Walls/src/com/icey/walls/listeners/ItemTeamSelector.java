@@ -18,7 +18,7 @@ import com.icey.walls.MainClass;
 import com.icey.walls.framework.WallsArena;
 
 
-public class WoolTeamSelector implements Listener {
+public class ItemTeamSelector implements Listener {
 	
 	ItemStack itemStack;
 	ItemMeta meta;
@@ -27,7 +27,7 @@ public class WoolTeamSelector implements Listener {
 	String message;
 	World world;
 	
-	public WoolTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, List<UUID> teamToJoin) {
+	public ItemTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, List<UUID> teamToJoin) {
 		this.itemStack = itemStack;
 		this.arena = arena;
 		this.teamToJoin = teamToJoin;

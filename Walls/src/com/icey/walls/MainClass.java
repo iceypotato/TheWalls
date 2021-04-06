@@ -1,6 +1,10 @@
 package com.icey.walls;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,8 +26,7 @@ public class MainClass extends JavaPlugin {
 	public WallsTool wallsTool = new WallsTool();
 	public TestListener testL = new TestListener(wallsTool, this);
 	public String pluginDataFolder = "WallsMinigame";
-	
-	ActionBarSender actionBar;
+	public ActionBarSender actionBar;
 	
 	@Override
 	public void onEnable() {
@@ -34,9 +37,9 @@ public class MainClass extends JavaPlugin {
 		this.getCommand("walls").setExecutor((CommandExecutor) new Walls(this, arenaManager, wallsTool));
 		this.getCommand("walls").setTabCompleter((TabCompleter) new WallsTabCompleter(this, arenaManager));
 		this.getCommand("test").setExecutor((CommandExecutor) new Test(this, wallsTool));
-		
-		getServer().getPluginManager().registerEvents(wallsTool, this);
 		getServer().getPluginManager().registerEvents(testL, this);
+		getServer().getPluginManager().registerEvents(wallsTool, this);
+		
 		loadConfig();
 		getLogger().info("Walls 1.0 has been enabled.");
 	}

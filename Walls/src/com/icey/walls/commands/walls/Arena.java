@@ -131,6 +131,15 @@ public class Arena extends SubCommand {
 									sender.sendMessage(ChatColor.GREEN + "SafeZone region added for " + name);
 								}
 							}
+							else if (args[1].equalsIgnoreCase("addboundary")) {
+								if (wallsSupercommand.getWallsTool().getPos2() == null || wallsSupercommand.getWallsTool().getPos2() == null) {
+									sender.sendMessage(ChatColor.RED + "Region 1 and Region 2 needs to be selected!");
+								}
+								else {
+									wallsSupercommand.getArenaManager().writeRegions(name, "Boundary", player, wallsSupercommand.getWallsTool());
+									sender.sendMessage(ChatColor.GREEN + "Boundary region added for " + name);
+								}
+							}
 							else sender.sendMessage("Invalid action specified!");
 						}
 						else if (!(sender instanceof Player)) sender.sendMessage(ChatColor.RED + "You must be an online player to do this!");

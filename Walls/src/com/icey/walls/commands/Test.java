@@ -1,8 +1,12 @@
 package com.icey.walls.commands;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,36 +24,21 @@ public class Test implements CommandExecutor {
 	private WallsTool wallsTool;
 	ScoreboardSharedTeams sharedteams;
 	
+	
 	public Test(MainClass main, WallsTool wallsTool) {
 		this.myplugin = main;
 		this.wallsTool = wallsTool;
 		sharedteams = myplugin.getNewScoreboardSharedTeams();
+		
 	}
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length > 0) {
 			Player player = (Player) sender;
-			if (args[0].equalsIgnoreCase("getsb")) {
-				Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-				sharedteams.addTeamsToScoreboard(board);
-				player.setScoreboard(board);
-			}
-			else if (args[0].equalsIgnoreCase("rmsb")) {
-				player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-			}
-			else if (args[0].equalsIgnoreCase("joinred")) {
-				sharedteams.joinTeam(player, "red");
-			}
-			else if (args[0].equalsIgnoreCase("joinblue")) {
-				sharedteams.joinTeam(player, "blue");
-			}
-			else if (args[0].equalsIgnoreCase("list")) {
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					Bukkit.getConsoleSender().sendMessage("Scoreboard: " + p.getScoreboard());
-					Bukkit.getConsoleSender().sendMessage("Teams: " + p.getScoreboard().getTeams()+"");
-				}
-				
+			if (args[0].equalsIgnoreCase("clearwt")) {
+				wallsTool.setPos1(null);
+				wallsTool.setPos2(null);
 			}
 			else {
 				sender.sendMessage("Invalid subcommand.");

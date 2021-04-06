@@ -2,6 +2,8 @@ package com.icey.walls.framework;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -10,10 +12,8 @@ import com.icey.walls.MainClass;
 
 
 /**
- * 
  * @author iceypotatoguy
  * This holds the necessary information for use by the WallsArena Class.
- *
  */
 
 public class WallsArenaConfig {
@@ -32,10 +32,11 @@ public class WallsArenaConfig {
 	private Location redSpawn;
 	private Location greenSpawn;
 	private Location yellowSpawn;
-	private ArrayList<Location[]> arenaRegions;
-	private ArrayList<Location[]> buildRegions;
-	private ArrayList<Location[]> wallRegions;
-	private ArrayList<Location[]> safeZoneRegions;
+	private List<Location[]> arenaRegions;
+	private List<Location[]> buildRegions;
+	private List<Location[]> wallRegions;
+	private List<Location[]> safeZoneRegions;
+	private List<Location[]> boundaryRegions;
 	private File arenaFile;
 	private	FileConfiguration arenaFileConfiguration;
 	
@@ -61,9 +62,10 @@ public class WallsArenaConfig {
 		addWallRegion();
 		addBuildRegion();
 		addSafeZoneRegion();
+		addBoundaryRegion();
 		readSettings();
 		if (lobbySpawn == null || blueSpawn == null || redSpawn==null||greenSpawn==null||yellowSpawn==null||
-		arenaRegions==null||buildRegions==null||wallRegions==null||safeZoneRegions==null) enabled = false;
+		arenaRegions==null||buildRegions==null||wallRegions==null||safeZoneRegions==null || boundaryRegions == null) enabled = false;
 	}
 	
 	public void readSettings() {
@@ -79,6 +81,7 @@ public class WallsArenaConfig {
 	public void addWallRegion() { wallRegions = readRegions("Walls"); }
 	public void addBuildRegion() { buildRegions = readRegions("Build"); }
 	public void addSafeZoneRegion() { safeZoneRegions = readRegions("SafeZones"); }
+	public void addBoundaryRegion() { boundaryRegions = readRegions("Boundary"); }
 	
 	public ArrayList<Location[]> readRegions(String name) {
 		ArrayList<Location[]> inRegion = new ArrayList<Location[]>();
@@ -185,12 +188,12 @@ public class WallsArenaConfig {
 	public Location getRedSpawn() { return redSpawn; }
 	public Location getGreenSpawn() { return greenSpawn; }
 	public Location getYellowSpawn() { return yellowSpawn; }
-	public ArrayList<Location[]> getArenaRegions() {return arenaRegions;}
-	public void setArenaRegions(ArrayList<Location[]> arenaRegions) {this.arenaRegions = arenaRegions;}
-	public ArrayList<Location[]> getBuildRegions() {return buildRegions;}
-	public void setBuildRegions(ArrayList<Location[]> buildRegions) {this.buildRegions = buildRegions;}
-	public ArrayList<Location[]> getWallRegions() {return wallRegions;}
-	public void setWallRegions(ArrayList<Location[]> wallRegions) {this.wallRegions = wallRegions;}
+	public List<Location[]> getArenaRegions() {return arenaRegions;}
+	public void setArenaRegions(List<Location[]> arenaRegions) {this.arenaRegions = arenaRegions;}
+	public List<Location[]> getBuildRegions() {return buildRegions;}
+	public void setBuildRegions(List<Location[]> buildRegions) {this.buildRegions = buildRegions;}
+	public List<Location[]> getWallRegions() {return wallRegions;}
+	public void setWallRegions(List<Location[]> wallRegions) {this.wallRegions = wallRegions;}
 	public File getArenaFile() {return arenaFile;}
 	public void setArenaFile(File arenaFile) {this.arenaFile = arenaFile;}
 	public WallsArena getArena() {return arena;}
@@ -199,14 +202,14 @@ public class WallsArenaConfig {
 	/**
 	 * @return the safeZoneRegions
 	 */
-	public ArrayList<Location[]> getSafeZoneRegions() {
+	public List<Location[]> getSafeZoneRegions() {
 		return safeZoneRegions;
 	}
 
 	/**
 	 * @param safeZoneRegions the safeZoneRegions to set
 	 */
-	public void setSafeZoneRegions(ArrayList<Location[]> safeZoneRegions) {
+	public void setSafeZoneRegions(List<Location[]> safeZoneRegions) {
 		this.safeZoneRegions = safeZoneRegions;
 	}
 
@@ -222,6 +225,20 @@ public class WallsArenaConfig {
 	 */
 	public void setBattleTime(int battleTime) {
 		this.battleTime = battleTime;
+	}
+
+	/**
+	 * @return the boundaryRegions
+	 */
+	public List<Location[]> getBoundaryRegions() {
+		return boundaryRegions;
+	}
+
+	/**
+	 * @param boundaryRegions the boundaryRegions to set
+	 */
+	public void setBoundaryRegions(List<Location[]> boundaryRegions) {
+		this.boundaryRegions = boundaryRegions;
 	}
 	
 }

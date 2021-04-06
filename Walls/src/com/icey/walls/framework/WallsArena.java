@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import com.icey.walls.MainClass;
 import com.icey.walls.listeners.ArenaListener;
-import com.icey.walls.listeners.WoolTeamSelector;
+import com.icey.walls.listeners.ItemTeamSelector;
 import com.icey.walls.runnables.WallsCountdown;
 import com.icey.walls.runnables.WallsGiveEffect;
 import com.icey.walls.timers.WallsBattleCountdown;
@@ -42,7 +42,7 @@ public class WallsArena {
 	private boolean ending; //when there is a winner.
 	private boolean wallsFall; //when the walls fall
 	private boolean suddenDeath; ///when its time for sudden death.
-	private WoolTeamSelector[] woolTeamSelectors;
+	private ItemTeamSelector[] itemTeamSelectors;
 	private HashMap<UUID, WallsScoreboard> playerScoreboards;
 	private ArenaListener arenaListener;
 	private BukkitRunnable wallsCountdown;
@@ -74,7 +74,7 @@ public class WallsArena {
 		this.teamGreen = new ArrayList<>();
 		this.teamBlue = new ArrayList<>();
 		this.teamYellow = new ArrayList<>();
-		this.woolTeamSelectors = new WoolTeamSelector[4];
+		this.itemTeamSelectors = new ItemTeamSelector[4];
 		this.originalArena = new BlockClipboard();
 		this.buildRegionBlocks = new ArrayList<>();
 		this.wallBlocks = new ArrayList<>();
@@ -106,12 +106,12 @@ public class WallsArena {
 				}
 			}
 		}
-		woolTeamSelectors[0] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.RED+"Join Team Red", ChatColor.RED+"RED", this, teamRed);
-		woolTeamSelectors[1] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.GREEN+"Join Team Green", ChatColor.GREEN+"GREEN", this, teamGreen);
-		woolTeamSelectors[2] = new WoolTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.BLUE+"Join Team Blue", ChatColor.BLUE+"BLUE", this, teamBlue);
-		woolTeamSelectors[3] = new WoolTeamSelector(plugin ,new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.YELLOW+"Join Team Yellow", ChatColor.YELLOW+"YELLOW", this, teamYellow);
-		for (WoolTeamSelector wool : woolTeamSelectors) {
-			plugin.getServer().getPluginManager().registerEvents(wool, plugin);
+		itemTeamSelectors[0] = new ItemTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 14), ChatColor.RED+"Join Team Red", ChatColor.RED+"RED", this, teamRed);
+		itemTeamSelectors[1] = new ItemTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 5), ChatColor.GREEN+"Join Team Green", ChatColor.GREEN+"GREEN", this, teamGreen);
+		itemTeamSelectors[2] = new ItemTeamSelector(plugin, new ItemStack(Material.WOOL, 1, (short) 11), ChatColor.BLUE+"Join Team Blue", ChatColor.BLUE+"BLUE", this, teamBlue);
+		itemTeamSelectors[3] = new ItemTeamSelector(plugin ,new ItemStack(Material.WOOL, 1, (short) 4), ChatColor.YELLOW+"Join Team Yellow", ChatColor.YELLOW+"YELLOW", this, teamYellow);
+		for (ItemTeamSelector item : itemTeamSelectors) {
+			plugin.getServer().getPluginManager().registerEvents(item, plugin);
 		}
 		arenaListener = new ArenaListener(this);
 		plugin.getServer().getPluginManager().registerEvents(arenaListener, plugin);
@@ -156,8 +156,8 @@ public class WallsArena {
 			for (PotionEffect potionEffect : player.getActivePotionEffects()) {
 				player.removePotionEffect(potionEffect.getType());
 			}
-			for (int i = 0; i < woolTeamSelectors.length; i++) {
-				woolTeamSelectors[i].giveItemToPlayer(player);
+			for (int i = 0; i < itemTeamSelectors.length; i++) {
+				itemTeamSelectors[i].giveItemToPlayer(player);
 			}
 			if (playersInGame.size() >= config.getMinPlayers() && !(((WallsCountdown) wallsCountdown).isRunning())) {
 				wallsCountdown = new WallsLobbyCountdown(config.getWaitingTime() / 60, config.getWaitingTime() % 60, playerScoreboards.values(), this);
@@ -222,10 +222,10 @@ public class WallsArena {
 				if (ending) {
 					wallsScoreboard.putEndingTimer();
 				}
-				else if (wallsFall) {
+				else if (wallsFall && !suddenDeath) {
 					wallsScoreboard.putSuddenDeathTime();
 				}
-				else {
+				else if (!wallsFall) {
 					wallsScoreboard.putPrepTime();
 				}
 				wallsScoreboard.putPlayersAlive();
@@ -375,7 +375,7 @@ public class WallsArena {
 			playersInGame.clear();
 			playerOriginalState.clear();
 			HandlerList.unregisterAll(arenaListener);
-			for (int i = 0; i < woolTeamSelectors.length; i++) HandlerList.unregisterAll(woolTeamSelectors[i]);
+			for (int i = 0; i < itemTeamSelectors.length; i++) HandlerList.unregisterAll(itemTeamSelectors[i]);
 			plugin.getLogger().info(config.getName() + " Arena is restoring. This will cause lag.");
 			originalArena.pasteBlocksInClipboard();
 			for (int j = 0; j < config.getArenaRegions().size(); j++) {

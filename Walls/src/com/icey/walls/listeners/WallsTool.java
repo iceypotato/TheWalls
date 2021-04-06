@@ -73,6 +73,9 @@ public class WallsTool implements Listener {
 	public Location getPos1() {
 		return pos1;
 	}
+	public void setPos1(Location pos1) {
+		this.pos1 = pos1;
+	}
 	public Location getPos2() {
 		return pos2;
 	}
