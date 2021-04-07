@@ -78,10 +78,9 @@ public class ArenaListener implements Listener {
 		if (arena.isInProgress() && event.getEntity() instanceof Player) {
 			Player defender = (Player) event.getEntity();
 			Player attacker = (Player) event.getDamager();
-			if (arena.getTeamRed().getPlayers().contains(defender) && arena.getTeamRed().getPlayers().contains(attacker)) event.setCancelled(true);
-			if (arena.getTeamGreen().getPlayers().contains(defender) && arena.getTeamGreen().getPlayers().contains(attacker)) event.setCancelled(true);
-			if (arena.getTeamBlue().getPlayers().contains(defender) && arena.getTeamBlue().getPlayers().contains(attacker)) event.setCancelled(true);
-			if (arena.getTeamYellow().getPlayers().contains(defender) && arena.getTeamYellow().getPlayers().contains(attacker)) event.setCancelled(true);
+			if (arena.getPlayerFromTeam(defender) == arena.getPlayerFromTeam(attacker)) {
+				event.setCancelled(true);
+			}
 		}
 		if (!arena.isWallsFall()) event.setCancelled(true);
 	}
@@ -147,7 +146,7 @@ public class ArenaListener implements Listener {
 //	deathMsgs[8] = " got creeper aw maned by ";
 //	deathMsgs[9] = " got squashed by anime thighs by ";
 //	deathMsgs[10] = " lost all hp and fainted to ";
-	//Run this if a player was killed by a player.
+
 	@EventHandler
 	public void playerDies(PlayerDeathEvent deathEvent) {
 		Player deadPlayer = deathEvent.getEntity().getPlayer();
@@ -160,6 +159,7 @@ public class ArenaListener implements Listener {
 			Random rand = new Random();
 			int msgID = rand.nextInt(plugin.arenaManager.getDeathMsgStrings().size());
 			String deathMsg = "", killeeName = arena.getPlayerFromTeam(deadPlayer).getPrefix() + deadPlayer.getDisplayName();
+			//Run this if a player was killed by a player.
 			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
 				Player killer = deathEvent.getEntity().getPlayer().getKiller();
 				String killerName = arena.getPlayerFromTeam(killer).getPrefix() + killer.getDisplayName();
@@ -261,10 +261,6 @@ public class ArenaListener implements Listener {
 		if (arena.getPlayersInGame().contains(event.getPlayer().getUniqueId())) {
 			event.setCancelled(true);
 			String playername = arena.getPlayerFromTeam(event.getPlayer()).getPrefix() + event.getPlayer().getDisplayName();
-//			if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) playername = arena.getTeamRed().getPrefix() + playername;
-//			if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) playername = arena.getTeamGreen().getPrefix() + playername;
-//			if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) playername = arena.getTeamBlue().getPrefix() + playername;
-//			if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) playername = arena.getTeamYellow().getPrefix() + playername;
 			String message = event.getMessage();
 			if (!arena.isInProgress() || event.getMessage().contains("@all ")) {
 				if (event.getMessage().contains("@all ")) {

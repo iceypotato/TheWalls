@@ -144,12 +144,7 @@ public class WallsArena {
 			if (randNum == 1) joinTeam(playerUUID, teamGreen);
 			if (randNum == 2) joinTeam(playerUUID, teamBlue);
 			if (randNum == 3) joinTeam(playerUUID, teamYellow);
-			player.sendMessage("R: " + teamRed.getNumPlayersAliveOnTeam());
-			player.sendMessage("G: " + teamGreen.getNumPlayersAliveOnTeam());
-			player.sendMessage("B: " + teamBlue.getNumPlayersAliveOnTeam());
-			player.sendMessage("Y: " + teamYellow.getNumPlayersAliveOnTeam());
 //			joinTeam(playerUUID, teams.get(randNum));
-			
 			playersInGame.add(playerUUID);
 			playerOriginalState.put(playerUUID, new PlayerOriginalState(player));
 			playerScoreboards.put(playerUUID, new WallsScoreboard("walls", ChatColor.GOLD+""+ChatColor.BOLD+"The Walls", scoreboardSharedTeams, player));
@@ -317,11 +312,11 @@ public class WallsArena {
 	}
 	
 	public void winner() {
-		String winner = ChatColor.GOLD +""+ ChatColor.BOLD + "\nWINNER>> ";
-		if (teamRed.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.RED + "Red Wins!\n ";
-		if (teamGreen.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.GREEN + "Green Wins!\n ";
-		if (teamBlue.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.BLUE + "Blue Wins!\n ";
-		if (teamYellow.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.YELLOW + "Yellow Wins!\n ";
+		String winner = ChatColor.GOLD +""+ ChatColor.BOLD + "WINNER>> ";
+		if (teamRed.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.RED + "Red Wins!";
+		if (teamGreen.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.GREEN + "Green Wins!";
+		if (teamBlue.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.BLUE + "Blue Wins!";
+		if (teamYellow.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.YELLOW + "Yellow Wins!";
 		for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage(winner);}
 		ending = true;
 		updateScoreboard();
@@ -335,22 +330,25 @@ public class WallsArena {
 	 */
 	
 	public void checkForRemainingTeams() {
-		
+		String team = "";
 		if (teamRed.getNumPlayersAliveOnTeam() == 0 && !teamRed.isEliminated()) {
 			remainingTeams -= 1; teamRed.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.RED+"Red Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
+			team = ChatColor.RED+"Red Team";
 		}
 		if (teamGreen.getNumPlayersAliveOnTeam() == 0 && !teamGreen.isEliminated()) {
 			remainingTeams -= 1; teamGreen.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
+			team = ChatColor.GREEN+"Green Team";
 		}
 		if (teamBlue.getNumPlayersAliveOnTeam() == 0 && !teamBlue.isEliminated()) {
 			remainingTeams -= 1; teamBlue.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
+			team = ChatColor.BLUE+"Blue Team";
 		}
 		if (teamYellow.getNumPlayersAliveOnTeam() == 0 && !teamYellow.isEliminated()) {
 			remainingTeams -= 1; teamYellow.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.YELLOW+"Yellow Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
+			team = ChatColor.YELLOW+"Yellow Team";
+		}
+		for (UUID id : playersInGame) {
+			Bukkit.getPlayer(id).sendMessage(ChatColor.BOLD+"ELIMINATION>> " + team + ChatColor.RESET+" Has Been Eliminated!");
 		}
 		if (remainingTeams == 1) {
 			winner();
