@@ -42,7 +42,6 @@ public class ArenaListener implements Listener {
 	private List<Location> wallBlocks;
 	private List<Location> buildRegionBlocks;
 	private HashMap<UUID, Location> oldLocations;
-	private Location oldLocation;
 	
 	public ArenaListener(WallsArena arena) {
 		this.arena = arena;
@@ -136,7 +135,19 @@ public class ArenaListener implements Listener {
 			event.setCancelled(true);
 		}
 	}
-	
+//	String[] deathMsgs = new String[11];
+//	deathMsgs[0] = " was slain by ";
+//	deathMsgs[1] = " was 69ed by ";
+//	deathMsgs[2] = " was memed by ";
+//	deathMsgs[3] = " got epic gamer moved by ";
+//	deathMsgs[4] = " was isekaied to another world by ";
+//	deathMsgs[5] = " got rekt by ";
+//	deathMsgs[6] = " got w-tapped by ";
+//	deathMsgs[7] = " got destroyed by ";
+//	deathMsgs[8] = " got creeper aw maned by ";
+//	deathMsgs[9] = " got squashed by anime thighs by ";
+//	deathMsgs[10] = " lost all hp and fainted to ";
+	//Run this if a player was killed by a player.
 	@EventHandler
 	public void playerDies(PlayerDeathEvent deathEvent) {
 		Player deadPlayer = deathEvent.getEntity().getPlayer();
@@ -144,28 +155,14 @@ public class ArenaListener implements Listener {
 		arena.getTeamGreen().removeAlivePlayer(deadPlayer);
 		arena.getTeamBlue().removeAlivePlayer(deadPlayer);
 		arena.getTeamYellow().removeAlivePlayer(deadPlayer);
-
 		if (arena.getPlayersInGame().contains(deadPlayer.getUniqueId())) {
 			deathEvent.setDeathMessage("");
 			Random rand = new Random();
 			int msgID = rand.nextInt(plugin.arenaManager.getDeathMsgStrings().size());
-			String deathMsg = "", killeeName = deadPlayer.getDisplayName();
-//			String[] deathMsgs = new String[11];
-//			deathMsgs[0] = " was slain by ";
-//			deathMsgs[1] = " was 69ed by ";
-//			deathMsgs[2] = " was memed by ";
-//			deathMsgs[3] = " got epic gamer moved by ";
-//			deathMsgs[4] = " was isekaied to another world by ";
-//			deathMsgs[5] = " got rekt by ";
-//			deathMsgs[6] = " got w-tapped by ";
-//			deathMsgs[7] = " got destroyed by ";
-//			deathMsgs[8] = " got creeper aw maned by ";
-//			deathMsgs[9] = " got squashed by anime thighs by ";
-//			deathMsgs[10] = " lost all hp and fainted to ";
-			//Run this if a player was killed by a player.
+			String deathMsg = "", killeeName = arena.getPlayerFromTeam(deadPlayer).getPrefix() + deadPlayer.getDisplayName();
 			if (deathEvent.getEntity().getPlayer().getKiller() != null) {
 				Player killer = deathEvent.getEntity().getPlayer().getKiller();
-				String killerName = killer.getDisplayName();
+				String killerName = arena.getPlayerFromTeam(killer).getPrefix() + killer.getDisplayName();
 				deathMsg = plugin.arenaManager.getDeathMsgStrings().get(msgID);
 				deathMsg = deathMsg.replace("%killee%", killeeName);
 				deathMsg = deathMsg.replace("%killer%", killerName);
@@ -263,11 +260,11 @@ public class ArenaListener implements Listener {
 	public void playerSendmessage(AsyncPlayerChatEvent event) {
 		if (arena.getPlayersInGame().contains(event.getPlayer().getUniqueId())) {
 			event.setCancelled(true);
-			String playername = event.getPlayer().getDisplayName();
-			if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) playername = arena.getTeamRed().getPrefix() + playername;
-			if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) playername = arena.getTeamGreen().getPrefix() + playername;
-			if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) playername = arena.getTeamBlue().getPrefix() + playername;
-			if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) playername = arena.getTeamYellow().getPrefix() + playername;
+			String playername = arena.getPlayerFromTeam(event.getPlayer()).getPrefix() + event.getPlayer().getDisplayName();
+//			if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) playername = arena.getTeamRed().getPrefix() + playername;
+//			if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) playername = arena.getTeamGreen().getPrefix() + playername;
+//			if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) playername = arena.getTeamBlue().getPrefix() + playername;
+//			if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) playername = arena.getTeamYellow().getPrefix() + playername;
 			String message = event.getMessage();
 			if (!arena.isInProgress() || event.getMessage().contains("@all ")) {
 				if (event.getMessage().contains("@all ")) {
@@ -279,25 +276,8 @@ public class ArenaListener implements Listener {
 			}
 			else {
 				String msgpt1 = ChatColor.DARK_BLUE + "[TEAM] " + ChatColor.RESET, msgpt2 = ChatColor.RESET + ": " + message;
-				if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) {
-					for (Player player : arena.getTeamRed().getPlayers()) {
-						player.sendMessage(msgpt1 + playername + msgpt2);
-					}
-				}
-				if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) {
-					for (Player player : arena.getTeamGreen().getPlayers()) {
-						player.sendMessage(msgpt1 + playername + msgpt2);
-					}
-				}
-				if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) {
-					for (Player player : arena.getTeamBlue().getPlayers()) {
-						player.sendMessage(msgpt1 + playername + msgpt2);
-					}
-				}
-				if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) {
-					for (Player player : arena.getTeamYellow().getPlayers()) {
-						player.sendMessage(msgpt1 + playername + msgpt2);
-					}
+				for (Player p : arena.getPlayerFromTeam(event.getPlayer()).getPlayers()) {
+					p.sendMessage(msgpt1 + playername + msgpt2);
 				}
 			}
 		}

@@ -216,6 +216,7 @@ public class WallsArena {
 //		for (WallsTeam wt : teams) {
 //			wt.removePlayer(Bukkit.getPlayer(playerUUID));
 //		}
+		//teams.get(teamToJoin).addPlayer(Bukkit.getPlayer(playerUUID));
 		teamToJoin.addPlayer(Bukkit.getPlayer(playerUUID));
 	}
 	
@@ -256,22 +257,18 @@ public class WallsArena {
 	public void startPrep() {
 		for (Player player : teamRed.getPlayers()) {
 			player.teleport(config.getRedSpawn());
-			player.setDisplayName(ChatColor.RED + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "red");
 		}
 		for (Player player : teamGreen.getPlayers()) {
 			player.teleport(config.getGreenSpawn());
-			player.setDisplayName(ChatColor.GREEN + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "green");
 		}
 		for (Player player : teamBlue.getPlayers()) {
 			player.teleport(config.getBlueSpawn());
-			player.setDisplayName(ChatColor.BLUE + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "blue");
 		}
 		for (Player player : teamYellow.getPlayers()) {
 			player.teleport(config.getYellowSpawn());
-			player.setDisplayName(ChatColor.YELLOW + player.getName());
 			scoreboardSharedTeams.joinTeam(player, "yellow");
 		}
 		for (UUID id: playersInGame) {
@@ -321,10 +318,10 @@ public class WallsArena {
 	
 	public void winner() {
 		String winner = ChatColor.GOLD +""+ ChatColor.BOLD + "\nWINNER>> ";
-		if (teamRed.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.RED + "Red Wins!\n";
-		if (teamGreen.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.GREEN + "Green Wins!\n";
-		if (teamBlue.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.BLUE + "Blue Wins!\n";
-		if (teamYellow.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.YELLOW + "Yellow Wins!\n";
+		if (teamRed.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.RED + "Red Wins!\n ";
+		if (teamGreen.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.GREEN + "Green Wins!\n ";
+		if (teamBlue.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.BLUE + "Blue Wins!\n ";
+		if (teamYellow.getNumPlayersAliveOnTeam() != 0) winner += ChatColor.YELLOW + "Yellow Wins!\n ";
 		for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage(winner);}
 		ending = true;
 		updateScoreboard();
@@ -333,22 +330,27 @@ public class WallsArena {
 		wallsCountdown.runTaskTimer(plugin, 0, 20);
 	}
 	
+	/*
+	 * Utility functions
+	 */
+	
 	public void checkForRemainingTeams() {
+		
 		if (teamRed.getNumPlayersAliveOnTeam() == 0 && !teamRed.isEliminated()) {
 			remainingTeams -= 1; teamRed.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.RED+"Red Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.RED+"Red Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
 		}
 		if (teamGreen.getNumPlayersAliveOnTeam() == 0 && !teamGreen.isEliminated()) {
 			remainingTeams -= 1; teamGreen.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.GREEN+"Green Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
 		}
 		if (teamBlue.getNumPlayersAliveOnTeam() == 0 && !teamBlue.isEliminated()) {
 			remainingTeams -= 1; teamBlue.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.BLUE+"Blue Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
 		}
 		if (teamYellow.getNumPlayersAliveOnTeam() == 0 && !teamYellow.isEliminated()) {
 			remainingTeams -= 1; teamYellow.setEliminated(true);
-			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.YELLOW+"Yellow Team" + ChatColor.RESET+" Has Been Eliminated!\n");}
+			for (UUID id : playersInGame) {Bukkit.getPlayer(id).sendMessage("\n"+ChatColor.BOLD+"ELIMINATION>> " + ChatColor.YELLOW+"Yellow Team" + ChatColor.RESET+" Has Been Eliminated!\n ");}
 		}
 		if (remainingTeams == 1) {
 			winner();
@@ -410,52 +412,121 @@ public class WallsArena {
 	
 	public WallsTeam getPlayerFromTeam(Player player) {
 		if (teamRed.getPlayers().contains(player)) return teamRed;
+		if (teamGreen.getPlayers().contains(player)) return teamGreen;
+		if (teamBlue.getPlayers().contains(player)) return teamBlue;
+		if (teamYellow.getPlayers().contains(player)) return teamYellow;
 		return null;
 	}
 	
 	
 	/* 
-	 * 
-	 * Normal Getters and setters 
-	 * 
+	 * Normal Getters and setters
 	 */
 
-	public boolean isRunning() { return running; }
-	public boolean isInProgress() { return inProgress; }
-	public boolean isWaiting() {return waiting;}
-	public void setWaiting(boolean waiting) {this.waiting = waiting;}
-	public boolean isWallsFall() {return wallsFall;}
-	public void setWallsFall(boolean wallsFall) {this.wallsFall = wallsFall;}
-	public boolean isEnding() {return ending;}
-	
-	public void setInProgress(boolean inProgress) { this.inProgress = inProgress; }
-	public List<UUID> getPlayersInGame() { return playersInGame; }
-	public void setPlayersInGame(List<UUID> playersInGame) { this.playersInGame = playersInGame; }
-	public WallsTeam getTeamRed() {return teamRed;}
-	public void setTeamRed(WallsTeam teamRed) {this.teamRed = teamRed;}
-	public WallsTeam getTeamGreen() {return teamGreen;}
-	public void setTeamGreen(WallsTeam teamGreen) {this.teamGreen = teamGreen;}
-	public WallsTeam getTeamBlue() {return teamBlue;}
-	public void setTeamBlue(WallsTeam teamBlue) {this.teamBlue = teamBlue;}
-	public WallsTeam getTeamYellow() {return teamYellow;}
-	public void setTeamYellow(WallsTeam teamYellow) {this.teamYellow = teamYellow;}
-	public MainClass getPlugin() {return plugin;}
+	public boolean isRunning() {
+		return running;
+	}
+
+	public boolean isInProgress() {
+		return inProgress;
+	}
+
+	public boolean isWaiting() {
+		return waiting;
+	}
+
+	public void setWaiting(boolean waiting) {
+		this.waiting = waiting;
+	}
+
+	public boolean isWallsFall() {
+		return wallsFall;
+	}
+
+	public void setWallsFall(boolean wallsFall) {
+		this.wallsFall = wallsFall;
+	}
+
+	public boolean isEnding() {
+		return ending;
+	}
+
+	public void setInProgress(boolean inProgress) {
+		this.inProgress = inProgress;
+	}
+
+	public List<UUID> getPlayersInGame() {
+		return playersInGame;
+	}
+
+	public void setPlayersInGame(List<UUID> playersInGame) {
+		this.playersInGame = playersInGame;
+	}
+
+	public WallsTeam getTeamRed() {
+		return teamRed;
+	}
+
+	public void setTeamRed(WallsTeam teamRed) {
+		this.teamRed = teamRed;
+	}
+
+	public WallsTeam getTeamGreen() {
+		return teamGreen;
+	}
+
+	public void setTeamGreen(WallsTeam teamGreen) {
+		this.teamGreen = teamGreen;
+	}
+
+	public WallsTeam getTeamBlue() {
+		return teamBlue;
+	}
+
+	public void setTeamBlue(WallsTeam teamBlue) {
+		this.teamBlue = teamBlue;
+	}
+
+	public WallsTeam getTeamYellow() {
+		return teamYellow;
+	}
+
+	public void setTeamYellow(WallsTeam teamYellow) {
+		this.teamYellow = teamYellow;
+	}
+
+	public MainClass getPlugin() {
+		return plugin;
+	}
 
 	public List<Location> getWallBlocks() {
 		return wallBlocks;
 	}
+
 	public List<Location> getBuildRegionBlocks() {
 		return buildRegionBlocks;
 	}
-	
-	public int getRemainingTeams() {return remainingTeams;}
-	public void setRemainingTeams(int remainingTeams) {this.remainingTeams = remainingTeams;}
-	public WallsArenaConfig getConfig() {return config;}
-	public void setConfig(WallsArenaConfig config) {this.config = config;}
+
+	public int getRemainingTeams() {
+		return remainingTeams;
+	}
+
+	public void setRemainingTeams(int remainingTeams) {
+		this.remainingTeams = remainingTeams;
+	}
+
+	public WallsArenaConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(WallsArenaConfig config) {
+		this.config = config;
+	}
 
 	public BukkitRunnable getWallsCountdown() {
 		return wallsCountdown;
 	}
+
 	/**
 	 * @return the suddenDeath
 	 */
@@ -469,9 +540,11 @@ public class WallsArena {
 	public void setSuddenDeath(boolean suddenDeath) {
 		this.suddenDeath = suddenDeath;
 	}
+
 	public HashMap<UUID, WallsScoreboard> getPlayerScoreboards() {
 		return playerScoreboards;
 	}
+
 	public ScoreboardSharedTeams getScoreboardSharedTeams() {
 		return scoreboardSharedTeams;
 	}
