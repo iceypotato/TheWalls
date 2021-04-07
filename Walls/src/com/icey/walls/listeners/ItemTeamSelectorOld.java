@@ -16,19 +16,18 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.WallsArena;
-import com.icey.walls.framework.WallsTeam;
 
 
-public class ItemTeamSelector implements Listener {
+public class ItemTeamSelectorOld implements Listener {
 	
 	ItemStack itemStack;
 	ItemMeta meta;
 	WallsArena arena;
-	WallsTeam teamToJoin;
+	List<UUID> teamToJoin;
 	String message;
 	World world;
 	
-	public ItemTeamSelector(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, WallsTeam teamToJoin) {
+	public ItemTeamSelectorOld(MainClass plugin, ItemStack itemStack, String displayName, String clickMsg, WallsArena arena, List<UUID> teamToJoin) {
 		this.itemStack = itemStack;
 		this.arena = arena;
 		this.teamToJoin = teamToJoin;

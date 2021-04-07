@@ -43,11 +43,12 @@ public abstract class WallsCountdown extends BukkitRunnable {
 		}
 		arena.updateScoreboard();
 	}
-	
-	@Override
-	public void cancel() {
-		super.cancel();
-		running = false;
+
+	public void stop() {
+		if (running) {
+			super.cancel();
+			running = false;
+		}
 	}
 	
 	/**

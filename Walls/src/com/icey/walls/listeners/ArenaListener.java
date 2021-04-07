@@ -24,6 +24,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -78,10 +79,10 @@ public class ArenaListener implements Listener {
 		if (arena.isInProgress() && event.getEntity() instanceof Player) {
 			Player defender = (Player) event.getEntity();
 			Player attacker = (Player) event.getDamager();
-			if (arena.getTeamRed().contains(defender.getUniqueId()) && arena.getTeamRed().contains(attacker.getUniqueId())) event.setCancelled(true);
-			if (arena.getTeamGreen().contains(defender.getUniqueId()) && arena.getTeamGreen().contains(attacker.getUniqueId())) event.setCancelled(true);
-			if (arena.getTeamBlue().contains(defender.getUniqueId()) && arena.getTeamBlue().contains(attacker.getUniqueId())) event.setCancelled(true);
-			if (arena.getTeamYellow().contains(defender.getUniqueId()) && arena.getTeamYellow().contains(attacker.getUniqueId())) event.setCancelled(true);
+			if (arena.getTeamRed().getPlayers().contains(defender) && arena.getTeamRed().getPlayers().contains(attacker)) event.setCancelled(true);
+			if (arena.getTeamGreen().getPlayers().contains(defender) && arena.getTeamGreen().getPlayers().contains(attacker)) event.setCancelled(true);
+			if (arena.getTeamBlue().getPlayers().contains(defender) && arena.getTeamBlue().getPlayers().contains(attacker)) event.setCancelled(true);
+			if (arena.getTeamYellow().getPlayers().contains(defender) && arena.getTeamYellow().getPlayers().contains(attacker)) event.setCancelled(true);
 		}
 		if (!arena.isWallsFall()) event.setCancelled(true);
 	}
@@ -139,10 +140,10 @@ public class ArenaListener implements Listener {
 	@EventHandler
 	public void playerDies(PlayerDeathEvent deathEvent) {
 		Player deadPlayer = deathEvent.getEntity().getPlayer();
-		arena.getTeamRed().remove(deadPlayer.getUniqueId());
-		arena.getTeamGreen().remove(deadPlayer.getUniqueId());
-		arena.getTeamBlue().remove(deadPlayer.getUniqueId());
-		arena.getTeamYellow().remove(deadPlayer.getUniqueId());
+		arena.getTeamRed().removeAlivePlayer(deadPlayer);
+		arena.getTeamGreen().removeAlivePlayer(deadPlayer);
+		arena.getTeamBlue().removeAlivePlayer(deadPlayer);
+		arena.getTeamYellow().removeAlivePlayer(deadPlayer);
 
 		if (arena.getPlayersInGame().contains(deadPlayer.getUniqueId())) {
 			deathEvent.setDeathMessage("");
@@ -255,6 +256,50 @@ public class ArenaListener implements Listener {
 		}
 		for (Block block : blocksNotToExplode) {
 			event.blockList().remove(block);
+		}
+	}
+	
+	@EventHandler
+	public void playerSendmessage(AsyncPlayerChatEvent event) {
+		if (arena.getPlayersInGame().contains(event.getPlayer().getUniqueId())) {
+			event.setCancelled(true);
+			String playername = event.getPlayer().getDisplayName();
+			if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) playername = arena.getTeamRed().getPrefix() + playername;
+			if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) playername = arena.getTeamGreen().getPrefix() + playername;
+			if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) playername = arena.getTeamBlue().getPrefix() + playername;
+			if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) playername = arena.getTeamYellow().getPrefix() + playername;
+			String message = event.getMessage();
+			if (!arena.isInProgress() || event.getMessage().contains("@all ")) {
+				if (event.getMessage().contains("@all ")) {
+					message = message.replace("@all ", "");
+				}
+				for (UUID id : arena.getPlayersInGame()) {
+					Bukkit.getPlayer(id).sendMessage(playername + ": " + ChatColor.GRAY + message);
+				}
+			}
+			else {
+				String msgpt1 = ChatColor.DARK_BLUE + "[TEAM] " + ChatColor.RESET, msgpt2 = ChatColor.RESET + ": " + message;
+				if (arena.getTeamRed().getPlayers().contains(event.getPlayer())) {
+					for (Player player : arena.getTeamRed().getPlayers()) {
+						player.sendMessage(msgpt1 + playername + msgpt2);
+					}
+				}
+				if (arena.getTeamGreen().getPlayers().contains(event.getPlayer())) {
+					for (Player player : arena.getTeamGreen().getPlayers()) {
+						player.sendMessage(msgpt1 + playername + msgpt2);
+					}
+				}
+				if (arena.getTeamBlue().getPlayers().contains(event.getPlayer())) {
+					for (Player player : arena.getTeamBlue().getPlayers()) {
+						player.sendMessage(msgpt1 + playername + msgpt2);
+					}
+				}
+				if (arena.getTeamYellow().getPlayers().contains(event.getPlayer())) {
+					for (Player player : arena.getTeamYellow().getPlayers()) {
+						player.sendMessage(msgpt1 + playername + msgpt2);
+					}
+				}
+			}
 		}
 	}
 }

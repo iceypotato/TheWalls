@@ -11,6 +11,8 @@ import com.icey.walls.commands.SubCommand;
 import com.icey.walls.commands.Walls;
 import com.icey.walls.framework.WallsArena;
 import com.icey.walls.framework.WallsArenaConfig;
+import com.icey.walls.runnables.WallsCountdown;
+import com.icey.walls.timers.WallsBattleCountdown;
 
 public class Admin extends SubCommand {
 	
@@ -59,6 +61,7 @@ public class Admin extends SubCommand {
 					if (arenaConfig != null) {
 						WallsArena wallsArena = arenaConfig.getArena();
 						if (wallsArena.isRunning()) {
+							wallsArena.getWallsCountdown().cancel();
 							if (wallsArena.isWaiting()) wallsArena.startPrep();
 							else if (!wallsArena.isWallsFall()) wallsArena.startPvp();
 							else if (!wallsArena.isSuddenDeath()) wallsArena.suddenDeath();
@@ -74,6 +77,7 @@ public class Admin extends SubCommand {
 						WallsArena wallsArena = wallsCmd.getArenaManager().getArenaFromPlayer(player);
 						if (wallsArena != null) {
 							if (wallsArena.isRunning()) {
+								if (wallsArena.getWallsCountdown() instanceof WallsCountdown) ((WallsCountdown) wallsArena.getWallsCountdown()).stop();
 								if (wallsArena.isWaiting()) wallsArena.startPrep();
 								else if (!wallsArena.isWallsFall()) wallsArena.startPvp();
 								else if (!wallsArena.isSuddenDeath()) wallsArena.suddenDeath();
