@@ -11,7 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.icey.walls.MainClass;
 
@@ -39,5 +42,17 @@ public class TestListener implements Listener  {
 		for (Block block : blocksNotToExplode) {
 			event.blockList().remove(block);
 		}
+	}
+	
+	@EventHandler
+	public void respawn(PlayerRespawnEvent event) {
+		BukkitRunnable br = new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (plugin.location != null) event.getPlayer().teleport(plugin.location);
+				this.cancel();
+			}
+		};
+		br.runTaskTimer(plugin, 20, 0);
 	}
 }

@@ -34,6 +34,10 @@ public class WallsScoreboardSharedTeams implements ScoreboardSharedTeams {
 	}
 	
 	public void joinTeam(Player player, String name) {
+		scoreboard.getTeam("red").removeEntry(player.getName());
+		scoreboard.getTeam("green").removeEntry(player.getName());
+		scoreboard.getTeam("blue").removeEntry(player.getName());
+		scoreboard.getTeam("yellow").removeEntry(player.getName());
 		scoreboard.getTeam(name).addEntry(player.getName());
 	}
 	

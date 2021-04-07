@@ -331,25 +331,35 @@ public class WallsArena {
 	
 	public void checkForRemainingTeams() {
 		String team = "";
+		boolean aTeamWasEliminated = false;
 		if (teamRed.getNumPlayersAliveOnTeam() == 0 && !teamRed.isEliminated()) {
-			remainingTeams -= 1; teamRed.setEliminated(true);
+			remainingTeams -= 1; 
+			teamRed.setEliminated(true); 
+			aTeamWasEliminated = true;
 			team = ChatColor.RED+"Red Team";
 		}
 		if (teamGreen.getNumPlayersAliveOnTeam() == 0 && !teamGreen.isEliminated()) {
-			remainingTeams -= 1; teamGreen.setEliminated(true);
+			remainingTeams -= 1; 
+			teamGreen.setEliminated(true); 
+			aTeamWasEliminated = true;
 			team = ChatColor.GREEN+"Green Team";
 		}
 		if (teamBlue.getNumPlayersAliveOnTeam() == 0 && !teamBlue.isEliminated()) {
-			remainingTeams -= 1; teamBlue.setEliminated(true);
+			remainingTeams -= 1;
+			teamBlue.setEliminated(true);
+			aTeamWasEliminated = true;
 			team = ChatColor.BLUE+"Blue Team";
 		}
 		if (teamYellow.getNumPlayersAliveOnTeam() == 0 && !teamYellow.isEliminated()) {
-			remainingTeams -= 1; teamYellow.setEliminated(true);
+			remainingTeams -= 1;
+			teamYellow.setEliminated(true);
+			aTeamWasEliminated = true;
 			team = ChatColor.YELLOW+"Yellow Team";
 		}
-		for (UUID id : playersInGame) {
-			Bukkit.getPlayer(id).sendMessage(ChatColor.BOLD+"ELIMINATION>> " + team + ChatColor.RESET+" Has Been Eliminated!");
-		}
+		if (aTeamWasEliminated) 
+			for (UUID id : playersInGame) {
+				Bukkit.getPlayer(id).sendMessage(ChatColor.BOLD+"ELIMINATION>> " + team + ChatColor.RESET+" Has Been Eliminated!");
+			}
 		if (remainingTeams == 1) {
 			winner();
 		}

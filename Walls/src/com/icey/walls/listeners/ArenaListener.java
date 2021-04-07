@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.icey.walls.MainClass;
 import com.icey.walls.framework.WallsArena;
@@ -182,7 +183,6 @@ public class ArenaListener implements Listener {
 			for (UUID id : arena.getPlayersInGame()) {Bukkit.getPlayer(id).sendMessage(ChatColor.translateAlternateColorCodes('&', deathMsg));}
 		}
 		arena.updateScoreboard();
-		deathEvent.getEntity().teleport(arena.getConfig().getLobbySpawn());
 		arena.checkForRemainingTeams();
 	}
 	
@@ -190,8 +190,14 @@ public class ArenaListener implements Listener {
 	public void respawn(PlayerRespawnEvent pRespawnEvent) {
 		if (arena.getPlayersInGame().contains(pRespawnEvent.getPlayer().getUniqueId())) {
 			pRespawnEvent.getPlayer().setGameMode(GameMode.SPECTATOR);
-			pRespawnEvent.setRespawnLocation(arena.getConfig().getLobbySpawn());
-			pRespawnEvent.getPlayer().teleport(arena.getConfig().getLobbySpawn());
+			BukkitRunnable br = new BukkitRunnable() {
+				@Override
+				public void run() {
+					pRespawnEvent.getPlayer().teleport(arena.getConfig().getLobbySpawn());
+					this.cancel();
+				}
+			};
+			br.runTaskTimer(plugin, 20, 0);
 			pRespawnEvent.getPlayer().sendTitle(ChatColor.RED + "You Died!", ChatColor.YELLOW+"Get gud.");
 		}
 	}
