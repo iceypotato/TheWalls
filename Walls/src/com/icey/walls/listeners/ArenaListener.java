@@ -135,6 +135,7 @@ public class ArenaListener implements Listener {
 			event.setCancelled(true);
 		}
 	}
+	
 //	String[] deathMsgs = new String[11];
 //	deathMsgs[0] = " was slain by ";
 //	deathMsgs[1] = " was 69ed by ";

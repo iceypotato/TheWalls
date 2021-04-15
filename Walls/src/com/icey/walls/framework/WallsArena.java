@@ -36,19 +36,19 @@ public class WallsArena {
 	private WallsArenaConfig config;
 	private ScoreboardSharedTeams scoreboardSharedTeams;
 	private MainClass plugin;
-	private boolean running; //if someone is using the arena
-	private boolean waiting; //if the arena is waiting for players
-	private boolean inProgress; //if the arena has started.
-	private boolean ending; //when there is a winner.
-	private boolean wallsFall; //when the walls fall
-	private boolean suddenDeath; ///when its time for sudden death.
+	private boolean running;  // if someone is using the arena
+	private boolean waiting;  // if the arena is waiting for players
+	private boolean inProgress;  // if the arena has started.
+	private boolean ending;  // when there is a winner.
+	private boolean wallsFall;  // when the walls fall
+	private boolean suddenDeath;  // when its time for sudden death.
 	private ItemTeamSelector[] itemTeamSelectors;
 	private HashMap<UUID, WallsScoreboard> playerScoreboards;
 	private ArenaListener arenaListener;
 	private BukkitRunnable wallsCountdown;
 	private List<UUID> playersInGame;
 	private int remainingTeams;
-//	private List<WallsTeam> teams; // Will implement later
+//	private List<WallsTeam> teams;  // Will implement later
 	private WallsTeam teamRed;
 	private WallsTeam teamGreen;
 	private WallsTeam teamBlue;
@@ -67,6 +67,7 @@ public class WallsArena {
 		this.plugin = plugin;
 		this.remainingTeams = 0;
 		this.playersInGame = new ArrayList<>();
+		
 //		this.teams = new ArrayList<>();
 //		this.teams.add(new WallsTeam("Red", ChatColor.RED+"", ""));
 //		this.teams.add(new WallsTeam("Green", ChatColor.GREEN+"", ""));
@@ -124,9 +125,7 @@ public class WallsArena {
 	}
 	
 	/*
-	 * 
 	 * Arena Game Phases/Events
-	 * 
 	 */
 	
 	public void playerJoin(UUID playerUUID) {
@@ -535,16 +534,10 @@ public class WallsArena {
 		return wallsCountdown;
 	}
 
-	/**
-	 * @return the suddenDeath
-	 */
 	public boolean isSuddenDeath() {
 		return suddenDeath;
 	}
 
-	/**
-	 * @param suddenDeath the suddenDeath to set
-	 */
 	public void setSuddenDeath(boolean suddenDeath) {
 		this.suddenDeath = suddenDeath;
 	}
