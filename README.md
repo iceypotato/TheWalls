@@ -1,6 +1,5 @@
-# Icey's Bukkit Plugins
-
-## Hypixel Walls plugin 
+# The Walls Minigame
+Original Map Creator: Hypixel
 Finished Main functions.
 todo:
   * clean up code
